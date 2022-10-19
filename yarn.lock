@@ -304,6 +304,42 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
+"@designliquido/delegua-estatistica@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-estatistica/-/delegua-estatistica-0.0.5.tgz#d1b0a6353e2f194849bff7797b4dec23efc96d5e"
+  integrity sha512-d5z7CQUuc0a2o0NaAGh9H2whs7TG4EVh8B31EbuPtKr6XVJNk0YiXNyPB8MEIUCkD7FpfslWiU2ytMK0u/3cqw==
+
+"@designliquido/delegua-fisica@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-fisica/-/delegua-fisica-0.0.2.tgz#182423e733b376b2d2853cbede66af33917f9466"
+  integrity sha512-7Sp+Vg7SBy/5M9vH7pXOw4udHIdGWThGxAtAWdBZBO9GzUjJGczfZi6+vJLj/pFfn/345l9ffN3rtSqYgbQM8w==
+
+"@designliquido/delegua-matematica@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.0.2.tgz#2a73c0d3f83bf6e6824b89199645f95b6677ce0c"
+  integrity sha512-k3LHTe/uTwl0TPePoL6FLbQoGofy9YnJGR08lhsj9dRloyByl6F1gWgSw4FDRpMe3UkEdoozhwS3D3b6Vf6XNg==
+
+"@designliquido/delegua-tempo@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
+  integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
+
+"@designliquido/delegua@0.6.5":
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.6.5.tgz#dc5bb6c119ea39d17266c174c62888d505cd48fa"
+  integrity sha512-mojg87FeAK9QeQcnD6CogwSo2ymKs3AaNcYjO+ZAwMhf8GbSIL8h5qt6XRK9T09gTjjTaptMzKEy+URCanKxTA==
+  dependencies:
+    browser-process-hrtime "^1.0.0"
+    chalk "4.1.2"
+    commander "^8.3.0"
+
+"@designliquido/lmht-js@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.0.2.tgz#6db4a8dfdba67bf49c1feedcda5672aecb2f390e"
+  integrity sha512-y4yuUHVffA25msVzzrholM3RUPk1jnph/i5XpxBRiOCmAIvOKgNTFKbJ0fOxoYLjp7Ch5JA0K8R+DT4gOu6ObA==
+  dependencies:
+    saxon-js latest
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -825,6 +861,13 @@ array-flatten@1.1.1:
   resolved "https://registry.yarnpkg.com/array-flatten/-/array-flatten-1.1.1.tgz#9a5f699051b1e7073328f2a008968b64ea2955d2"
   integrity sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==
 
+axios@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
+  integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
+  dependencies:
+    follow-redirects "^1.14.4"
+
 babel-jest@^29.0.3:
   version "29.0.3"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-29.0.3.tgz#64e156a47a77588db6a669a88dedff27ed6e260f"
@@ -923,6 +966,11 @@ braces@^3.0.2:
   dependencies:
     fill-range "^7.0.1"
 
+browser-process-hrtime@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/browser-process-hrtime/-/browser-process-hrtime-1.0.0.tgz#3c9b4b7d782c8121e56f10106d84c0d0ffc94626"
+  integrity sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==
+
 browserslist@^4.21.3:
   version "4.21.4"
   resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.21.4.tgz#e7496bbc67b9e39dd0f98565feccdcb0d4ff6987"
@@ -978,6 +1026,14 @@ caniuse-lite@^1.0.30001400:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001409.tgz#6135da9dcab34cd9761d9cdb12a68e6740c5e96e"
   integrity sha512-V0mnJ5dwarmhYv8/MzhJ//aW68UpvnQBXv8lJ2QUsvn2pHcmAuNtu8hQEDz37XnA1iE+lRR9CIfGWWpgJ5QedQ==
 
+chalk@4.1.2, chalk@^4.0.0:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
+  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
 chalk@^2.0.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -986,14 +1042,6 @@ chalk@^2.0.0:
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
-
-chalk@^4.0.0:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.2.tgz#aac4e2b7734a740867aeb16bf02aad556a1e7a01"
-  integrity sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
 
 char-regex@^1.0.2:
   version "1.0.2"
@@ -1052,6 +1100,11 @@ color-name@~1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
+
+commander@^8.3.0:
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-8.3.0.tgz#4837ea1b2da67b9c616a67afbb0fafee567bca66"
+  integrity sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -1124,6 +1177,17 @@ deepmerge@^4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-4.2.2.tgz#44d2ea3679b8f4d4ffba33f03d865fc1e7bf4955"
   integrity sha512-FJ3UgI4gIl+PHZm53knsuSFpE+nESMr7M4v9QcgB7S63Kj/6WqMiFQJpBBYz1Pt+66bZpP3Q7Lye0Oo9MPKEdg==
+
+delegua@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/delegua/-/delegua-0.6.0.tgz#73cd35d20ad28569d2c6c6b650aba45699cf8306"
+  integrity sha512-jwyNpWM0Q9SxvWgeEn949jBK0pTGUdANBxKv7bwjmZhwX52C1OzHSufgOLylxSN34O2nFMMzeX8zR2z82SuKiQ==
+  dependencies:
+    "@designliquido/delegua" "0.6.5"
+    "@designliquido/delegua-estatistica" "0.0.5"
+    "@designliquido/delegua-fisica" "0.0.2"
+    "@designliquido/delegua-matematica" "0.0.2"
+    "@designliquido/delegua-tempo" "0.0.1"
 
 depd@2.0.0:
   version "2.0.0"
@@ -1319,6 +1383,11 @@ find-up@^4.0.0, find-up@^4.1.0:
   dependencies:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
+
+follow-redirects@^1.14.4:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
+  integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
 
 forwarded@0.2.0:
   version "0.2.0"
@@ -2306,6 +2375,13 @@ safe-buffer@~5.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
+
+saxon-js@latest:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/saxon-js/-/saxon-js-2.5.0.tgz#adfdb4b2df5733bd6781eccc28da170d31278826"
+  integrity sha512-bdUmnW//mNha5OFYGDA/rqh+4ZuHPtYUQor8yqnOIhFb0JxD+mauFuZbp2GpEwHnTEpFTQ8OcoVFLcDxu7SXAg==
+  dependencies:
+    axios "^0.24.0"
 
 semver@^6.0.0, semver@^6.3.0:
   version "6.3.0"

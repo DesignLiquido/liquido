@@ -9,3 +9,9 @@ Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100
 - FolEs é uma linguagem para folhas de estilo, que estilizam páginas de internet. 
 
 Liquido é um ferramentário que combina as três linguagens para ser possível desenvolver para a internet 100% em português.
+
+## Arquitetura
+
+Para uma implementação inicial, foram escolhidas bibliotecas consagradas do Node.js para desenvolvimento para a Internet:
+
+- [Express](https://www.npmjs.com/package/express)
