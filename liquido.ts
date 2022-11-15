@@ -14,6 +14,7 @@ import {
 import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
 import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
+import { Resposta } from "./infraestrutura";
 import { Roteador } from "./roteador";
 
 /**
@@ -87,12 +88,17 @@ export class Liquido {
     }
 
     const rota = (argumentos[0] as Literal).valor;
-    this.roteador.rotaGet(rota, (req, res) => {
-      this.conversorLmht
+    const funcao = argumentos[1];
+    this.roteador.rotaGet(rota, async (req, res) => {
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("requisicao", req);
+        this.interpretador.pilhaEscoposExecucao.definirVariavel("resposta", new Resposta());
+        const resultado = await this.interpretador.interpretar([new Expressao(funcao)]);
+        res.send("Teste");
+      /* this.conversorLmht
         .converterPorArquivo("meu-arquivo.lmht")
         .then((resultado) => {
           res.send(resultado);
-        });
+        }); */
     });
   }
 }
