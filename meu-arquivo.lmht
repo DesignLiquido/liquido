@@ -1,0 +1,47 @@
+<lmht xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/DesignLiquido/LMHT/principal/lmht.xsd">
+    <cabeça>
+        <título>Exemplo de página em LMHT</título>
+    </cabeça>
+    <corpo>
+        <titulo1>Isso é um título</titulo1>
+        <p classe="minha-classe">
+            Isto é um parágrafo.
+            <negrito>Isso é um texto em negrito.</negrito>
+        </p>
+        <lista-simples>
+            <item-lista classe="um-teste">Itens podem ser adicionados usando a etiqueta item-lista.</item-lista>
+            <item-lista>Cada item da lista é transformado em um item li do HTML.</item-lista>
+            <item-lista>Não apenas etiquetas são modificadas, como também seus atributos.</item-lista>
+            <item-lista>
+                <lista-numerada>
+                    <item-lista>Uma lista pode ser colocada dentro de outra.</item-lista>
+                </lista-numerada>
+            </item-lista>
+        </lista-simples>
+
+        <abreviacao titulo="World Health Organization">WHO</abreviacao>
+
+        <ligacao classe="teste" destino="http://designliquido.com.br" alvo="_blank">Teste</ligacao>
+
+        <codigo>
+            Isso é um teste com código.
+        </codigo>
+
+        <linha-horizontal />
+
+        <tabela>
+            <cabeça-tabela>
+                <linha>
+                    <celula>Célula título 1</celula>
+                    <célula>Célula título 2</célula>
+                </linha>
+            </cabeça-tabela>
+            <corpo-tabela>
+                <linha>
+                    <celula>Célula corpo 1</celula>
+                    <célula>Célula corpo 2</célula>
+                </linha>
+            </corpo-tabela>
+        </tabela>
+    </corpo>
+</lmht>
