@@ -1,4 +1,7 @@
-import * as caminho from 'path';
+import * as caminho from "path";
+import * as SistemaDeArquivo from "node:fs";
+
+import { filtroPerformatico } from "./utilidades/filtro-performatico";
 
 import {
   AvaliadorSintatico,
@@ -56,10 +59,15 @@ export class Liquido {
   }
 
   importarArquivoRota(caminhoRelativo: string) {
-    const caminhoAbsoluto = caminho.join(__dirname, 'rotas', caminhoRelativo);
-    const retornoImportador = this.importador.importar(
-      caminhoAbsoluto
+    const caminhoAbsoluto = caminho.join(__dirname, "rotas");
+
+    const arquivosNaPasta = filtroPerformatico(
+      (e) => e.endsWith(".delegua"),
+      SistemaDeArquivo.readdirSync(caminhoAbsoluto)
     );
+
+    const retornoImportador = this.importador.importar(caminhoAbsoluto);
+
     // Liquido espera declarações do tipo Expressao, contendo dentro
     // um Construto do tipo Chamada.
     for (let declaracao of retornoImportador.retornoAvaliadorSintatico
@@ -88,7 +96,7 @@ export class Liquido {
     arquivos.forEach(arquivo => {
       this.importarArquivoRota(arquivo);
     }); */
-    this.importarArquivoRota('inicial.delegua');
+    this.importarArquivoRota("inicial.delegua");
 
     this.roteador.iniciar();
   }
@@ -106,37 +114,37 @@ export class Liquido {
         new Resposta().chamar(this.interpretador, [])
       );
 
-      const funcaoRetorno = new DeleguaFuncao(
-        "funcaoRotaGet",
-        funcao
-      );
+      const funcaoRetorno = new DeleguaFuncao("funcaoRotaGet", funcao);
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "funcaoRotaGet",
         funcaoRetorno
       );
 
-      await this.interpretador.interpretar([
-        new Expressao(
-          new Chamada(
-            -1,
-            new Variavel(
+      await this.interpretador.interpretar(
+        [
+          new Expressao(
+            new Chamada(
               -1,
-              new Simbolo("IDENTIFICADOR", "funcaoRotaGet", null, -1, -1)
-            ),
-            new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-            [
               new Variavel(
                 -1,
-                new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                new Simbolo("IDENTIFICADOR", "funcaoRotaGet", null, -1, -1)
               ),
-              new Variavel(
-                -1,
-                new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-              ),
-            ]
-          )
-        ),
-      ], true);
+              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+              [
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                ),
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+                ),
+              ]
+            )
+          ),
+        ],
+        true
+      );
 
       const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
         new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
