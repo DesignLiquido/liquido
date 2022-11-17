@@ -34,6 +34,10 @@ export class Liquido {
   conversorLmht: ConversorLmht;
   roteador: Roteador;
 
+  arquivosDelegua: Array<string>;
+  caminhoAbsoluto: string = caminho.join(__dirname, "rotas");
+  subPastasEmRotas: Array<string>;
+
   arquivosAbertos: { [identificador: string]: string };
   conteudoArquivosAbertos: { [identificador: string]: string[] };
 
@@ -58,15 +62,40 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  importarArquivoRota(caminhoRelativo: string) {
-    const caminhoAbsoluto = caminho.join(__dirname, "rotas");
-
-    const arquivosNaPasta = filtroPerformatico(
-      (e) => e.endsWith(".delegua"),
-      SistemaDeArquivo.readdirSync(caminhoAbsoluto)
+  descobrirRotas(pasta: string = ""): void {
+    const ListaDeItems = SistemaDeArquivo.readdirSync(
+      caminho.join(this.caminhoAbsoluto, pasta)
     );
 
-    const retornoImportador = this.importador.importar(caminhoAbsoluto);
+    ListaDeItems.forEach((e) => {
+      if (e.endsWith(".delegua")) {
+        this.arquivosDelegua.push(e);
+        return;
+      }
+      if (
+        SistemaDeArquivo.lstatSync(
+          this.caminhoAbsoluto + `\\${e}`
+        ).isDirectory()
+      ) {
+        this.subPastasEmRotas.push(e);
+        return;
+      }
+    });
+    if (this.subPastasEmRotas.length > 0) {
+      this.subPastasEmRotas.forEach((e) => {
+        const indice = this.subPastasEmRotas.indexOf(e);
+        this.subPastasEmRotas.splice(indice, 1);
+        this.descobrirRotas(e);
+      });
+    }
+  }
+
+  importarArquivoRota(caminhoRelativo: string) {
+    this.arquivosDelegua = [];
+    this.subPastasEmRotas = [];
+    this.descobrirRotas();
+
+    const retornoImportador = this.importador.importar(this.arquivosDelegua[0]); // chumbei aqui para teste
 
     // Liquido espera declarações do tipo Expressao, contendo dentro
     // um Construto do tipo Chamada.
