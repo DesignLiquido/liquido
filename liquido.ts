@@ -1,3 +1,6 @@
+import * as arquivos from 'fs';
+import * as caminho from 'path';
+
 import {
   AvaliadorSintatico,
   Importador,
@@ -10,13 +13,13 @@ import {
   Chamada,
   Construto,
   FuncaoConstruto,
-  Literal,
   Variavel,
 } from "@designliquido/delegua/fontes/construtos";
 import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
 import { DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
 import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
+
 import { Resposta } from "./infraestrutura";
 import { Roteador } from "./roteador";
 
@@ -53,9 +56,9 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  async iniciar() {
+  importarArquivoRota(caminhoCompleto: string) {
     const retornoImportador = this.importador.importar(
-      "./rotas/inicial.delegua"
+      caminhoCompleto
     );
     // Liquido espera declarações do tipo Expressao, contendo dentro
     // um Construto do tipo Chamada.
@@ -77,23 +80,23 @@ export class Liquido {
         }
       }
     }
+  }
+
+  async iniciar() {
+    arquivos.readdir(caminho.join(__dirname, 'rotas'), (erro, arquivos) => {
+      arquivos.forEach(arquivo => {
+        console.log('arquivo', arquivo)
+        this.importarArquivoRota(caminho.join(__dirname, 'rotas', arquivo));
+      });
+    });
 
     this.roteador.iniciar();
   }
 
   adicionarRotaGet(argumentos: Construto[]) {
-    // O primeiro argumento deve ser um literal de texto.
-    if (!(argumentos[0] instanceof Literal)) {
-      console.log(
-        "Primeiro argumento não parece ser um identificador de rota."
-      );
-      return;
-    }
+    const funcao = argumentos[0] as FuncaoConstruto;
 
-    const rota = (argumentos[0] as Literal).valor;
-    const funcao = argumentos[1] as FuncaoConstruto;
-
-    this.roteador.rotaGet(rota, async (req, res) => {
+    this.roteador.rotaGet("/", async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "requisicao",
         req
