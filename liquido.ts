@@ -3,18 +3,22 @@ import {
   Importador,
   Interpretador,
   Lexador,
+  Simbolo,
 } from "@designliquido/delegua";
 import {
   AcessoMetodo,
   Chamada,
   Construto,
+  FuncaoConstruto,
   Literal,
   Variavel,
 } from "@designliquido/delegua/fontes/construtos";
-import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
+import { Expressao, FuncaoDeclaracao } from "@designliquido/delegua/fontes/declaracoes";
+import { DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
 import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
 import { Resposta } from "./infraestrutura";
+import { NucleoBiblioteca } from "./infraestrutura/nucleo-biblioteca";
 import { Roteador } from "./roteador";
 
 /**
@@ -50,7 +54,7 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  iniciar() {
+  async iniciar() {
     const retornoImportador = this.importador.importar(
       "./rotas/inicial.delegua"
     );
@@ -74,6 +78,18 @@ export class Liquido {
         }
       }
     }
+    /* const classeLiquido = new NucleoBiblioteca();
+    this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "liquido",
+        classeLiquido.chamar(this.interpretador, []));
+    const classeResposta = new Resposta();
+    this.interpretador.pilhaEscoposExecucao.definirVariavel("requisicao", new Resposta());
+    this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        classeResposta.chamar(this.interpretador, []));
+
+    const resultado = await this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico
+      .declaracoes); */
 
     this.roteador.iniciar();
   }
@@ -88,12 +104,50 @@ export class Liquido {
     }
 
     const rota = (argumentos[0] as Literal).valor;
-    const funcao = argumentos[1];
+    const funcao = argumentos[1] as FuncaoConstruto;
+
     this.roteador.rotaGet(rota, async (req, res) => {
-        this.interpretador.pilhaEscoposExecucao.definirVariavel("requisicao", req);
-        this.interpretador.pilhaEscoposExecucao.definirVariavel("resposta", new Resposta());
-        const resultado = await this.interpretador.interpretar([new Expressao(funcao)]);
-        res.send("Teste");
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "requisicao",
+        req
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        new Resposta().chamar(this.interpretador, [])
+      );
+
+      const funcaoRetorno = new DeleguaFuncao(
+        "funcaoRotaGet",
+        funcao
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "funcaoRotaGet",
+        funcaoRetorno
+      );
+
+      const resultado = await this.interpretador.interpretar([
+        new Expressao(
+          new Chamada(
+            -1,
+            new Variavel(
+              -1,
+              new Simbolo("IDENTIFICADOR", "funcaoRotaGet", null, -1, -1)
+            ),
+            new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+            [
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+              ),
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+              ),
+            ]
+          )
+        ),
+      ]);
+      res.send("Teste");
       /* this.conversorLmht
         .converterPorArquivo("meu-arquivo.lmht")
         .then((resultado) => {
