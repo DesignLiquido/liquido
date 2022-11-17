@@ -1,4 +1,3 @@
-import * as arquivos from 'fs';
 import * as caminho from 'path';
 
 import {
@@ -56,9 +55,10 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  importarArquivoRota(caminhoCompleto: string) {
+  importarArquivoRota(caminhoRelativo: string) {
+    const caminhoAbsoluto = caminho.join(__dirname, 'rotas', caminhoRelativo);
     const retornoImportador = this.importador.importar(
-      caminhoCompleto
+      caminhoAbsoluto
     );
     // Liquido espera declarações do tipo Expressao, contendo dentro
     // um Construto do tipo Chamada.
@@ -83,12 +83,12 @@ export class Liquido {
   }
 
   async iniciar() {
-    arquivos.readdir(caminho.join(__dirname, 'rotas'), (erro, arquivos) => {
-      arquivos.forEach(arquivo => {
-        console.log('arquivo', arquivo)
-        this.importarArquivoRota(caminho.join(__dirname, 'rotas', arquivo));
-      });
-    });
+    // TODO: pensar em alguma coisa melhor pra ler diretório rotas recursivamente.
+    /* const arquivos = await globby([caminho.join(__dirname, 'rotas') + "\\*.delegua"]);
+    arquivos.forEach(arquivo => {
+      this.importarArquivoRota(arquivo);
+    }); */
+    this.importarArquivoRota('inicial.delegua');
 
     this.roteador.iniciar();
   }
