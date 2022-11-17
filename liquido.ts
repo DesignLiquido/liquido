@@ -13,12 +13,11 @@ import {
   Literal,
   Variavel,
 } from "@designliquido/delegua/fontes/construtos";
-import { Expressao, FuncaoDeclaracao } from "@designliquido/delegua/fontes/declaracoes";
+import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
 import { DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
 import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
 import { Resposta } from "./infraestrutura";
-import { NucleoBiblioteca } from "./infraestrutura/nucleo-biblioteca";
 import { Roteador } from "./roteador";
 
 /**
@@ -78,18 +77,6 @@ export class Liquido {
         }
       }
     }
-    /* const classeLiquido = new NucleoBiblioteca();
-    this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "liquido",
-        classeLiquido.chamar(this.interpretador, []));
-    const classeResposta = new Resposta();
-    this.interpretador.pilhaEscoposExecucao.definirVariavel("requisicao", new Resposta());
-    this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        classeResposta.chamar(this.interpretador, []));
-
-    const resultado = await this.interpretador.interpretar(retornoImportador.retornoAvaliadorSintatico
-      .declaracoes); */
 
     this.roteador.iniciar();
   }
@@ -125,7 +112,7 @@ export class Liquido {
         funcaoRetorno
       );
 
-      const resultado = await this.interpretador.interpretar([
+      await this.interpretador.interpretar([
         new Expressao(
           new Chamada(
             -1,
@@ -146,8 +133,15 @@ export class Liquido {
             ]
           )
         ),
-      ]);
-      res.send("Teste");
+      ], true);
+
+      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
+      );
+      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
+      );
+      res.send(valorEnviar.valor).status(valorStatus.valor);
       /* this.conversorLmht
         .converterPorArquivo("meu-arquivo.lmht")
         .then((resultado) => {
