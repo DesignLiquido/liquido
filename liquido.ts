@@ -1,8 +1,6 @@
 import * as caminho from "path";
 import * as SistemaDeArquivo from "node:fs";
 
-import { filtroPerformatico } from "./utilidades/filtro-performatico";
-
 import {
   AvaliadorSintatico,
   Importador,
@@ -35,8 +33,9 @@ export class Liquido {
   roteador: Roteador;
 
   arquivosDelegua: Array<string>;
-  caminhoAbsoluto: string = caminho.join(__dirname, "rotas");
-  subPastasEmRotas: Array<string>;
+  rotasDelegua: Array<string>;
+  diretorioBase: string = __dirname;
+  diretorioDescobertos: string[] = [];
 
   arquivosAbertos: { [identificador: string]: string };
   conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -62,38 +61,51 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  descobrirRotas(pasta: string = ""): void {
-    const ListaDeItems = SistemaDeArquivo.readdirSync(
-      caminho.join(this.caminhoAbsoluto, pasta)
-    );
+  // recursaoDescobertaRotas(diretorio: string): void {
+  //   this.rotasDescobertas.forEach((diretorio) => {
+  //     this.descobrirRotas(diretorio);
+  //   });
+  // }
 
-    ListaDeItems.forEach((e) => {
-      if (e.endsWith(".delegua")) {
-        this.arquivosDelegua.push(e);
+  descobrirRotas(diretorio: string): void {
+    const ListaDeItems = SistemaDeArquivo.readdirSync(diretorio);
+
+    const diretorioDescobertos = [];
+
+    ListaDeItems.forEach((diretorioOuArquivo) => {
+      const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
+      if (caminhoAbsoluto.endsWith(".delegua")) {
+        this.arquivosDelegua.push(caminhoAbsoluto);
         return;
       }
-      if (
-        SistemaDeArquivo.lstatSync(
-          this.caminhoAbsoluto + `\\${e}`
-        ).isDirectory()
-      ) {
-        this.subPastasEmRotas.push(e);
+      if (SistemaDeArquivo.lstatSync(caminhoAbsoluto).isDirectory()) {
+        diretorioDescobertos.push(caminhoAbsoluto);
         return;
       }
     });
-    if (this.subPastasEmRotas.length > 0) {
-      this.subPastasEmRotas.forEach((e) => {
-        const indice = this.subPastasEmRotas.indexOf(e);
-        this.subPastasEmRotas.splice(indice, 1);
-        this.descobrirRotas(e);
-      });
-    }
+    diretorioDescobertos.forEach((diretorioDescoberto) => {
+      this.descobrirRotas(diretorioDescoberto);
+    });
+  }
+
+  resolverCaminhoRotas(): void {
+    this.arquivosDelegua.forEach((arquivo) => {
+      const partesarquivo = arquivo.split("rotas");
+      const rotaResolvida = partesarquivo[1]
+        .replace("inicial.delegua", "")
+        .replace(".delegua", "")
+        .replace(new RegExp(`\\${caminho.sep}`, "g"), "/")
+        .replace(new RegExp(`/$`, "g"), "");
+
+      this.rotasDelegua.push(rotaResolvida);
+    });
   }
 
   importarArquivoRota(caminhoRelativo: string) {
     this.arquivosDelegua = [];
-    this.subPastasEmRotas = [];
-    this.descobrirRotas();
+    this.rotasDelegua = [];
+    this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
+    this.resolverCaminhoRotas();
 
     const retornoImportador = this.importador.importar(this.arquivosDelegua[0]); // chumbei aqui para teste
 
