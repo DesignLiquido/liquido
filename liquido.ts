@@ -1,5 +1,5 @@
 import * as caminho from "path";
-import * as SistemaDeArquivo from "node:fs";
+import * as sistemaDeArquivos from "node:fs";
 
 import {
   AvaliadorSintatico,
@@ -61,14 +61,14 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  // recursaoDescobertaRotas(diretorio: string): void {
-  //   this.rotasDescobertas.forEach((diretorio) => {
-  //     this.descobrirRotas(diretorio);
-  //   });
-  // }
+  async iniciar() {
+    this.importarArquivosRotas();
+
+    this.roteador.iniciar();
+  }
 
   descobrirRotas(diretorio: string): void {
-    const ListaDeItems = SistemaDeArquivo.readdirSync(diretorio);
+    const ListaDeItems = sistemaDeArquivos.readdirSync(diretorio);
 
     const diretorioDescobertos = [];
 
@@ -78,7 +78,7 @@ export class Liquido {
         this.arquivosDelegua.push(caminhoAbsoluto);
         return;
       }
-      if (SistemaDeArquivo.lstatSync(caminhoAbsoluto).isDirectory()) {
+      if (sistemaDeArquivos.lstatSync(caminhoAbsoluto).isDirectory()) {
         diretorioDescobertos.push(caminhoAbsoluto);
         return;
       }
@@ -88,64 +88,51 @@ export class Liquido {
     });
   }
 
-  resolverCaminhoRotas(): void {
-    this.arquivosDelegua.forEach((arquivo) => {
-      const partesarquivo = arquivo.split("rotas");
-      const rotaResolvida = partesarquivo[1]
-        .replace("inicial.delegua", "")
-        .replace(".delegua", "")
-        .replace(new RegExp(`\\${caminho.sep}`, "g"), "/")
-        .replace(new RegExp(`/$`, "g"), "");
-
-      this.rotasDelegua.push(rotaResolvida);
-    });
+  resolverCaminhoRota(caminhoArquivo: string): string {
+    const partesArquivo = caminhoArquivo.split("rotas");
+    const rotaResolvida = partesArquivo[1]
+      .replace("inicial.delegua", "")
+      .replace(".delegua", "")
+      .replace(new RegExp(`\\${caminho.sep}`, "g"), "/")
+      .replace(new RegExp(`/$`, "g"), "");
+    return rotaResolvida;
   }
 
-  importarArquivoRota(caminhoRelativo: string) {
+  importarArquivosRotas() {
     this.arquivosDelegua = [];
     this.rotasDelegua = [];
     this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
-    this.resolverCaminhoRotas();
 
-    const retornoImportador = this.importador.importar(this.arquivosDelegua[0]); // chumbei aqui para teste
+    for (let arquivo of this.arquivosDelegua) {
+      const retornoImportador = this.importador.importar(arquivo);
 
-    // Liquido espera declarações do tipo Expressao, contendo dentro
-    // um Construto do tipo Chamada.
-    for (let declaracao of retornoImportador.retornoAvaliadorSintatico
-      .declaracoes) {
-      const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-      const entidadeChamada: AcessoMetodo =
-        expressao.entidadeChamada as AcessoMetodo;
-      const objeto = entidadeChamada.objeto as Variavel;
-      const metodo = entidadeChamada.simbolo as SimboloInterface;
-      if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
-        switch (metodo.lexema) {
-          case "rotaGet":
-            this.adicionarRotaGet(expressao.argumentos);
-            break;
-          default:
-            console.log(`Método ${metodo.lexema} não reconhecido.`);
-            break;
+      // Liquido espera declarações do tipo Expressao, contendo dentro
+      // um Construto do tipo Chamada.
+      for (let declaracao of retornoImportador.retornoAvaliadorSintatico
+        .declaracoes) {
+        const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
+        const entidadeChamada: AcessoMetodo =
+          expressao.entidadeChamada as AcessoMetodo;
+        const objeto = entidadeChamada.objeto as Variavel;
+        const metodo = entidadeChamada.simbolo as SimboloInterface;
+        if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
+          switch (metodo.lexema) {
+            case "rotaGet":
+              this.adicionarRotaGet(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+              break;
+            default:
+              console.log(`Método ${metodo.lexema} não reconhecido.`);
+              break;
+          }
         }
       }
     }
   }
 
-  async iniciar() {
-    // TODO: pensar em alguma coisa melhor pra ler diretório rotas recursivamente.
-    /* const arquivos = await globby([caminho.join(__dirname, 'rotas') + "\\*.delegua"]);
-    arquivos.forEach(arquivo => {
-      this.importarArquivoRota(arquivo);
-    }); */
-    this.importarArquivoRota("inicial.delegua");
-
-    this.roteador.iniciar();
-  }
-
-  adicionarRotaGet(argumentos: Construto[]) {
+  adicionarRotaGet(caminhoRota: string, argumentos: Construto[]) {
     const funcao = argumentos[0] as FuncaoConstruto;
 
-    this.roteador.rotaGet("/", async (req, res) => {
+    this.roteador.rotaGet(caminhoRota, async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "requisicao",
         req
