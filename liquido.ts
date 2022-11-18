@@ -33,6 +33,7 @@ export class Liquido {
   roteador: Roteador;
 
   arquivosDelegua: Array<string>;
+  rotasDelegua: Array<string>;
   diretorioBase: string = __dirname;
   diretorioDescobertos: string[] = [];
 
@@ -87,9 +88,24 @@ export class Liquido {
     });
   }
 
+  resolverCaminhoRotas(): void {
+    this.arquivosDelegua.forEach((arquivo) => {
+      const partesarquivo = arquivo.split("rotas");
+      const rotaResolvida = partesarquivo[1]
+        .replace("inicial.delegua", "")
+        .replace(".delegua", "")
+        .replace(new RegExp(`\\${caminho.sep}`, "g"), "/")
+        .replace(new RegExp(`/$`, "g"), "");
+
+      this.rotasDelegua.push(rotaResolvida);
+    });
+  }
+
   importarArquivoRota(caminhoRelativo: string) {
     this.arquivosDelegua = [];
+    this.rotasDelegua = [];
     this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
+    this.resolverCaminhoRotas();
 
     const retornoImportador = this.importador.importar(this.arquivosDelegua[0]); // chumbei aqui para teste
 
