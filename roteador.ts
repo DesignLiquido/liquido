@@ -16,6 +16,10 @@ export class Roteador {
     this.aplicacao.get(caminho, execucao);
   }
 
+  rotaPost(caminho: string, execucao: (req: any, res: any) => void) {
+    this.aplicacao.post(caminho, execucao);
+  }
+
   iniciar() {
     this.aplicacao.listen(this.porta, () => {
       console.log(`Aplicação iniciada na porta ${this.porta}`);

@@ -1,3 +1,7 @@
 liquido.rotaGet(funcao(requisicao, resposta) {
     resposta.enviar("Olá moçada").status(200)
 })
+
+liquido.rotaPost(funcao(requisicao, resposta) {
+    resposta.enviar("Olá Post").status(200)
+})
