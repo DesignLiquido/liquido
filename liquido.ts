@@ -1,6 +1,8 @@
 import * as caminho from "path";
 import * as sistemaDeArquivos from "node:fs";
 
+import Handlebars from "handlebars";
+
 import {
   AvaliadorSintatico,
   Importador,
@@ -120,7 +122,7 @@ export class Liquido {
           switch (metodo.lexema) {
             case "rotaGet":
               this.adicionarRotaGet(
-                this.resolverCaminhoRota(arquivo),
+                arquivo,
                 expressao.argumentos
               );
               break;
@@ -133,8 +135,9 @@ export class Liquido {
     }
   }
 
-  adicionarRotaGet(caminhoRota: string, argumentos: Construto[]) {
+  adicionarRotaGet(arquivoRota: string, argumentos: Construto[]) {
     const funcao = argumentos[0] as FuncaoConstruto;
+    const caminhoRota = this.resolverCaminhoRota(arquivoRota);
 
     this.roteador.rotaGet(caminhoRota, async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
@@ -181,19 +184,28 @@ export class Liquido {
       // O resultado que interessa é sempre o último.
       // Ele vem como string, e precisa ser desserializado para ser usado.
       const { valor } = JSON.parse(retorno.resultado.pop());
-      if (valor.campos.mensagem) {
+      if (valor.campos.lmht) {
+        const visaoCorrespondente = arquivoRota.replace("rotas", "visoes").replace("delegua", "lmht");
+        const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
+        const conteudoDoArquivo: string = arquivoBase.toString()
+        let textoBase = conteudoDoArquivo;
+        if (valor.campos.valores) {
+          const template = Handlebars.compile(conteudoDoArquivo);
+          textoBase = template(valor.campos.valores);
+        }
+
+        this.conversorLmht
+          .converterPorTexto(textoBase)
+          .then((resultado) => {
+            res.send(resultado);
+          });
+      } else if (valor.campos.mensagem) {
         res.send(valor.campos.mensagem)
       }
-      
+
       if (valor.campos.statusHttp) {
         res.status(valor.campos.statusHttp);
       }
-      
-      /* this.conversorLmht
-        .converterPorArquivo("meu-arquivo.lmht")
-        .then((resultado) => {
-          res.send(resultado);
-        }); */
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Simbolo } from "@designliquido/delegua";
-import { DefinirValor, FuncaoConstruto, Isto, Variavel } from "@designliquido/delegua/fontes/construtos";
+import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from "@designliquido/delegua/fontes/construtos";
 import { Expressao, Retorna } from "@designliquido/delegua/fontes/declaracoes";
 import { DeleguaClasse, DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
 import { ParametroInterface } from "@designliquido/delegua/fontes/interfaces";
@@ -56,6 +56,35 @@ export class Resposta extends DeleguaClasse {
             ]),
             null,
             false);
+        metodos['lmht'] = new DeleguaFuncao(
+                'lmht',
+                new FuncaoConstruto(-1, -1, [
+                    {
+                        tipo: 'padrao',
+                        nome: new Simbolo('IDENTIFICADOR', "valores", null, -1, -1)
+                    } as ParametroInterface
+                ], [
+                    new Expressao(new DefinirValor(
+                        -1,
+                        -1,
+                        new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
+                        new Simbolo('IDENTIFICADOR', 'valores', null, -1, -1),
+                        new Variavel(-1, new Simbolo('IDENTIFICADOR', "valores", null, -1, -1))
+                    )),
+                    new Expressao(new DefinirValor(
+                        -1,
+                        -1,
+                        new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
+                        new Simbolo('IDENTIFICADOR', 'lmht', null, -1, -1),
+                        new Literal(-1, -1, true)
+                    )),
+                    new Retorna(
+                        new Simbolo('IDENTIFICADOR', "qualquerCoisa", null, -1, -1),
+                        new Variavel(-1, new Simbolo('IDENTIFICADOR', "isto", null, -1, -1))
+                    )
+                ]),
+                null,
+                false);
         super('Resposta', null, metodos);
     }
 }
