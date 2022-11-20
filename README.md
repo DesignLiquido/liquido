@@ -41,3 +41,26 @@ Se queremos uma rota `http://localhost:3000/teste`, podemos fazer de duas formas
 
 - Criar um arquivo `teste.delegua` em `/rotas`
 - Criar um diretório `teste` dentro de rotas com um arquivo `inicial.delegua`.
+
+Assim como para o diretório `rotas`, todo e qualquer diretório dentro de `rotas` também tem como arquivo padrão o `inicial.delegua`
+
+Cada arquivo só pode ter uma chamada por método HTTP de rota. Por exemplo, um arquivo não pode ter duas chamadas a `liquido.rotaGet()`. Nada impede um arquivo de ter uma chamada para cada tipo de rota. Os métodos são:
+
+- `liquido.rotaGet()`
+- `liquido.rotaPost()`
+- `liquido.rotaPut()`
+- `liquido.rotaDelete()`
+- `liquido.rotaPatch()`
+- `liquido.rotaCopy()`
+- `liquido.rotaHead()`
+- `liquido.rotaOptions()`
+- `liquido.rotaPurge()`
+- `liquido.rotaLock()`
+- `liquido.rotaUnlock()`
+- `liquido.rotaPropfind()`
+
+Algumas rotas ainda não são suportadas porque o Express.js não as implementou, mas estão marcadas para implementações futuras. São elas:
+
+- `liquido.rotaLink()`
+- `liquido.rotaUnlink()`
+- `liquido.rotaView()`
