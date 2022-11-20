@@ -110,7 +110,8 @@ export class Liquido {
       // um Construto do tipo Chamada.
       for (let declaracao of retornoImportador.retornoAvaliadorSintatico
         .declaracoes) {
-        const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
+        const expressao: Chamada = (declaracao as Expressao)
+          .expressao as Chamada;
         const entidadeChamada: AcessoMetodo =
           expressao.entidadeChamada as AcessoMetodo;
         const objeto = entidadeChamada.objeto as Variavel;
@@ -118,7 +119,10 @@ export class Liquido {
         if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
           switch (metodo.lexema) {
             case "rotaGet":
-              this.adicionarRotaGet(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+              this.adicionarRotaGet(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
               break;
             default:
               console.log(`Método ${metodo.lexema} não reconhecido.`);
@@ -148,7 +152,7 @@ export class Liquido {
         funcaoRetorno
       );
 
-      await this.interpretador.interpretar(
+      const retorno = await this.interpretador.interpretar(
         [
           new Expressao(
             new Chamada(
@@ -174,13 +178,17 @@ export class Liquido {
         true
       );
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-      res.send(valorEnviar.valor).status(valorStatus.valor);
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+      if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem)
+      }
+      
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+      
       /* this.conversorLmht
         .converterPorArquivo("meu-arquivo.lmht")
         .then((resultado) => {
