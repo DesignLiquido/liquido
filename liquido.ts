@@ -342,7 +342,7 @@ export class Liquido implements LiquidoInterface {
   adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): void {
     const funcao = argumentos[0] as FuncaoConstruto;
 
-    this.roteador.rotaPost(caminhoRota, async (req, res) => {
+    this.roteador.rotaPut(caminhoRota, async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "requisicao",
         req
@@ -399,7 +399,7 @@ export class Liquido implements LiquidoInterface {
   adicionarRotaDelete(caminhoRota: string, argumentos: Construto[]): void {
     const funcao = argumentos[0] as FuncaoConstruto;
 
-    this.roteador.rotaPost(caminhoRota, async (req, res) => {
+    this.roteador.rotaDelete(caminhoRota, async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "requisicao",
         req
@@ -455,7 +455,7 @@ export class Liquido implements LiquidoInterface {
   adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void {
     const funcao = argumentos[0] as FuncaoConstruto;
 
-    this.roteador.rotaPost(caminhoRota, async (req, res) => {
+    this.roteador.rotaPatch(caminhoRota, async (req, res) => {
       this.interpretador.pilhaEscoposExecucao.definirVariavel(
         "requisicao",
         req
