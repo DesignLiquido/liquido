@@ -24,11 +24,12 @@ import { ConversorLmht } from "@designliquido/lmht-js";
 
 import { Resposta } from "./infraestrutura";
 import { Roteador } from "./infraestrutura/roteador";
+import { LiquidoInterface } from "./infraestrutura/interfaces/interface-liquido";
 
 /**
  * O núcleo do framework.
  */
-export class Liquido {
+export class Liquido implements LiquidoInterface {
   importador: Importador;
   interpretador: Interpretador;
   conversorLmht: ConversorLmht;
@@ -63,7 +64,7 @@ export class Liquido {
     this.roteador = new Roteador(this.conversorLmht);
   }
 
-  async iniciar() {
+  async iniciar(): Promise<void> {
     this.importarArquivosRotas();
 
     this.roteador.iniciar();
@@ -100,7 +101,7 @@ export class Liquido {
     return rotaResolvida;
   }
 
-  importarArquivosRotas() {
+  importarArquivosRotas(): void {
     this.arquivosDelegua = [];
     this.rotasDelegua = [];
     this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
@@ -122,7 +123,31 @@ export class Liquido {
           switch (metodo.lexema) {
             case "rotaGet":
               this.adicionarRotaGet(
-                arquivo,
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaPost":
+              this.adicionarRotaPost(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaPut":
+              this.adicionarRotaPut(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaDelete":
+              this.adicionarRotaDelete(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaPatch":
+              this.adicionarRotaPatch(
+                this.resolverCaminhoRota(arquivo),
                 expressao.argumentos
               );
               break;
@@ -139,11 +164,15 @@ export class Liquido {
    * O Interpretador Delégua exige alguns parâmetros definidos antes de executar.
    * Esse método define esses parâmetros na posição inicial da pilha de execução
    * do Interpretador.
-   * @param requisicao O objeto de requisição do Express. 
+   * @param requisicao O objeto de requisição do Express.
    * @param nomeFuncao O nome da função a ser chamada pelo Interpretador.
    * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
    */
-  prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto) {
+  prepararRequisicao(
+    requisicao: any,
+    nomeFuncao: string,
+    funcaoConstruto: FuncaoConstruto
+  ) {
     this.interpretador.pilhaEscoposExecucao.definirVariavel(
       "requisicao",
       requisicao
@@ -161,7 +190,7 @@ export class Liquido {
   }
 
   /**
-   * Chamada ao Interpretador Delégua com a estrutura declarativa para a 
+   * Chamada ao Interpretador Delégua com a estrutura declarativa para a
    * execução da função nomeada na rota.
    * @param nomeFuncao O nome da função da rota.
    * @returns O resultado da interpretação.
@@ -202,9 +231,12 @@ export class Liquido {
    * @returns O resultado das duas conversões.
    */
   async resolverRetornoLmht(arquivoRota: string, valores: any) {
-    const visaoCorrespondente = arquivoRota.replace("rotas", "visoes").replace("delegua", "lmht");
-    const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
-    const conteudoDoArquivo: string = arquivoBase.toString()
+    const visaoCorrespondente = arquivoRota
+      .replace("rotas", "visoes")
+      .replace("delegua", "lmht");
+    const arquivoBase: Buffer =
+      sistemaDeArquivos.readFileSync(visaoCorrespondente);
+    const conteudoDoArquivo: string = arquivoBase.toString();
     let textoBase = conteudoDoArquivo;
 
     if (valores) {
@@ -218,7 +250,7 @@ export class Liquido {
   /**
    * Configuração de uma rota GET no roteador Express.
    * @param arquivoRota O caminho completo do arquivo que define a rota.
-   * @param argumentos Todas as funções em Delégua que devem ser executadas 
+   * @param argumentos Todas as funções em Delégua que devem ser executadas
    *                   para a resolução da rota. Por enquanto apenas a primeira
    *                   função é executada.
    */
@@ -235,15 +267,245 @@ export class Liquido {
       // Ele vem como string, e precisa ser desserializado para ser usado.
       const { valor } = JSON.parse(retorno.resultado.pop());
       if (valor.campos.lmht) {
-        const resultado = await this.resolverRetornoLmht(arquivoRota, valor.campos.valores);
+        const resultado = await this.resolverRetornoLmht(
+          arquivoRota,
+          valor.campos.valores
+        );
         res.send(resultado);
       } else if (valor.campos.mensagem) {
-        res.send(valor.campos.mensagem)
+        res.send(valor.campos.mensagem);
       }
 
       if (valor.campos.statusHttp) {
         res.status(valor.campos.statusHttp);
       }
+    });
+  }
+
+  adicionarRotaPost(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaPost(caminhoRota, async (req, res) => {
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "requisicao",
+        req
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        new Resposta().chamar(this.interpretador, [])
+      );
+
+      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPost", funcao);
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "funcaoRotaPost",
+        funcaoRetorno
+      );
+
+      await this.interpretador.interpretar(
+        [
+          new Expressao(
+            new Chamada(
+              -1,
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "funcaoRotaPost", null, -1, -1)
+              ),
+              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+              [
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                ),
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+                ),
+              ]
+            )
+          ),
+        ],
+        true
+      );
+
+      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
+      );
+
+      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
+      );
+
+      res.send(valorEnviar.valor).status(valorStatus.valor);
+    });
+  }
+
+  adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaPut(caminhoRota, async (req, res) => {
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "requisicao",
+        req
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        new Resposta().chamar(this.interpretador, [])
+      );
+
+      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPut", funcao);
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "funcaoRotaPut",
+        funcaoRetorno
+      );
+
+      await this.interpretador.interpretar(
+        [
+          new Expressao(
+            new Chamada(
+              -1,
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "funcaoRotaPut", null, -1, -1)
+              ),
+              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+              [
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                ),
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+                ),
+              ]
+            )
+          ),
+        ],
+        true
+      );
+
+      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
+      );
+
+      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
+      );
+
+      res.send(valorEnviar.valor).status(valorStatus.valor);
+    });
+  }
+
+  adicionarRotaDelete(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaDelete(caminhoRota, async (req, res) => {
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "requisicao",
+        req
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        new Resposta().chamar(this.interpretador, [])
+      );
+
+      const funcaoRetorno = new DeleguaFuncao("funcaoRotaDelete", funcao);
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "funcaoRotaDelete",
+        funcaoRetorno
+      );
+
+      await this.interpretador.interpretar(
+        [
+          new Expressao(
+            new Chamada(
+              -1,
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "funcaoRotaDelete", null, -1, -1)
+              ),
+              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+              [
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                ),
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+                ),
+              ]
+            )
+          ),
+        ],
+        true
+      );
+
+      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
+      );
+
+      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
+      );
+
+      res.send(valorEnviar.valor).status(valorStatus.valor);
+    });
+  }
+  adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaPatch(caminhoRota, async (req, res) => {
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "requisicao",
+        req
+      );
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "resposta",
+        new Resposta().chamar(this.interpretador, [])
+      );
+
+      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPatch", funcao);
+      this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        "funcaoRotaPatch",
+        funcaoRetorno
+      );
+
+      await this.interpretador.interpretar(
+        [
+          new Expressao(
+            new Chamada(
+              -1,
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "funcaoRotaPatch", null, -1, -1)
+              ),
+              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+              [
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
+                ),
+                new Variavel(
+                  -1,
+                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+                ),
+              ]
+            )
+          ),
+        ],
+        true
+      );
+
+      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
+      );
+
+      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
+        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
+      );
+
+      res.send(valorEnviar.valor).status(valorStatus.valor);
     });
   }
 }

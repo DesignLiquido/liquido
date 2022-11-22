@@ -13,14 +13,27 @@ export class Roteador {
   }
 
   rotaGet(caminho: string, execucao: (req: any, res: any) => void) {
-    this.aplicacao.get(caminho, execucao);    
+    this.aplicacao.get(caminho, execucao);
+  }
+
+  rotaPost(caminho: string, execucao: (req: any, res: any) => void) {
+    this.aplicacao.post(caminho, execucao);
+  }
+
+  rotaPut(caminho: string, execucao: (req: any, res: any) => void) {
+    this.aplicacao.put(caminho, execucao);
+  }
+
+  rotaPatch(caminho: string, execucao: (req: any, res: any) => void) {
+    this.aplicacao.patch(caminho, execucao);
+  }
+
+  rotaDelete(caminho: string, execucao: (req: any, res: any) => void) {
+    this.aplicacao.delete(caminho, execucao);
   }
 
   // TODO
-  /* this.aplicacao.post(caminho, execucao);
-  this.aplicacao.put(caminho, execucao);
-  this.aplicacao.patch(caminho, execucao);
-  this.aplicacao.delete(caminho, execucao);
+  /* 
   this.aplicacao.options(caminho, execucao);
   this.aplicacao.copy(caminho, execucao);
   this.aplicacao.head(caminho, execucao);
