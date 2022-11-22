@@ -10,10 +10,10 @@ liquido.rotaPut(funcao(requisicao, resposta) {
     resposta.enviar("Olá Put").status(200)
 })
 
-liquido.rotaDelete(funcao(requisicao, resposta)) { // TypeError: Cannot read properties of null (reading 'expressao')
+liquido.rotaDelete(funcao(requisicao, resposta) { 
     resposta.enviar("Olá Delete").status(200)
-}
+})
 
-liquido.rotaPatch(funcao(requisicao, resposta)) { // TypeError: Cannot read properties of null (reading 'expressao')
+liquido.rotaPatch(funcao(requisicao, resposta) { 
     resposta.enviar("Olá Patch").status(200)
-}
+})
