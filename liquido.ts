@@ -290,56 +290,27 @@ export class Liquido implements LiquidoInterface {
     const funcao = argumentos[0] as FuncaoConstruto;
 
     this.roteador.rotaPost(caminhoRota, async (req, res) => {
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "requisicao",
-        req
-      );
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        new Resposta().chamar(this.interpretador, [])
-      );
+      this.prepararRequisicao(req, "funcaoRotaPost", funcao);
 
-      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPost", funcao);
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "funcaoRotaPost",
-        funcaoRetorno
-      );
+      const retorno = await this.chamarInterpretador("funcaoRotaPost");
 
-      await this.interpretador.interpretar(
-        [
-          new Expressao(
-            new Chamada(
-              -1,
-              new Variavel(
-                -1,
-                new Simbolo("IDENTIFICADOR", "funcaoRotaPost", null, -1, -1)
-              ),
-              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-              [
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
-                ),
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-                ),
-              ]
-            )
-          ),
-        ],
-        true
-      );
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
 
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-
-      res.send(valorEnviar.valor).status(valorStatus.valor);
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
     });
   }
 
