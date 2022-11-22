@@ -5,3 +5,15 @@ liquido.rotaGet(funcao(requisicao, resposta) {
 liquido.rotaPost(funcao(requisicao, resposta) {
     resposta.enviar("Olá Post").status(200)
 })
+
+liquido.rotaPut(funcao(requisicao, resposta) {
+    resposta.enviar("Olá Put").status(200)
+})
+
+liquido.rotaDelete(funcao(requisicao, resposta)) { // TypeError: Cannot read properties of null (reading 'expressao')
+    resposta.enviar("Olá Delete").status(200)
+}
+
+liquido.rotaPatch(funcao(requisicao, resposta)) { // TypeError: Cannot read properties of null (reading 'expressao')
+    resposta.enviar("Olá Patch").status(200)
+}

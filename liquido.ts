@@ -318,56 +318,27 @@ export class Liquido implements LiquidoInterface {
     const funcao = argumentos[0] as FuncaoConstruto;
 
     this.roteador.rotaPut(caminhoRota, async (req, res) => {
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "requisicao",
-        req
-      );
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        new Resposta().chamar(this.interpretador, [])
-      );
+      this.prepararRequisicao(req, "funcaoRotaPut", funcao);
 
-      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPut", funcao);
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "funcaoRotaPut",
-        funcaoRetorno
-      );
+      const retorno = await this.chamarInterpretador("funcaoRotaPut");
 
-      await this.interpretador.interpretar(
-        [
-          new Expressao(
-            new Chamada(
-              -1,
-              new Variavel(
-                -1,
-                new Simbolo("IDENTIFICADOR", "funcaoRotaPut", null, -1, -1)
-              ),
-              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-              [
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
-                ),
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-                ),
-              ]
-            )
-          ),
-        ],
-        true
-      );
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
 
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-
-      res.send(valorEnviar.valor).status(valorStatus.valor);
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
     });
   }
 
@@ -375,112 +346,54 @@ export class Liquido implements LiquidoInterface {
     const funcao = argumentos[0] as FuncaoConstruto;
 
     this.roteador.rotaDelete(caminhoRota, async (req, res) => {
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "requisicao",
-        req
-      );
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        new Resposta().chamar(this.interpretador, [])
-      );
+      this.prepararRequisicao(req, "funcaoRotaDelete", funcao);
 
-      const funcaoRetorno = new DeleguaFuncao("funcaoRotaDelete", funcao);
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "funcaoRotaDelete",
-        funcaoRetorno
-      );
+      const retorno = await this.chamarInterpretador("funcaoRotaDelete");
 
-      await this.interpretador.interpretar(
-        [
-          new Expressao(
-            new Chamada(
-              -1,
-              new Variavel(
-                -1,
-                new Simbolo("IDENTIFICADOR", "funcaoRotaDelete", null, -1, -1)
-              ),
-              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-              [
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
-                ),
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-                ),
-              ]
-            )
-          ),
-        ],
-        true
-      );
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
 
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-
-      res.send(valorEnviar.valor).status(valorStatus.valor);
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
     });
   }
   adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void {
     const funcao = argumentos[0] as FuncaoConstruto;
 
     this.roteador.rotaPatch(caminhoRota, async (req, res) => {
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "requisicao",
-        req
-      );
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        new Resposta().chamar(this.interpretador, [])
-      );
+      this.prepararRequisicao(req, "funcaoRotaPatch", funcao);
 
-      const funcaoRetorno = new DeleguaFuncao("funcaoRotaPatch", funcao);
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "funcaoRotaPatch",
-        funcaoRetorno
-      );
+      const retorno = await this.chamarInterpretador("funcaoRotaPatch");
 
-      await this.interpretador.interpretar(
-        [
-          new Expressao(
-            new Chamada(
-              -1,
-              new Variavel(
-                -1,
-                new Simbolo("IDENTIFICADOR", "funcaoRotaPatch", null, -1, -1)
-              ),
-              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-              [
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
-                ),
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-                ),
-              ]
-            )
-          ),
-        ],
-        true
-      );
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
 
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-
-      res.send(valorEnviar.valor).status(valorStatus.valor);
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
     });
   }
 }
