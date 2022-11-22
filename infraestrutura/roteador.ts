@@ -1,5 +1,5 @@
 import { ConversorLmht } from "@designliquido/lmht-js";
-import express from "express";
+import express, { Request, Response } from "express";
 
 export class Roteador {
   aplicacao: express.Express;
@@ -12,35 +12,59 @@ export class Roteador {
     this.conversorLmht = conversorLmht;
   }
 
-  rotaGet(caminho: string, execucao: (req: any, res: any) => void) {
+  rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {
     this.aplicacao.get(caminho, execucao);
   }
 
-  rotaPost(caminho: string, execucao: (req: any, res: any) => void) {
+  rotaPost(caminho: string, execucao: (req: Request, res: Response) => void) {
     this.aplicacao.post(caminho, execucao);
   }
 
-  rotaPut(caminho: string, execucao: (req: any, res: any) => void) {
+  rotaPut(caminho: string, execucao: (req: Request, res: Response) => void) {
     this.aplicacao.put(caminho, execucao);
   }
 
-  rotaPatch(caminho: string, execucao: (req: any, res: any) => void) {
+  rotaPatch(caminho: string, execucao: (req: Request, res: Response) => void) {
     this.aplicacao.patch(caminho, execucao);
   }
 
-  rotaDelete(caminho: string, execucao: (req: any, res: any) => void) {
+  rotaDelete(caminho: string, execucao: (req: Request, res: Response) => void) {
     this.aplicacao.delete(caminho, execucao);
   }
 
-  // TODO
-  /* 
-  this.aplicacao.options(caminho, execucao);
-  this.aplicacao.copy(caminho, execucao);
-  this.aplicacao.head(caminho, execucao);
-  this.aplicacao.lock(caminho, execucao);
-  this.aplicacao.unlock(caminho, execucao);
-  this.aplicacao.purge(caminho, execucao);
-  this.aplicacao.propfind(caminho, execucao); */
+  rotaOptions(
+    caminho: string,
+    execucao: (req: Request, res: Response) => void
+  ) {
+    this.aplicacao.options(caminho, execucao);
+  }
+
+  rotaCopy(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.copy(caminho, execucao);
+  }
+
+  rotaHead(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.head(caminho, execucao);
+  }
+
+  rotaLock(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.lock(caminho, execucao);
+  }
+
+  rotaUnlock(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.unlock(caminho, execucao);
+  }
+
+  rotaPurge(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.purge(caminho, execucao);
+  }
+
+  rotaPropfind(
+    caminho: string,
+    execucao: (req: Request, res: Response) => void
+  ) {
+    this.aplicacao.propfind(caminho, execucao);
+  }
 
   iniciar() {
     this.aplicacao.listen(this.porta, () => {

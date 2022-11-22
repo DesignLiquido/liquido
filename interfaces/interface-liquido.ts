@@ -1,7 +1,7 @@
 import { Importador, Interpretador } from "@designliquido/delegua";
 import { Construto } from "@designliquido/delegua/fontes/construtos";
 import { ConversorLmht } from "@designliquido/lmht-js";
-import { Roteador } from "../../roteador";
+import { Roteador } from "../infraestrutura/roteador";
 
 export interface LiquidoInterface {
   importador: Importador;
@@ -22,4 +22,11 @@ export interface LiquidoInterface {
   adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaDelete(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaOptions(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaCopy(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaHead(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaLock(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void;
+  adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void;
 }

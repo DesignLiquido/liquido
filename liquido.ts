@@ -24,7 +24,7 @@ import { ConversorLmht } from "@designliquido/lmht-js";
 
 import { Resposta } from "./infraestrutura";
 import { Roteador } from "./infraestrutura/roteador";
-import { LiquidoInterface } from "./infraestrutura/interfaces/interface-liquido";
+import { LiquidoInterface } from "./interfaces/interface-liquido";
 
 /**
  * O núcleo do framework.
@@ -152,6 +152,48 @@ export class Liquido implements LiquidoInterface {
               break;
             case "rotaPatch":
               this.adicionarRotaPatch(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaOptions":
+              this.adicionarRotaDelete(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaCopy":
+              this.adicionarRotaCopy(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaHead":
+              this.adicionarRotaHead(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaLock":
+              this.adicionarRotaLock(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaUnlock":
+              this.adicionarRotaUnlock(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaPurge":
+              this.adicionarRotaPurge(
+                this.resolverCaminhoRota(arquivo),
+                expressao.argumentos
+              );
+              break;
+            case "rotaPropfind":
+              this.adicionarRotaPropfind(
                 this.resolverCaminhoRota(arquivo),
                 expressao.argumentos
               );
@@ -376,6 +418,199 @@ export class Liquido implements LiquidoInterface {
       this.prepararRequisicao(req, "funcaoRotaPatch", funcao);
 
       const retorno = await this.chamarInterpretador("funcaoRotaPatch");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+
+  adicionarRotaOptions(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaOptions(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaOptions", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaOptions");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+
+  adicionarRotaCopy(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaCopy(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaCopy", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaCopy");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+
+  adicionarRotaHead(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaHead(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaHead", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaHead");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+
+  adicionarRotaLock(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaLock(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaLock", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaLock");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+  adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaUnlock(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaUnlock", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaUnlock");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+  adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaPurge(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaPurge", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaPurge");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          caminhoRota,
+          valor.campos.lmht
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
+    });
+  }
+  adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void {
+    const funcao = argumentos[0] as FuncaoConstruto;
+
+    this.roteador.rotaPropfind(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaPropfind", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaPropfind");
 
       // O resultado que interessa é sempre o último.
       // Ele vem como string, e precisa ser desserializado para ser usado.
