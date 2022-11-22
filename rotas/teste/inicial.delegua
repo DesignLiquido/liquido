@@ -1,3 +1,0 @@
-liquido.rotaGet(funcao(requisicao, resposta) {
-    resposta.enviar("Eu sou um teste").status(200)
-})
