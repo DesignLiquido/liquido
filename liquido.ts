@@ -91,6 +91,11 @@ export class Liquido implements LiquidoInterface {
     });
   }
 
+  /**
+   * Ele pega um caminho de arquivo e retorna uma rota
+   * @param {string} caminhoArquivo - string =&gt; O caminho do arquivo que está sendo lido
+   * @returns A rota resolvida.
+   */
   resolverCaminhoRota(caminhoArquivo: string): string {
     const partesArquivo = caminhoArquivo.split("rotas");
     const rotaResolvida = partesArquivo[1]
@@ -249,14 +254,13 @@ export class Liquido implements LiquidoInterface {
 
   /**
    * Configuração de uma rota GET no roteador Express.
-   * @param arquivoRota O caminho completo do arquivo que define a rota.
+   * @param caminhoRota O caminho completo do arquivo que define a rota.
    * @param argumentos Todas as funções em Delégua que devem ser executadas
    *                   para a resolução da rota. Por enquanto apenas a primeira
    *                   função é executada.
    */
-  adicionarRotaGet(arquivoRota: string, argumentos: Construto[]) {
+  adicionarRotaGet(caminhoRota: string, argumentos: Construto[]) {
     const funcao = argumentos[0] as FuncaoConstruto;
-    const caminhoRota = this.resolverCaminhoRota(arquivoRota);
 
     this.roteador.rotaGet(caminhoRota, async (req, res) => {
       this.prepararRequisicao(req, "funcaoRotaGet", funcao);
@@ -268,7 +272,7 @@ export class Liquido implements LiquidoInterface {
       const { valor } = JSON.parse(retorno.resultado.pop());
       if (valor.campos.lmht) {
         const resultado = await this.resolverRetornoLmht(
-          arquivoRota,
+          caminhoRota,
           valor.campos.valores
         );
         res.send(resultado);
