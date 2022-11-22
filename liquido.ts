@@ -1,6 +1,8 @@
 import * as caminho from "path";
 import * as sistemaDeArquivos from "node:fs";
 
+import Handlebars from "handlebars";
+
 import {
   AvaliadorSintatico,
   Importador,
@@ -21,7 +23,7 @@ import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
 
 import { Resposta } from "./infraestrutura";
-import { Roteador } from "./roteador";
+import { Roteador } from "./infraestrutura/roteador";
 import { LiquidoInterface } from "./infraestrutura/interfaces/interface-liquido";
 
 /**
@@ -158,63 +160,125 @@ export class Liquido implements LiquidoInterface {
     }
   }
 
-  adicionarRotaGet(caminhoRota: string, argumentos: Construto[]): void {
-    const funcao = argumentos[0] as FuncaoConstruto;
+  /**
+   * O Interpretador Delégua exige alguns parâmetros definidos antes de executar.
+   * Esse método define esses parâmetros na posição inicial da pilha de execução
+   * do Interpretador.
+   * @param requisicao O objeto de requisição do Express.
+   * @param nomeFuncao O nome da função a ser chamada pelo Interpretador.
+   * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
+   */
+  prepararRequisicao(
+    requisicao: any,
+    nomeFuncao: string,
+    funcaoConstruto: FuncaoConstruto
+  ) {
+    this.interpretador.pilhaEscoposExecucao.definirVariavel(
+      "requisicao",
+      requisicao
+    );
+    this.interpretador.pilhaEscoposExecucao.definirVariavel(
+      "resposta",
+      new Resposta().chamar(this.interpretador, [])
+    );
 
-    this.roteador.rotaGet(caminhoRota, async (req, res) => {
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "requisicao",
-        req
-      );
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "resposta",
-        new Resposta().chamar(this.interpretador, [])
-      );
+    const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);
+    this.interpretador.pilhaEscoposExecucao.definirVariavel(
+      nomeFuncao,
+      funcaoRetorno
+    );
+  }
 
-      const funcaoRetorno = new DeleguaFuncao("funcaoRotaGet", funcao);
-      this.interpretador.pilhaEscoposExecucao.definirVariavel(
-        "funcaoRotaGet",
-        funcaoRetorno
-      );
-
-      await this.interpretador.interpretar(
-        [
-          new Expressao(
-            new Chamada(
+  /**
+   * Chamada ao Interpretador Delégua com a estrutura declarativa para a
+   * execução da função nomeada na rota.
+   * @param nomeFuncao O nome da função da rota.
+   * @returns O resultado da interpretação.
+   */
+  async chamarInterpretador(nomeFuncao: string) {
+    return await this.interpretador.interpretar(
+      [
+        new Expressao(
+          new Chamada(
+            -1,
+            new Variavel(
               -1,
+              new Simbolo("IDENTIFICADOR", nomeFuncao, null, -1, -1)
+            ),
+            new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
+            [
               new Variavel(
                 -1,
-                new Simbolo("IDENTIFICADOR", "funcaoRotaGet", null, -1, -1)
+                new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
               ),
-              new Simbolo("PARENTESE_DIREITO", "", null, -1, -1),
-              [
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "requisicao", null, -1, -1)
-                ),
-                new Variavel(
-                  -1,
-                  new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
-                ),
-              ]
-            )
-          ),
-        ],
-        true
-      );
+              new Variavel(
+                -1,
+                new Simbolo("IDENTIFICADOR", "resposta", null, -1, -1)
+              ),
+            ]
+          )
+        ),
+      ],
+      true
+    );
+  }
 
-      const valorStatus = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorStatus", null, -1, -1)
-      );
-      const valorEnviar = this.interpretador.pilhaEscoposExecucao.obterVariavel(
-        new Simbolo("IDENTIFICADOR", "valorEnviar", null, -1, -1)
-      );
-      res.send(valorEnviar.valor).status(valorStatus.valor);
-      /* this.conversorLmht
-        .converterPorArquivo("meu-arquivo.lmht")
-        .then((resultado) => {
-          res.send(resultado);
-        }); */
+  /**
+   * Aplica transformações Handlebars e LMHT no arquivo de visão correspondente
+   * à rota.
+   * @param arquivoRota Caminho completo do arquivo da rota.
+   * @param valores Valores que devem ser usados na aplicação do Handlebars.
+   * @returns O resultado das duas conversões.
+   */
+  async resolverRetornoLmht(arquivoRota: string, valores: any) {
+    const visaoCorrespondente = arquivoRota
+      .replace("rotas", "visoes")
+      .replace("delegua", "lmht");
+    const arquivoBase: Buffer =
+      sistemaDeArquivos.readFileSync(visaoCorrespondente);
+    const conteudoDoArquivo: string = arquivoBase.toString();
+    let textoBase = conteudoDoArquivo;
+
+    if (valores) {
+      const template = Handlebars.compile(conteudoDoArquivo);
+      textoBase = template(valores);
+    }
+
+    return await this.conversorLmht.converterPorTexto(textoBase);
+  }
+
+  /**
+   * Configuração de uma rota GET no roteador Express.
+   * @param arquivoRota O caminho completo do arquivo que define a rota.
+   * @param argumentos Todas as funções em Delégua que devem ser executadas
+   *                   para a resolução da rota. Por enquanto apenas a primeira
+   *                   função é executada.
+   */
+  adicionarRotaGet(arquivoRota: string, argumentos: Construto[]) {
+    const funcao = argumentos[0] as FuncaoConstruto;
+    const caminhoRota = this.resolverCaminhoRota(arquivoRota);
+
+    this.roteador.rotaGet(caminhoRota, async (req, res) => {
+      this.prepararRequisicao(req, "funcaoRotaGet", funcao);
+
+      const retorno = await this.chamarInterpretador("funcaoRotaGet");
+
+      // O resultado que interessa é sempre o último.
+      // Ele vem como string, e precisa ser desserializado para ser usado.
+      const { valor } = JSON.parse(retorno.resultado.pop());
+      if (valor.campos.lmht) {
+        const resultado = await this.resolverRetornoLmht(
+          arquivoRota,
+          valor.campos.valores
+        );
+        res.send(resultado);
+      } else if (valor.campos.mensagem) {
+        res.send(valor.campos.mensagem);
+      }
+
+      if (valor.campos.statusHttp) {
+        res.status(valor.campos.statusHttp);
+      }
     });
   }
 

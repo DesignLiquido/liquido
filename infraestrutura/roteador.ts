@@ -16,9 +16,18 @@ export class Roteador {
     this.aplicacao.get(caminho, execucao);
   }
 
-  rotaPost(caminho: string, execucao: (req: any, res: any) => void) {
-    this.aplicacao.post(caminho, execucao);
-  }
+  // TODO
+  /* this.aplicacao.post(caminho, execucao);
+  this.aplicacao.put(caminho, execucao);
+  this.aplicacao.patch(caminho, execucao);
+  this.aplicacao.delete(caminho, execucao);
+  this.aplicacao.options(caminho, execucao);
+  this.aplicacao.copy(caminho, execucao);
+  this.aplicacao.head(caminho, execucao);
+  this.aplicacao.lock(caminho, execucao);
+  this.aplicacao.unlock(caminho, execucao);
+  this.aplicacao.purge(caminho, execucao);
+  this.aplicacao.propfind(caminho, execucao); */
 
   iniciar() {
     this.aplicacao.listen(this.porta, () => {
