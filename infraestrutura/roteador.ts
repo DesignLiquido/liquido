@@ -1,15 +1,41 @@
+import { ErroAvaliadorSintatico } from "@designliquido/delegua";
+import { ErroLexador } from "@designliquido/delegua/fontes/lexador/erro-lexador";
 import { ConversorLmht } from "@designliquido/lmht-js";
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 export class Roteador {
   aplicacao: express.Express;
   porta: number;
   conversorLmht: ConversorLmht;
 
+  errosLexador: ErroLexador[] = [];
+  errosAvaliadorSintatico: ErroAvaliadorSintatico[] = [];
+
   constructor(conversorLmht: ConversorLmht) {
     this.aplicacao = express();
     this.porta = 3000;
     this.conversorLmht = conversorLmht;
+    this.middlewares();
+  }
+
+  middlewares() {
+    this.aplicacao.use(
+      (err: any, req: Request, res: Response, next: NextFunction) => {
+        if (err) {
+          console.error(err);
+          throw new Error("Error: " + err.message);
+        }
+        if (this.errosLexador.length > 0) {
+          throw new Error(
+            `Error: ${this.errosLexador[0].mensagem} : ${this.errosLexador[0].linha}`
+          );
+        }
+        if (this.errosAvaliadorSintatico.length > 0) {
+          throw new Error(`Error: ${this.errosAvaliadorSintatico[0].message}`);
+        }
+        return next();
+      }
+    );
   }
 
   rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {

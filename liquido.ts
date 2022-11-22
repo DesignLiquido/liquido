@@ -5,6 +5,7 @@ import Handlebars from "handlebars";
 
 import {
   AvaliadorSintatico,
+  ErroAvaliadorSintatico,
   Importador,
   Interpretador,
   Lexador,
@@ -25,6 +26,7 @@ import { ConversorLmht } from "@designliquido/lmht-js";
 import { Resposta } from "./infraestrutura";
 import { Roteador } from "./infraestrutura/roteador";
 import { LiquidoInterface } from "./interfaces/interface-liquido";
+import { ErroLexador } from "@designliquido/delegua/fontes/lexador/erro-lexador";
 
 /**
  * O núcleo do framework.
@@ -42,6 +44,9 @@ export class Liquido implements LiquidoInterface {
 
   arquivosAbertos: { [identificador: string]: string };
   conteudoArquivosAbertos: { [identificador: string]: string[] };
+
+  // errosLexador: ErroLexador[] = [];
+  // errosAvaliadorSintatico: ErroAvaliadorSintatico[] = [];
 
   constructor() {
     this.arquivosAbertos = {};
@@ -113,6 +118,14 @@ export class Liquido implements LiquidoInterface {
 
     for (let arquivo of this.arquivosDelegua) {
       const retornoImportador = this.importador.importar(arquivo);
+
+      retornoImportador.retornoLexador.erros.forEach((erro) =>
+        this.roteador.errosLexador.push(erro)
+      );
+
+      retornoImportador.retornoAvaliadorSintatico.erros.forEach((erro) =>
+        this.roteador.errosAvaliadorSintatico.push(erro)
+      );
 
       // Liquido espera declarações do tipo Expressao, contendo dentro
       // um Construto do tipo Chamada.

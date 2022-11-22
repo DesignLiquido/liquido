@@ -1,5 +1,10 @@
-import { Importador, Interpretador } from "@designliquido/delegua";
+import {
+  ErroAvaliadorSintatico,
+  Importador,
+  Interpretador,
+} from "@designliquido/delegua";
 import { Construto } from "@designliquido/delegua/fontes/construtos";
+import { ErroLexador } from "@designliquido/delegua/fontes/lexador/erro-lexador";
 import { ConversorLmht } from "@designliquido/lmht-js";
 import { Roteador } from "../infraestrutura/roteador";
 
@@ -12,6 +17,8 @@ export interface LiquidoInterface {
   rotasDelegua: Array<string>;
   diretorioBase: string;
   diretorioDescobertos: string[];
+  // errosLexador: Array<ErroLexador>;
+  // errosAvaliadorSintatico: Array<ErroAvaliadorSintatico>;
 
   iniciar(): Promise<void>;
   descobrirRotas(diretorio: string): void;
