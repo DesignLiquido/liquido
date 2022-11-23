@@ -1,5 +1,5 @@
 import { ConversorLmht } from "@designliquido/lmht-js";
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 export class Roteador {
   aplicacao: express.Express;
@@ -10,6 +10,16 @@ export class Roteador {
     this.aplicacao = express();
     this.porta = 3000;
     this.conversorLmht = conversorLmht;
+    this.middlewares();
+  }
+
+  middlewares() {
+    this.aplicacao.use(
+      (err: any, req: Request, res: Response, next: NextFunction) => {
+        console.error(err.stack);
+        next();
+      }
+    );
   }
 
   rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {

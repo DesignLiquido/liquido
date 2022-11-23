@@ -5,6 +5,7 @@ import Handlebars from "handlebars";
 
 import {
   AvaliadorSintatico,
+  ErroAvaliadorSintatico,
   Importador,
   Interpretador,
   Lexador,
@@ -24,7 +25,10 @@ import { ConversorLmht } from "@designliquido/lmht-js";
 
 import { Resposta } from "./infraestrutura";
 import { Roteador } from "./infraestrutura/roteador";
-import { LiquidoInterface } from "./interfaces/interface-liquido";
+import {
+  ErroLexadorLiquido,
+  LiquidoInterface,
+} from "./interfaces/interface-liquido";
 
 /**
  * O núcleo do framework.
@@ -39,6 +43,9 @@ export class Liquido implements LiquidoInterface {
   rotasDelegua: Array<string>;
   diretorioBase: string = __dirname;
   diretorioDescobertos: string[] = [];
+
+  errosLexador: ErroLexadorLiquido[] = [];
+  errosAvaliadorSintatico: ErroAvaliadorSintatico[] = [];
 
   arquivosAbertos: { [identificador: string]: string };
   conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -111,99 +118,122 @@ export class Liquido implements LiquidoInterface {
     this.rotasDelegua = [];
     this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
 
-    for (let arquivo of this.arquivosDelegua) {
-      const retornoImportador = this.importador.importar(arquivo);
+    try {
+      for (let arquivo of this.arquivosDelegua) {
+        const retornoImportador = this.importador.importar(arquivo);
 
-      // Liquido espera declarações do tipo Expressao, contendo dentro
-      // um Construto do tipo Chamada.
-      for (let declaracao of retornoImportador.retornoAvaliadorSintatico
-        .declaracoes) {
-        const expressao: Chamada = (declaracao as Expressao)
-          .expressao as Chamada;
-        const entidadeChamada: AcessoMetodo =
-          expressao.entidadeChamada as AcessoMetodo;
-        const objeto = entidadeChamada.objeto as Variavel;
-        const metodo = entidadeChamada.simbolo as SimboloInterface;
-        if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
-          switch (metodo.lexema) {
-            case "rotaGet":
-              this.adicionarRotaGet(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaPost":
-              this.adicionarRotaPost(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaPut":
-              this.adicionarRotaPut(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaDelete":
-              this.adicionarRotaDelete(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaPatch":
-              this.adicionarRotaPatch(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaOptions":
-              this.adicionarRotaDelete(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaCopy":
-              this.adicionarRotaCopy(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaHead":
-              this.adicionarRotaHead(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaLock":
-              this.adicionarRotaLock(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaUnlock":
-              this.adicionarRotaUnlock(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaPurge":
-              this.adicionarRotaPurge(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            case "rotaPropfind":
-              this.adicionarRotaPropfind(
-                this.resolverCaminhoRota(arquivo),
-                expressao.argumentos
-              );
-              break;
-            default:
-              console.log(`Método ${metodo.lexema} não reconhecido.`);
-              break;
+        retornoImportador.retornoLexador.erros.forEach((erro) => {
+          const erroLexador: ErroLexadorLiquido = {
+            arquivo,
+            erro,
+          };
+          this.errosLexador.push(erroLexador);
+        });
+        retornoImportador.retornoAvaliadorSintatico.erros.forEach((erro) =>
+          this.errosAvaliadorSintatico.push(erro)
+        );
+
+        // Liquido espera declarações do tipo Expressao, contendo dentro
+        // um Construto do tipo Chamada.
+        for (let declaracao of retornoImportador.retornoAvaliadorSintatico
+          .declaracoes) {
+          const expressao: Chamada = (declaracao as Expressao)
+            .expressao as Chamada;
+          const entidadeChamada: AcessoMetodo =
+            expressao.entidadeChamada as AcessoMetodo;
+          const objeto = entidadeChamada.objeto as Variavel;
+          const metodo = entidadeChamada.simbolo as SimboloInterface;
+          if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
+            switch (metodo.lexema) {
+              case "rotaGet":
+                this.adicionarRotaGet(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaPost":
+                this.adicionarRotaPost(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaPut":
+                this.adicionarRotaPut(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaDelete":
+                this.adicionarRotaDelete(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaPatch":
+                this.adicionarRotaPatch(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaOptions":
+                this.adicionarRotaDelete(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaCopy":
+                this.adicionarRotaCopy(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaHead":
+                this.adicionarRotaHead(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaLock":
+                this.adicionarRotaLock(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaUnlock":
+                this.adicionarRotaUnlock(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaPurge":
+                this.adicionarRotaPurge(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              case "rotaPropfind":
+                this.adicionarRotaPropfind(
+                  this.resolverCaminhoRota(arquivo),
+                  expressao.argumentos
+                );
+                break;
+              default:
+                console.log(`Método ${metodo.lexema} não reconhecido.`);
+                break;
+            }
           }
         }
       }
+    } catch (erro) {
+      if (this.errosLexador.length > 0) {
+        throw new Error(
+          `${this.errosLexador[0].erro.mensagem}: arquivo: ${this.errosLexador[0].arquivo} linha: ${this.errosLexador[0].erro.linha}`
+        );
+      }
+      if (this.errosAvaliadorSintatico.length > 0) {
+        throw new Error(this.errosAvaliadorSintatico[0].message);
+      }
+      throw new Error(erro);
     }
   }
 
