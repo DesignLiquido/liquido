@@ -17,8 +17,9 @@ export interface LiquidoInterface {
   rotasDelegua: Array<string>;
   diretorioBase: string;
   diretorioDescobertos: string[];
-  // errosLexador: Array<ErroLexador>;
-  // errosAvaliadorSintatico: Array<ErroAvaliadorSintatico>;
+
+  errosLexador: Array<ErroLexadorLiquido>;
+  errosAvaliadorSintatico: Array<ErroAvaliadorSintatico>;
 
   iniciar(): Promise<void>;
   descobrirRotas(diretorio: string): void;
@@ -36,4 +37,9 @@ export interface LiquidoInterface {
   adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void;
+}
+
+export interface ErroLexadorLiquido {
+  erro: ErroLexador;
+  arquivo: string;
 }
