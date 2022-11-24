@@ -9,6 +9,7 @@ import {
   Importador,
   Interpretador,
   Lexador,
+  RetornoImportador,
   Simbolo,
 } from "@designliquido/delegua";
 import {
@@ -18,9 +19,8 @@ import {
   FuncaoConstruto,
   Variavel,
 } from "@designliquido/delegua/fontes/construtos";
-import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
+import { Expressao, Var } from "@designliquido/delegua/fontes/declaracoes";
 import { DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
-import { SimboloInterface } from "@designliquido/delegua/fontes/interfaces";
 import { ConversorLmht } from "@designliquido/lmht-js";
 
 import { Resposta } from "./infraestrutura";
@@ -53,6 +53,8 @@ export class Liquido implements LiquidoInterface {
   constructor() {
     this.arquivosAbertos = {};
     this.conteudoArquivosAbertos = {};
+    this.arquivosDelegua = [];
+    this.rotasDelegua = [];
 
     this.importador = new Importador(
       new Lexador(),
@@ -72,6 +74,7 @@ export class Liquido implements LiquidoInterface {
   }
 
   async iniciar(): Promise<void> {
+    this.importarArquivoMiddleware();
     this.importarArquivosRotas();
 
     this.roteador.iniciar();
@@ -86,11 +89,11 @@ export class Liquido implements LiquidoInterface {
       const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
       if (caminhoAbsoluto.endsWith(".delegua")) {
         this.arquivosDelegua.push(caminhoAbsoluto);
-        return;
+        return null;
       }
       if (sistemaDeArquivos.lstatSync(caminhoAbsoluto).isDirectory()) {
         diretorioDescobertos.push(caminhoAbsoluto);
-        return;
+        return null;
       }
     });
     diretorioDescobertos.forEach((diretorioDescoberto) => {
@@ -113,25 +116,69 @@ export class Liquido implements LiquidoInterface {
     return rotaResolvida;
   }
 
+  resolveArquivoConfiguracaoMiddleware(): string | void {
+    const ListaDeItems = sistemaDeArquivos.readdirSync(this.diretorioBase);
+    for (let item of ListaDeItems) {
+      if (item === "configuracao.delegua") {
+        return caminho.join(this.diretorioBase, item);
+      }
+    }
+    return null;
+  }
+
+  verificaErrosImportacao(
+    verificando: RetornoImportador,
+    caminhoArquivo: string
+  ): void {
+    verificando.retornoLexador.erros.forEach((erro) => {
+      const erroLexador: ErroLexadorLiquido = {
+        arquivo: caminhoArquivo,
+        erro,
+      };
+      this.errosLexador.push(erroLexador);
+    });
+
+    verificando.retornoAvaliadorSintatico.erros.forEach((erro) =>
+      this.errosAvaliadorSintatico.push(erro)
+    );
+  }
+
+  importarArquivoMiddleware(): void {
+    const caminhoConfigArquivo = this.resolveArquivoConfiguracaoMiddleware();
+
+    if (typeof caminhoConfigArquivo != "string")
+      throw new Error("Arquivo de configuração não encontrado");
+
+    try {
+      const retornoImportador = this.importador.importar(caminhoConfigArquivo);
+
+      this.verificaErrosImportacao(retornoImportador, caminhoConfigArquivo);
+
+      // for (let declaracao of retornoImportador.retornoAvaliadorSintatico
+      //   .declaracoes) {
+      //   const expressao: Chamada = (declaracao as Expressao)
+      //     .expressao as Chamada;
+      //   const entidadeChamada: AcessoMetodo =
+      //     expressao.entidadeChamada as AcessoMetodo;
+      //   const objeto = entidadeChamada.objeto as Variavel;
+      //   const metodo = entidadeChamada.simbolo;
+      //   if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
+      //     console.log(metodo.lexema);
+      //   }
+      // }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   importarArquivosRotas(): void {
-    this.arquivosDelegua = [];
-    this.rotasDelegua = [];
     this.descobrirRotas(caminho.join(this.diretorioBase, "rotas"));
 
     try {
       for (let arquivo of this.arquivosDelegua) {
         const retornoImportador = this.importador.importar(arquivo);
 
-        retornoImportador.retornoLexador.erros.forEach((erro) => {
-          const erroLexador: ErroLexadorLiquido = {
-            arquivo,
-            erro,
-          };
-          this.errosLexador.push(erroLexador);
-        });
-        retornoImportador.retornoAvaliadorSintatico.erros.forEach((erro) =>
-          this.errosAvaliadorSintatico.push(erro)
-        );
+        this.verificaErrosImportacao(retornoImportador, arquivo);
 
         // Liquido espera declarações do tipo Expressao, contendo dentro
         // um Construto do tipo Chamada.
@@ -142,7 +189,7 @@ export class Liquido implements LiquidoInterface {
           const entidadeChamada: AcessoMetodo =
             expressao.entidadeChamada as AcessoMetodo;
           const objeto = entidadeChamada.objeto as Variavel;
-          const metodo = entidadeChamada.simbolo as SimboloInterface;
+          const metodo = entidadeChamada.simbolo;
           if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
             switch (metodo.lexema) {
               case "rotaGet":
@@ -176,7 +223,7 @@ export class Liquido implements LiquidoInterface {
                 );
                 break;
               case "rotaOptions":
-                this.adicionarRotaDelete(
+                this.adicionarRotaOptions(
                   this.resolverCaminhoRota(arquivo),
                   expressao.argumentos
                 );
