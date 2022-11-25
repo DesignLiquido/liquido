@@ -167,12 +167,14 @@ export class Liquido implements LiquidoInterface {
 
       for (let declaracao of retornoImportador.retornoAvaliadorSintatico
         .declaracoes) {
+        // Implementar uma forma de pegar o valor do importar
         const expressao: Chamada = (declaracao as Expressao)
           .expressao as Chamada;
         const entidadeChamada: AcessoMetodo =
           expressao.entidadeChamada as AcessoMetodo;
         const objeto = entidadeChamada.objeto as Variavel;
         const metodo = entidadeChamada.simbolo;
+
         if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
           switch (metodo.lexema) {
             case "usar":
