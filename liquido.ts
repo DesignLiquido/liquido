@@ -10,6 +10,7 @@ import {
   Interpretador,
   Lexador,
   RetornoImportador,
+  RetornoInterpretador,
   Simbolo,
 } from "@designliquido/delegua";
 import {
@@ -19,7 +20,7 @@ import {
   FuncaoConstruto,
   Variavel,
 } from "@designliquido/delegua/fontes/construtos";
-import { Expressao, Var } from "@designliquido/delegua/fontes/declaracoes";
+import { Expressao } from "@designliquido/delegua/fontes/declaracoes";
 import { DeleguaFuncao } from "@designliquido/delegua/fontes/estruturas";
 import { ConversorLmht } from "@designliquido/lmht-js";
 
@@ -116,6 +117,11 @@ export class Liquido implements LiquidoInterface {
     return rotaResolvida;
   }
 
+  /**
+   * Retorna o caminho do arquivo chamado "configuracao.delegua" se existir no diretório,
+   * senão retorna nulo
+   * @returns O caminho do arquivo.
+   */
   resolveArquivoConfiguracaoMiddleware(): string | void {
     const ListaDeItems = sistemaDeArquivos.readdirSync(this.diretorioBase);
     for (let item of ListaDeItems) {
@@ -126,6 +132,11 @@ export class Liquido implements LiquidoInterface {
     return null;
   }
 
+  /**
+   * Verifica se há algum erro no verificando.
+   * @param {RetornoImportador} verificando - RetornoImportador
+   * @param {string} caminhoArquivo - string
+   */
   verificaErrosImportacao(
     verificando: RetornoImportador,
     caminhoArquivo: string
@@ -154,18 +165,25 @@ export class Liquido implements LiquidoInterface {
 
       this.verificaErrosImportacao(retornoImportador, caminhoConfigArquivo);
 
-      // for (let declaracao of retornoImportador.retornoAvaliadorSintatico
-      //   .declaracoes) {
-      //   const expressao: Chamada = (declaracao as Expressao)
-      //     .expressao as Chamada;
-      //   const entidadeChamada: AcessoMetodo =
-      //     expressao.entidadeChamada as AcessoMetodo;
-      //   const objeto = entidadeChamada.objeto as Variavel;
-      //   const metodo = entidadeChamada.simbolo;
-      //   if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
-      //     console.log(metodo.lexema);
-      //   }
-      // }
+      for (let declaracao of retornoImportador.retornoAvaliadorSintatico
+        .declaracoes) {
+        const expressao: Chamada = (declaracao as Expressao)
+          .expressao as Chamada;
+        const entidadeChamada: AcessoMetodo =
+          expressao.entidadeChamada as AcessoMetodo;
+        const objeto = entidadeChamada.objeto as Variavel;
+        const metodo = entidadeChamada.simbolo;
+        if (objeto.simbolo.lexema.toLowerCase() === "liquido") {
+          switch (metodo.lexema) {
+            case "usar":
+              this.roteador.middlewares();
+              break;
+            default:
+              console.log(`Método ${metodo.lexema} não reconhecido.`);
+              break;
+          }
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -296,7 +314,7 @@ export class Liquido implements LiquidoInterface {
     requisicao: any,
     nomeFuncao: string,
     funcaoConstruto: FuncaoConstruto
-  ) {
+  ): void {
     this.interpretador.pilhaEscoposExecucao.definirVariavel(
       "requisicao",
       requisicao
@@ -319,7 +337,7 @@ export class Liquido implements LiquidoInterface {
    * @param nomeFuncao O nome da função da rota.
    * @returns O resultado da interpretação.
    */
-  async chamarInterpretador(nomeFuncao: string) {
+  async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretador> {
     return await this.interpretador.interpretar(
       [
         new Expressao(
@@ -354,7 +372,7 @@ export class Liquido implements LiquidoInterface {
    * @param valores Valores que devem ser usados na aplicação do Handlebars.
    * @returns O resultado das duas conversões.
    */
-  async resolverRetornoLmht(arquivoRota: string, valores: any) {
+  async resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any> {
     const visaoCorrespondente = arquivoRota
       .replace("rotas", "visoes")
       .replace("delegua", "lmht");

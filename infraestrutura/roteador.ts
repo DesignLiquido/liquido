@@ -10,16 +10,11 @@ export class Roteador {
     this.aplicacao = express();
     this.porta = 3000;
     this.conversorLmht = conversorLmht;
-    this.middlewares();
+    this.middlewares(express.json());
   }
 
-  middlewares() {
-    this.aplicacao.use(
-      (err: any, req: Request, res: Response, next: NextFunction) => {
-        console.error(err.stack);
-        next();
-      }
-    );
+  middlewares(middleware) {
+    this.aplicacao.use(middleware);
   }
 
   rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {

@@ -2,8 +2,13 @@ import {
   ErroAvaliadorSintatico,
   Importador,
   Interpretador,
+  RetornoImportador,
+  RetornoInterpretador,
 } from "@designliquido/delegua";
-import { Construto } from "@designliquido/delegua/fontes/construtos";
+import {
+  Construto,
+  FuncaoConstruto,
+} from "@designliquido/delegua/fontes/construtos";
 import { ErroLexador } from "@designliquido/delegua/fontes/lexador/erro-lexador";
 import { ConversorLmht } from "@designliquido/lmht-js";
 import { Roteador } from "../infraestrutura/roteador";
@@ -25,6 +30,21 @@ export interface LiquidoInterface {
   descobrirRotas(diretorio: string): void;
   resolverCaminhoRota(caminhoArquivo: string): string;
   importarArquivosRotas(): void;
+  verificaErrosImportacao(
+    verificando: RetornoImportador,
+    caminhoArquivo: string
+  ): void;
+  importarArquivoMiddleware(): void;
+  resolveArquivoConfiguracaoMiddleware(): string | void;
+  importarArquivosRotas(): void;
+  prepararRequisicao(
+    requisicao: any,
+    nomeFuncao: string,
+    funcaoConstruto: FuncaoConstruto
+  ): void;
+  
+  resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any>;
+  chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretador>;
   adicionarRotaGet(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaPost(caminhoRota: string, argumentos: Construto[]): void;
   adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): void;
