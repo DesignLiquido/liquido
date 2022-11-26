@@ -1,1 +1,1 @@
-export * from "./interface-liquido";
+export * from './interface-liquido';

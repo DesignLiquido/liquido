@@ -12,22 +12,19 @@ um filtro personalizado de alto desempenho
 */
 
 type FuncaoDeFiltragem = {
-  (e: string): boolean;
+	(e: string): boolean;
 };
 
 type IteravelType = Array<any>;
 
 type RetornoFiltro = IteravelType;
 
-export const filtroPerformatico = (
-  funcao: FuncaoDeFiltragem,
-  iteravel: IteravelType
-): RetornoFiltro => {
-  const f = []; //final
-  for (let i = 0; i < iteravel.length; i++) {
-    if (funcao(iteravel[i])) {
-      f.push(iteravel[i]);
-    }
-  }
-  return f;
+export const filtroPerformatico = (funcao: FuncaoDeFiltragem, iteravel: IteravelType): RetornoFiltro => {
+	const f = []; //final
+	for (const element of iteravel) {
+		if (funcao(element)) {
+			f.push(element);
+		}
+	}
+	return f;
 };
