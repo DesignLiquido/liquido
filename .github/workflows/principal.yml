@@ -1,0 +1,23 @@
+name: Commit e PR - Principal
+
+on:
+  pull_request:
+    branches: [principal]
+
+jobs:
+  testes-linguagem:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16'
+      - name: NPM - Dependências
+        run: |
+          sudo npm install
+      - name: Testes de liquido
+        run: |
+          sudo echo Funcionou
+
+# Terminar de escrever essa parte do codigo.
