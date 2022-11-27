@@ -1,0 +1,23 @@
+name: Test
+on:
+  push:
+    branches: [principal]
+  pull_request:
+    branches: [principal]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: yarn
+      - run: yarn verificadorDeCodigoTypescript
+			- run: yarn lint
+			- run: yarn prettier-format
+			- run: yarn testes
+        env:
+          CI: true

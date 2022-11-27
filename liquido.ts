@@ -20,7 +20,7 @@ import { ConversorLmht } from '@designliquido/lmht-js';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
-import { ErroLexadorLiquido, LiquidoInterface } from './interfaces/interface-liquido';
+import { ErroLexadorLiquido, LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
 
 /**
  * O núcleo do framework.
@@ -104,18 +104,25 @@ export class Liquido implements LiquidoInterface {
 	}
 
 	/**
-	 * Retorna o caminho do arquivo chamado "configuracao.delegua" se existir no diretório,
-	 * senão retorna nulo
-	 * @returns O caminho do arquivo.
+	 * Retorna o caminho do arquivo de configuração se existir, senão retorna null
+	 * @param [caminhoTotal] - O caminho para o diretório a ser pesquisado.
+	 * @returns Um objeto com duas propriedades: caminho e valor.
 	 */
-	resolveArquivoConfiguracaoMiddleware(): string | void {
-		const ListaDeItems = sistemaDeArquivos.readdirSync(this.diretorioBase);
+	resolveArquivoConfiguracaoMiddleware(caminhoTotal = ''): RetornoMiddleware {
+		const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
+		const ListaDeItems = sistemaDeArquivos.readdirSync(diretorioBase);
 		for (const item of ListaDeItems) {
 			if (item === 'configuracao.delegua') {
-				return caminho.join(this.diretorioBase, item);
+				return {
+					caminho: caminho.join(diretorioBase, item),
+					valor: true
+				};
 			}
 		}
-		return null;
+		return {
+			caminho: null,
+			valor: false
+		};
 	}
 
 	/**
@@ -138,12 +145,12 @@ export class Liquido implements LiquidoInterface {
 	importarArquivoMiddleware(): void {
 		const caminhoConfigArquivo = this.resolveArquivoConfiguracaoMiddleware();
 
-		if (typeof caminhoConfigArquivo !== 'string') throw new Error('Arquivo de configuração não encontrado');
+		if (typeof caminhoConfigArquivo.caminho !== 'string') throw new Error('Arquivo de configuração não encontrado');
 
 		try {
-			const retornoImportador = this.importador.importar(caminhoConfigArquivo);
+			const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
 
-			this.verificaErrosImportacao(retornoImportador, caminhoConfigArquivo);
+			this.verificaErrosImportacao(retornoImportador, caminhoConfigArquivo.caminho);
 
 			for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
 				// Implementar uma forma de pegar o valor do importar

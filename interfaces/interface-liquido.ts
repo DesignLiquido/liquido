@@ -29,7 +29,7 @@ export interface LiquidoInterface {
 	importarArquivosRotas(): void;
 	verificaErrosImportacao(verificando: RetornoImportador, caminhoArquivo: string): void;
 	importarArquivoMiddleware(): void;
-	resolveArquivoConfiguracaoMiddleware(): string | void;
+	resolveArquivoConfiguracaoMiddleware(caminhoTotal?: string): RetornoMiddleware;
 	prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
 	resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any>;
@@ -46,6 +46,11 @@ export interface LiquidoInterface {
 	adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void;
 	adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void;
 	adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void;
+}
+
+export interface RetornoMiddleware {
+	caminho: string;
+	valor: boolean;
 }
 
 export interface ErroLexadorLiquido {
