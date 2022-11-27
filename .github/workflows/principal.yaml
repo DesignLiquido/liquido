@@ -16,6 +16,13 @@ jobs:
       - name: NPM - Dependências
         run: |
           sudo npm install
-      - name: Testes de liquido
+      - name: Rodando Lints
         run: |
           sudo npm run verificadorDeCodigoTypescript
+				run: |
+					sudo npm run lint
+				run: |
+					sudo npm run prettier-format
+			- name: Testes Unitarios
+				run: |
+					sudo npm run testes
