@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: '16'
       - name: NPM - Dependências
@@ -18,11 +18,9 @@ jobs:
           sudo npm install
       - name: Rodando Lints
         run: |
-          sudo npm run verificadorDeCodigoTypescript
-				run: |
-					sudo npm run lint
-				run: |
-					sudo npm run prettier-format
-			- name: Testes Unitarios
-				run: |
-					sudo npm run testes
+          sudo npm run verificadorDeCodigoTypescript |
+          sudo npm run lint |
+          sudo npm run prettier-format
+      - name: Testes Unitarios
+        run: |
+          sudo npm run testes
