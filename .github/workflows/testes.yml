@@ -1,4 +1,4 @@
-name: Test
+name: Testes
 on:
   push:
     branches: [principal]
@@ -15,9 +15,9 @@ jobs:
         with:
           node-version: 16.x
       - run: yarn
-      - run: yarn verificadorDeCodigoTypescript
-			- run: yarn lint
-			- run: yarn prettier-format
+      # - run: yarn verificadorDeCodigoTypescript
+			# - run: yarn lint
+			# - run: yarn prettier-format
 			- run: yarn testes
         env:
           CI: true
