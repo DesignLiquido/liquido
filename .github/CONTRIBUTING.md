@@ -22,6 +22,15 @@ yarn
 
 Isso deve baixar e instalar os pacotes que Liquido precisa para ser desenvolvido.
 
+Pois baixar os pacotes você deverá criar um arquivo _.env_ com a seguinte configuração.
+
+```.env
+NODE_ENV='teste'
+```
+
+Isso é um configuração para o jest, ferramenta de testes usada no projeto.
+Caso tenha duvida use o arquivo _.env.example_ para ter uma base.
+
 Liquido funciona em qualquer sistema operacional que tenha uma versão de Node.js compatível.
 
 Para os fontes, usamos [TypeScript](https://www.typescriptlang.org/) (versão mais recente). Normalmente desenvolvemos em Visual Studio Code, e, ao abrir o projeto nele, já temos as configurações para depurar (debugar) Liquido. Outros editores podem ser usados, mas não temos arquivos de suporte a todos eles.
