@@ -1,5 +1,7 @@
-import { ConversorLmht } from '@designliquido/lmht-js';
 import express, { Request, Response } from 'express';
+import helmet from 'helmet';
+
+import { ConversorLmht } from '@designliquido/lmht-js';
 
 export class Roteador {
     aplicacao: express.Express;
@@ -10,6 +12,9 @@ export class Roteador {
         this.aplicacao = express();
         this.porta = 3000;
         this.conversorLmht = conversorLmht;
+
+        // Middlewares da indústria
+        this.aplicacao.use(helmet());
     }
 
     middlewares() {
