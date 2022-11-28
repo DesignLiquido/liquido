@@ -1,8 +1,6 @@
 import * as caminho from 'path';
 import * as sistemaDeArquivos from 'node:fs';
 
-import Handlebars from 'handlebars';
-
 import {
     AvaliadorSintatico,
     ErroAvaliadorSintatico,
@@ -16,11 +14,11 @@ import {
 import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/fontes/construtos';
 import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
-import { ConversorLmht } from '@designliquido/lmht-js';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
 import { ErroLexadorLiquido, LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
+import { FormatadorLmht } from './infraestrutura/formatadores';
 
 /**
  * O núcleo do framework.
@@ -28,8 +26,8 @@ import { ErroLexadorLiquido, LiquidoInterface, RetornoMiddleware } from './inter
 export class Liquido implements LiquidoInterface {
     importador: Importador;
     interpretador: Interpretador;
-    conversorLmht: ConversorLmht;
     roteador: Roteador;
+    formatadorLmht: FormatadorLmht;
 
     arquivosDelegua: string[];
     rotasDelegua: string[];
@@ -55,9 +53,10 @@ export class Liquido implements LiquidoInterface {
             this.conteudoArquivosAbertos,
             false
         );
-        this.conversorLmht = new ConversorLmht();
+
+        this.formatadorLmht = new FormatadorLmht(__dirname);
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
-        this.roteador = new Roteador(this.conversorLmht);
+        this.roteador = new Roteador();
     }
 
     async iniciar(): Promise<void> {
@@ -299,31 +298,6 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
-     * Aplica transformações Handlebars e LMHT no arquivo de visão correspondente
-     * à rota.
-     * @param caminhoRota Caminho da rota na requisição.
-     * @param valores Valores que devem ser usados na aplicação do Handlebars.
-     * @returns O resultado das duas conversões.
-     */
-    async resolverRetornoLmht(caminhoRota: string, valores: any): Promise<any> {
-        let visaoCorrespondente = caminho.join(__dirname, "visoes", caminhoRota, ".lmht");
-        if (visaoCorrespondente.endsWith(caminho.sep + ".lmht")) {
-            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", caminho.sep + "inicial.lmht");
-        }
-
-        const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
-        const conteudoDoArquivo: string = arquivoBase.toString();
-        let textoBase = conteudoDoArquivo;
-
-        if (valores) {
-            const template = Handlebars.compile(conteudoDoArquivo);
-            textoBase = template(valores);
-        }
-
-        return await this.conversorLmht.converterPorTexto(textoBase);
-    }
-
-    /**
      * Configuração de uma rota GET no roteador Express.
      * @param caminhoRota O caminho completo do arquivo que define a rota.
      * @param argumentos Todas as funções em Delégua que devem ser executadas
@@ -342,7 +316,7 @@ export class Liquido implements LiquidoInterface {
             // Ele vem como string, e precisa ser desserializado para ser usado.
             const { valor } = JSON.parse(retorno.resultado.pop());
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.valores);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -367,7 +341,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -392,7 +366,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -417,7 +391,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -441,7 +415,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -466,7 +440,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -491,7 +465,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -516,7 +490,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -541,7 +515,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -565,7 +539,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -589,7 +563,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);
@@ -613,7 +587,7 @@ export class Liquido implements LiquidoInterface {
             const { valor } = JSON.parse(retorno.resultado.pop());
 
             if (valor.campos.lmht) {
-                const resultado = await this.resolverRetornoLmht(caminhoRota, valor.campos.lmht);
+                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
                 res.send(resultado);
             } else if (valor.campos.mensagem) {
                 res.send(valor.campos.mensagem);

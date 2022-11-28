@@ -7,13 +7,11 @@ import {
 } from '@designliquido/delegua';
 import { Construto, FuncaoConstruto } from '@designliquido/delegua/fontes/construtos';
 import { ErroLexador } from '@designliquido/delegua/fontes/lexador/erro-lexador';
-import { ConversorLmht } from '@designliquido/lmht-js';
 import { Roteador } from '../infraestrutura/roteador';
 
 export interface LiquidoInterface {
     importador: Importador;
     interpretador: Interpretador;
-    conversorLmht: ConversorLmht;
     roteador: Roteador;
     arquivosDelegua: string[];
     rotasDelegua: string[];
@@ -32,7 +30,6 @@ export interface LiquidoInterface {
     resolverArquivoConfiguracao(caminhoTotal?: string): RetornoMiddleware;
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
-    resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any>;
     chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretador>;
     adicionarRotaGet(caminhoRota: string, argumentos: Construto[]): void;
     adicionarRotaPost(caminhoRota: string, argumentos: Construto[]): void;
