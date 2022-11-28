@@ -138,7 +138,7 @@ export class Liquido implements LiquidoInterface {
                 const objeto = entidadeChamada.objeto as Variavel;
                 const metodo = entidadeChamada.simbolo;
 
-                if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
+                if (objeto.simbolo.lexema.toLowerCase() === 'roteador') {
                     switch (metodo.lexema) {
                         case 'usar':
                             // implementar middlewares dimanicos.

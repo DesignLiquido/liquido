@@ -1,5 +1,5 @@
 // Habilita qualquer middleware para ser usado com o Express
-liquido.roteador.usar()
+// liquido.roteador.usar()
 
 // Habilita o CORS
 liquido.roteador.cors()
@@ -8,7 +8,7 @@ liquido.roteador.cors()
 liquido.roteador.cookieParser()
 
 // Habilita o Passport
-liquido.roteador.passport()
+// liquido.roteador.passport()
 
 // Habilita o Morgan
 liquido.roteador.morgan()
