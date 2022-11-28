@@ -18,14 +18,10 @@ export interface LiquidoInterface {
     diretorioBase: string;
     diretorioDescobertos: string[];
 
-    errosLexador: ErroLexadorLiquido[];
-    errosAvaliadorSintatico: ErroAvaliadorSintatico[];
-
     iniciar(): Promise<void>;
     descobrirRotas(diretorio: string): void;
     resolverCaminhoRota(caminhoArquivo: string): string;
     importarArquivosRotas(): void;
-    verificaErrosImportacao(verificando: RetornoImportador, caminhoArquivo: string): void;
     importarArquivoMiddleware(): void;
     resolverArquivoConfiguracao(caminhoTotal?: string): RetornoMiddleware;
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
