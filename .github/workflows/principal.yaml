@@ -1,0 +1,26 @@
+name: Commit e PR - Principal
+
+on:
+  pull_request:
+    branches: [principal]
+
+jobs:
+  teste-jest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16'
+      - name: NPM - Dependências
+        run: |
+          sudo npm install
+      - name: Rodando Lints
+        run: |
+          sudo npm run verificadorDeCodigoTypescript |
+          sudo npm run lint |
+          sudo npm run prettier-format
+      - name: Testes Unitarios
+        run: |
+          sudo npm run testes
