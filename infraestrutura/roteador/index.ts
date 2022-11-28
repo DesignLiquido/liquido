@@ -1,6 +1,3 @@
-import * as SistemaDeArquivos from 'node:fs';
-import * as caminho from 'node:path';
-
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,15 +5,30 @@ import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-// Helmet, Cookie-parser, talvez o Passport, Morgan e CORS
-
 export class Roteador {
     aplicacao: express.Express;
     porta: number;
+    private DEFAULTS_MIDDLEWARES = true;
 
     constructor() {
         this.aplicacao = express();
         this.porta = 3000;
+    }
+
+    setDefaultMiddlewares(value: boolean) {
+        this.DEFAULTS_MIDDLEWARES = value;
+    }
+
+    getDefaultMiddlewares() {
+        return this.DEFAULTS_MIDDLEWARES;
+    }
+
+    defaultMiddlewares() {
+        this.aplicacao.use(express.json());
+        this.aplicacao.use(cors());
+        this.aplicacao.use(helmet());
+        this.aplicacao.use(morgan('combined'));
+        this.aplicacao.use(cookieParser());
     }
 
     corsMiddleware() {

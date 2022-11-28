@@ -1,17 +1,21 @@
+liquido.roteador.defaultMiddleware()
+
+
 // Habilita qualquer middleware para ser usado com o Express
 // liquido.roteador.usar()
 
 // Habilita o CORS
-liquido.roteador.cors()
+// liquido.roteador.cors()
 
 // Habilita o CookieParser
-liquido.roteador.cookieParser()
+// liquido.roteador.cookieParser()
 
 // Habilita o Passport
 // liquido.roteador.passport()
 
 // Habilita o Morgan
-liquido.roteador.morgan()
+// liquido.roteador.morgan()
 
 // Habilita o helmet
-liquido.roteador.helmet()
+// liquido.roteador.helmet()
+

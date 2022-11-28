@@ -57,6 +57,9 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoMiddleware();
+        if (this.roteador.getDefaultMiddlewares() !== true) {
+            this.roteador.defaultMiddlewares();
+        }
         this.importarArquivosRotas();
 
         this.roteador.iniciar();
@@ -140,6 +143,9 @@ export class Liquido implements LiquidoInterface {
 
                 if (objeto.simbolo.lexema.toLowerCase() === 'roteador') {
                     switch (metodo.lexema) {
+                        case 'defaultMiddleware':
+                            this.roteador.setDefaultMiddlewares(false);
+                            break;
                         case 'usar':
                             // implementar middlewares dimanicos.
                             break;
