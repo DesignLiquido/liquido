@@ -33,7 +33,7 @@ describe('Liquido', () => {
     });
 
     it('Testando resolveArquivoConfiguracaoMiddleware()', () => {
-        const retorno: RetornoMiddleware = liquido.resolveArquivoConfiguracaoMiddleware(
+        const retorno: RetornoMiddleware = liquido.resolverArquivoConfiguracao(
             caminho.join(__dirname, 'exemplos')
         );
 

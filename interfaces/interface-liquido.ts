@@ -29,7 +29,7 @@ export interface LiquidoInterface {
     importarArquivosRotas(): void;
     verificaErrosImportacao(verificando: RetornoImportador, caminhoArquivo: string): void;
     importarArquivoMiddleware(): void;
-    resolveArquivoConfiguracaoMiddleware(caminhoTotal?: string): RetornoMiddleware;
+    resolverArquivoConfiguracao(caminhoTotal?: string): RetornoMiddleware;
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
     resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any>;

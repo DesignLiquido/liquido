@@ -90,7 +90,7 @@ export class Liquido implements LiquidoInterface {
 
     /**
      * Ele pega um caminho de arquivo e retorna uma rota
-     * @param {string} caminhoArquivo - string =&gt; O caminho do arquivo que está sendo lido
+     * @param {string} caminhoArquivo O caminho do arquivo que está sendo lido
      * @returns A rota resolvida.
      */
     resolverCaminhoRota(caminhoArquivo: string): string {
@@ -104,11 +104,11 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
-     * Retorna o caminho do arquivo de configuração se existir, senão retorna null
-     * @param [caminhoTotal] - O caminho para o diretório a ser pesquisado.
+     * Retorna o caminho do arquivo de configuração se existir, senão retorna `null`.
+     * @param {string} caminhoTotal O caminho para o diretório a ser pesquisado.
      * @returns Um objeto com duas propriedades: caminho e valor.
      */
-    resolveArquivoConfiguracaoMiddleware(caminhoTotal = ''): RetornoMiddleware {
+    resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoMiddleware {
         const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
         const ListaDeItems = sistemaDeArquivos.readdirSync(diretorioBase);
         for (const item of ListaDeItems) {
@@ -116,22 +116,24 @@ export class Liquido implements LiquidoInterface {
                 return {
                     caminho: caminho.join(diretorioBase, item),
                     valor: true
-                };
+                } as RetornoMiddleware;
             }
+            break;
         }
         return {
             caminho: null,
             valor: false
-        };
+        } as RetornoMiddleware;
     }
 
     /**
      * Verifica se há algum erro no verificando.
-     * @param {RetornoImportador} verificando - RetornoImportador
+     * @param {RetornoImportador} retornoImportador - RetornoImportador
      * @param {string} caminhoArquivo - string
+     * TODO @Italo: Acho que nem vai precisar desse método aqui.
      */
-    verificaErrosImportacao(verificando: RetornoImportador, caminhoArquivo: string): void {
-        verificando.retornoLexador.erros.forEach((erro) => {
+    verificaErrosImportacao(retornoImportador: RetornoImportador, caminhoArquivo: string): void {
+        retornoImportador.retornoLexador.erros.forEach((erro) => {
             const erroLexador: ErroLexadorLiquido = {
                 arquivo: caminhoArquivo,
                 erro
@@ -139,13 +141,14 @@ export class Liquido implements LiquidoInterface {
             this.errosLexador.push(erroLexador);
         });
 
-        verificando.retornoAvaliadorSintatico.erros.forEach((erro) => this.errosAvaliadorSintatico.push(erro));
+        retornoImportador.retornoAvaliadorSintatico.erros.forEach((erro) => this.errosAvaliadorSintatico.push(erro));
     }
 
     importarArquivoMiddleware(): void {
-        const caminhoConfigArquivo = this.resolveArquivoConfiguracaoMiddleware();
+        const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
-        if (typeof caminhoConfigArquivo.caminho !== 'string') throw new Error('Arquivo de configuração não encontrado');
+        if (typeof caminhoConfigArquivo.caminho !== 'string')
+            throw new Error('Arquivo de configuração não encontrado');
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
