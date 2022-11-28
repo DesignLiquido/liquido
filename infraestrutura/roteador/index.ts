@@ -1,5 +1,14 @@
+import * as SistemaDeArquivos from 'node:fs';
+import * as caminho from 'node:path';
+
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
+import morgan from 'morgan';
+import passport from 'passport';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+
+// Helmet, Cookie-parser, talvez o Passport, Morgan e CORS
 
 export class Roteador {
     aplicacao: express.Express;
@@ -8,13 +17,27 @@ export class Roteador {
     constructor() {
         this.aplicacao = express();
         this.porta = 3000;
-
-        // Middlewares da indústria
-        this.aplicacao.use(helmet());
     }
 
-    middlewares() {
-        this.aplicacao.use(express.json()); // iniciando middleware para o framework
+    corsMiddleware() {
+        this.aplicacao.use(cors());
+    }
+
+    cookieParserMiddleware() {
+        this.aplicacao.use(cookieParser());
+    }
+
+    passportMiddleware() {
+        this.aplicacao.use(passport.initialize());
+        this.aplicacao.use(passport.session());
+    }
+
+    morganMiddleware() {
+        this.aplicacao.use(morgan('combined'));
+    }
+
+    helmetMiddleware() {
+        this.aplicacao.use(helmet());
     }
 
     rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {

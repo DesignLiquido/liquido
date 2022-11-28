@@ -3,11 +3,9 @@ import * as sistemaDeArquivos from 'node:fs';
 
 import {
     AvaliadorSintatico,
-    ErroAvaliadorSintatico,
     Importador,
     Interpretador,
     Lexador,
-    RetornoImportador,
     RetornoInterpretador,
     Simbolo
 } from '@designliquido/delegua';
@@ -17,7 +15,7 @@ import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
-import { ErroLexadorLiquido, LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
+import { LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 
 /**
@@ -143,7 +141,22 @@ export class Liquido implements LiquidoInterface {
                 if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
                     switch (metodo.lexema) {
                         case 'usar':
-                            this.roteador.middlewares();
+                            // implementar middlewares dimanicos.
+                            break;
+                        case 'cors':
+                            this.roteador.corsMiddleware();
+                            break;
+                        case 'cookieParser':
+                            this.roteador.cookieParserMiddleware();
+                            break;
+                        case 'passport':
+                            this.roteador.passportMiddleware();
+                            break;
+                        case 'morgan':
+                            this.roteador.morganMiddleware();
+                            break;
+                        case 'helmet':
+                            this.roteador.helmetMiddleware();
                             break;
                         default:
                             console.log(`Método ${metodo.lexema} não reconhecido.`);
