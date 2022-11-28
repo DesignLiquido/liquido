@@ -147,8 +147,10 @@ export class Liquido implements LiquidoInterface {
     importarArquivoMiddleware(): void {
         const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
-        if (typeof caminhoConfigArquivo.caminho !== 'string')
-            throw new Error('Arquivo de configuração não encontrado');
+        // TODO @Italo: Se arquivo não existe, apenas avisar usuário.
+        // Não precisa estourar a execução.
+        /* if (typeof caminhoConfigArquivo.caminho !== 'string')
+            throw new Error('Arquivo de configuração não encontrado'); */
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
@@ -299,12 +301,16 @@ export class Liquido implements LiquidoInterface {
     /**
      * Aplica transformações Handlebars e LMHT no arquivo de visão correspondente
      * à rota.
-     * @param arquivoRota Caminho completo do arquivo da rota.
+     * @param caminhoRota Caminho da rota na requisição.
      * @param valores Valores que devem ser usados na aplicação do Handlebars.
      * @returns O resultado das duas conversões.
      */
-    async resolverRetornoLmht(arquivoRota: string, valores: any): Promise<any> {
-        const visaoCorrespondente = arquivoRota.replace('rotas', 'visoes').replace('delegua', 'lmht');
+    async resolverRetornoLmht(caminhoRota: string, valores: any): Promise<any> {
+        let visaoCorrespondente = caminho.join(__dirname, "visoes", caminhoRota, ".lmht");
+        if (visaoCorrespondente.endsWith(caminho.sep + ".lmht")) {
+            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", caminho.sep + "inicial.lmht");
+        }
+
         const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
         const conteudoDoArquivo: string = arquivoBase.toString();
         let textoBase = conteudoDoArquivo;

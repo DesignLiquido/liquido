@@ -18,7 +18,7 @@
 	},
 	"dependencies": {
 		"@designliquido/lmht-js": "^0.1.0",
-		"delegua": "^0.9.3",
+		"delegua": "^0.9.4",
 		"dotenv": "^16.0.3",
 		"express": "^4.18.1",
 		"handlebars": "^4.7.7",
