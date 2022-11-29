@@ -9,9 +9,17 @@ import {
     RetornoInterpretador,
     Simbolo
 } from '@designliquido/delegua';
-import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/fontes/construtos';
+import {
+    AcessoMetodo,
+    Chamada,
+    Construto,
+    DefinirValor,
+    FuncaoConstruto,
+    Variavel
+} from '@designliquido/delegua/fontes/construtos';
 import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
+import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
@@ -57,9 +65,7 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoMiddleware();
-        if (this.roteador.getDefaultMiddlewares() !== true) {
-            this.roteador.defaultMiddlewares();
-        }
+        this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 
         this.roteador.iniciar();
@@ -135,37 +141,31 @@ export class Liquido implements LiquidoInterface {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
 
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
-                // Implementar uma forma de pegar o valor do importar
-                const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-                const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
-                const objeto = entidadeChamada.objeto as Variavel;
-                const metodo = entidadeChamada.simbolo;
-
-                if (objeto.simbolo.lexema.toLowerCase() === 'roteador') {
-                    switch (metodo.lexema) {
-                        case 'defaultMiddleware':
-                            this.roteador.setDefaultMiddlewares(false);
-                            break;
-                        case 'usar':
-                            // implementar middlewares dimanicos.
-                            break;
+                const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
+                const nomePropriedade: string = expressao.nome.lexema;
+                const informacoesVariavel: VariavelInterface = expressao.valor;
+                if (expressao.objeto.simbolo.lexema === 'roteador') {
+                    switch (nomePropriedade) {
                         case 'cors':
-                            this.roteador.corsMiddleware();
+                            this.roteador.setCors(informacoesVariavel.valor);
                             break;
                         case 'cookieParser':
-                            this.roteador.cookieParserMiddleware();
+                            this.roteador.setCookieParser(informacoesVariavel.valor);
+                            break;
+                        case 'json':
+                            this.roteador.setExpressJson(informacoesVariavel.valor);
                             break;
                         case 'passport':
-                            this.roteador.passportMiddleware();
+                            this.roteador.setPassport(informacoesVariavel.valor);
                             break;
                         case 'morgan':
-                            this.roteador.morganMiddleware();
+                            this.roteador.setMorgan(informacoesVariavel.valor);
                             break;
                         case 'helmet':
-                            this.roteador.helmetMiddleware();
+                            this.roteador.setHelmet(informacoesVariavel.valor);
                             break;
                         default:
-                            console.log(`Método ${metodo.lexema} não reconhecido.`);
+                            console.log(`Método ${nomePropriedade} não reconhecido.`);
                             break;
                     }
                 }

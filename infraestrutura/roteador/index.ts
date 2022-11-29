@@ -8,48 +8,93 @@ import cors from 'cors';
 export class Roteador {
     aplicacao: express.Express;
     porta: number;
-    private DEFAULTS_MIDDLEWARES = true;
+
+    private morgan = false;
+    private helmet = false;
+    private expressJson = false;
+    private cookieParser = false;
+
+    private cors = false;
+    private passport = false;
 
     constructor() {
         this.aplicacao = express();
         this.porta = 3000;
     }
 
-    setDefaultMiddlewares(value: boolean) {
-        this.DEFAULTS_MIDDLEWARES = value;
+    iniciarMiddlewares() {
+        if (this.morgan) {
+            this.aplicacao.use(morgan('dev'));
+        }
+
+        if (this.helmet) {
+            this.aplicacao.use(helmet());
+        }
+
+        if (this.expressJson) {
+            this.aplicacao.use(express.json());
+        }
+
+        if (this.cookieParser) {
+            this.aplicacao.use(cookieParser());
+        }
+
+        if (this.cors) {
+            this.aplicacao.use(cors());
+        }
+
+        if (this.passport) {
+            this.aplicacao.use(passport.initialize());
+        }
     }
 
-    getDefaultMiddlewares() {
-        return this.DEFAULTS_MIDDLEWARES;
+    getCors(): boolean {
+        return this.cors;
     }
 
-    defaultMiddlewares() {
-        this.aplicacao.use(express.json());
-        this.aplicacao.use(cors());
-        this.aplicacao.use(helmet());
-        this.aplicacao.use(morgan('combined'));
-        this.aplicacao.use(cookieParser());
+    setCors(valor: boolean): void {
+        console.log('Definindo intermediario CORS como: ', valor);
+        this.cors = valor;
     }
 
-    corsMiddleware() {
-        this.aplicacao.use(cors());
+    getPassport(): boolean {
+        return this.passport;
     }
 
-    cookieParserMiddleware() {
-        this.aplicacao.use(cookieParser());
+    setPassport(valor: boolean): void {
+        this.passport = valor;
     }
 
-    passportMiddleware() {
-        this.aplicacao.use(passport.initialize());
-        this.aplicacao.use(passport.session());
+    getCookieParser(): boolean {
+        return this.cookieParser;
     }
 
-    morganMiddleware() {
-        this.aplicacao.use(morgan('combined'));
+    setCookieParser(valor: boolean): void {
+        this.cookieParser = valor;
     }
 
-    helmetMiddleware() {
-        this.aplicacao.use(helmet());
+    getExpressJson(): boolean {
+        return this.expressJson;
+    }
+
+    setExpressJson(valor: boolean): void {
+        this.expressJson = valor;
+    }
+
+    getHelmet(): boolean {
+        return this.helmet;
+    }
+
+    setHelmet(valor: boolean): void {
+        this.helmet = valor;
+    }
+
+    getMorgan(): boolean {
+        return this.morgan;
+    }
+
+    setMorgan(valor: boolean): void {
+        this.morgan = valor;
     }
 
     rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {
