@@ -6,7 +6,7 @@ describe('Liquido', () => {
     let liquido: Liquido;
 
     beforeEach(() => {
-        liquido = new Liquido();
+        liquido = new Liquido(process.cwd());
     });
 
     it('Testando descobrirRotas()', () => {
