@@ -1,18 +1,18 @@
 {
 	"name": "liquido",
 	"description": "Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100% em português",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"author": "Leonel Sanches da Silva",
-    "contributors": [
-        {
-            "name": "Leonel Sanches da Silva",
-            "url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
-        },
-        {
-            "name": "Italo Brito Brandão",
-            "url": "https://github.com/ItaloCobains"
-        }
-    ],
+	"contributors": [
+		{
+			"name": "Leonel Sanches da Silva",
+			"url": "https://www.linkedin.com/in/leonelsanchesdasilva/"
+		},
+		{
+			"name": "Italo Brito Brandão",
+			"url": "https://github.com/ItaloCobains"
+		}
+	],
 	"license": "MIT",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
