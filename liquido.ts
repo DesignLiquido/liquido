@@ -37,18 +37,19 @@ export class Liquido implements LiquidoInterface {
 
     arquivosDelegua: string[];
     rotasDelegua: string[];
-    diretorioBase: string = __dirname;
+    diretorioBase: string;
     diretorioDescobertos: string[];
 
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
 
-    constructor() {
+    constructor(diretorioBase: string) {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
         this.arquivosDelegua = [];
         this.rotasDelegua = [];
         this.diretorioDescobertos = [];
+        this.diretorioBase = diretorioBase;
 
         this.importador = new Importador(
             new Lexador(),
@@ -58,7 +59,7 @@ export class Liquido implements LiquidoInterface {
             false
         );
 
-        this.formatadorLmht = new FormatadorLmht(__dirname);
+        this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
         this.roteador = new Roteador();
     }
