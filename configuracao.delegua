@@ -1,2 +1,7 @@
-// var express = importar("express");
-liquido.roteador.usar()
+liquido.roteador.cors = verdadeiro
+liquido.roteador.bodyParser = verdadeiro
+liquido.roteador.morgan = verdadeiro
+liquido.roteador.cookieParser = verdadeiro
+liquido.roteador.passport = verdadeiro
+liquido.roteador.json = verdadeiro
+liquido.roteador.helmet = verdadeiro

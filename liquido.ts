@@ -3,21 +3,27 @@ import * as sistemaDeArquivos from 'node:fs';
 
 import {
     AvaliadorSintatico,
-    ErroAvaliadorSintatico,
     Importador,
     Interpretador,
     Lexador,
-    RetornoImportador,
     RetornoInterpretador,
     Simbolo
 } from '@designliquido/delegua';
-import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/fontes/construtos';
+import {
+    AcessoMetodo,
+    Chamada,
+    Construto,
+    DefinirValor,
+    FuncaoConstruto,
+    Variavel
+} from '@designliquido/delegua/fontes/construtos';
 import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
+import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
-import { ErroLexadorLiquido, LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
+import { LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 
 /**
@@ -32,10 +38,7 @@ export class Liquido implements LiquidoInterface {
     arquivosDelegua: string[];
     rotasDelegua: string[];
     diretorioBase: string = __dirname;
-    diretorioDescobertos: string[] = [];
-
-    errosLexador: ErroLexadorLiquido[] = [];
-    errosAvaliadorSintatico: ErroAvaliadorSintatico[] = [];
+    diretorioDescobertos: string[];
 
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -45,6 +48,7 @@ export class Liquido implements LiquidoInterface {
         this.conteudoArquivosAbertos = {};
         this.arquivosDelegua = [];
         this.rotasDelegua = [];
+        this.diretorioDescobertos = [];
 
         this.importador = new Importador(
             new Lexador(),
@@ -61,6 +65,7 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoMiddleware();
+        this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 
         this.roteador.iniciar();
@@ -117,7 +122,6 @@ export class Liquido implements LiquidoInterface {
                     valor: true
                 } as RetornoMiddleware;
             }
-            break;
         }
         return {
             caminho: null,
@@ -125,51 +129,43 @@ export class Liquido implements LiquidoInterface {
         } as RetornoMiddleware;
     }
 
-    /**
-     * Verifica se há algum erro no verificando.
-     * @param {RetornoImportador} retornoImportador - RetornoImportador
-     * @param {string} caminhoArquivo - string
-     * TODO @Italo: Acho que nem vai precisar desse método aqui.
-     */
-    verificaErrosImportacao(retornoImportador: RetornoImportador, caminhoArquivo: string): void {
-        retornoImportador.retornoLexador.erros.forEach((erro) => {
-            const erroLexador: ErroLexadorLiquido = {
-                arquivo: caminhoArquivo,
-                erro
-            };
-            this.errosLexador.push(erroLexador);
-        });
-
-        retornoImportador.retornoAvaliadorSintatico.erros.forEach((erro) => this.errosAvaliadorSintatico.push(erro));
-    }
-
     importarArquivoMiddleware(): void {
         const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
-        // TODO @Italo: Se arquivo não existe, apenas avisar usuário.
-        // Não precisa estourar a execução.
-        /* if (typeof caminhoConfigArquivo.caminho !== 'string')
-            throw new Error('Arquivo de configuração não encontrado'); */
+        if (caminhoConfigArquivo.valor === false) {
+            console.log("Arquivo 'configuracao.delegua' não encontrado.");
+            return null;
+        }
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
 
-            this.verificaErrosImportacao(retornoImportador, caminhoConfigArquivo.caminho);
-
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
-                // Implementar uma forma de pegar o valor do importar
-                const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-                const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
-                const objeto = entidadeChamada.objeto as Variavel;
-                const metodo = entidadeChamada.simbolo;
-
-                if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
-                    switch (metodo.lexema) {
-                        case 'usar':
-                            this.roteador.middlewares();
+                const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
+                const nomePropriedade: string = expressao.nome.lexema;
+                const informacoesVariavel: VariavelInterface = expressao.valor;
+                if (expressao.objeto.simbolo.lexema === 'roteador') {
+                    switch (nomePropriedade) {
+                        case 'cors':
+                            this.roteador.setCors(informacoesVariavel.valor);
+                            break;
+                        case 'cookieParser':
+                            this.roteador.setCookieParser(informacoesVariavel.valor);
+                            break;
+                        case 'json':
+                            this.roteador.setExpressJson(informacoesVariavel.valor);
+                            break;
+                        case 'passport':
+                            this.roteador.setPassport(informacoesVariavel.valor);
+                            break;
+                        case 'morgan':
+                            this.roteador.setMorgan(informacoesVariavel.valor);
+                            break;
+                        case 'helmet':
+                            this.roteador.setHelmet(informacoesVariavel.valor);
                             break;
                         default:
-                            console.log(`Método ${metodo.lexema} não reconhecido.`);
+                            console.log(`Método ${nomePropriedade} não reconhecido.`);
                             break;
                     }
                 }
@@ -185,8 +181,6 @@ export class Liquido implements LiquidoInterface {
         try {
             for (const arquivo of this.arquivosDelegua) {
                 const retornoImportador = this.importador.importar(arquivo);
-
-                this.verificaErrosImportacao(retornoImportador, arquivo);
 
                 // Liquido espera declarações do tipo Expressao, contendo dentro
                 // um Construto do tipo Chamada.
@@ -241,14 +235,6 @@ export class Liquido implements LiquidoInterface {
                 }
             }
         } catch (erro) {
-            if (this.errosLexador.length > 0) {
-                throw new Error(
-                    `${this.errosLexador[0].erro.mensagem}: arquivo: ${this.errosLexador[0].arquivo} linha: ${this.errosLexador[0].erro.linha}`
-                );
-            }
-            if (this.errosAvaliadorSintatico.length > 0) {
-                throw new Error(this.errosAvaliadorSintatico[0].message);
-            }
             throw new Error(erro);
         }
     }
