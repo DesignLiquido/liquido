@@ -1,0 +1,15 @@
+{
+    "git": {
+        "commitMessage": "Lançamento da versão v${version}"
+    },
+    "github": {
+        "release": true
+    },
+    "npm": {
+        "publishPath": "./dist"
+    },
+    "hooks": {
+        "before:init": ["yarn empacotar"],
+        "after:bump": "copyfiles -V ./package.json ./dist"
+    }
+}
