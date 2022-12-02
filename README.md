@@ -97,7 +97,7 @@ Algumas ideias retiradas desses projetos:
 Para uma implementação inicial, foram escolhidas bibliotecas consagradas do Node.js de desenvolvimento para a Internet:
 
 - [Express](https://www.npmjs.com/package/express), um servidor HTTP;
-- [Nodemon](https://nodemon.io/), um observador de sistema de arquivos que recarrega a aplicação quando ha mudanças em certos arquivos e/ou diretórios;
+- [Nodemon](https://nodemon.io/), um observador de sistema de arquivos que recarrega a aplicação quando há mudanças em certos arquivos e/ou diretórios;
 - [Handlebars](https://handlebarsjs.com/), um sistema de _templates_;
 - [Helmet](https://helmetjs.github.io/), um _middleware_ para Express.js que define várias configurações de cabeçalho de requisições e respostas que, via de regra, deixam a aplicação mais segura;
 - [Morgan](https://github.com/expressjs/morgan), um _middleware_ para estenografia de requisições HTTP, enviando mensagens úteis para desenvolvedores em console;

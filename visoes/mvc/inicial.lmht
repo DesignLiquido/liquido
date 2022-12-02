@@ -1,5 +1,13 @@
 <lmht>
+    <cabeca>
+        <estilo>
+            lmht {
+                tamanho-fonte: 12px;
+            }
+        </estilo>
+    </cabeca>
     <corpo>
         <titulo1>Teste com {{titulo}}</titulo1>
+        <p>Teste de texto.</p>
     </corpo>
 </lmht>
