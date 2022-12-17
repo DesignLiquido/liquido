@@ -1,4 +1,4 @@
-import { filtroPerformatico } from '../../utilidades/filtro-performatico';
+import { filtroPerformatico } from '../../infraestrutura/utilidades/filtro-performatico';
 
 test('Testando função de filtro', () => {
     const lista = [1, 2, 3, 1, 2, 3, 1, 2, 1];

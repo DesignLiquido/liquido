@@ -19,7 +19,7 @@ export class Roteador {
 
     constructor() {
         this.aplicacao = express();
-        this.porta = 3000;
+        this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
     }
 
     iniciarMiddlewares() {
@@ -53,7 +53,7 @@ export class Roteador {
     }
 
     setCors(valor: boolean): void {
-        console.log('Definindo intermediario CORS como: ', valor);
+        console.log('Definindo intermediário CORS como: ', valor);
         this.cors = valor;
     }
 
