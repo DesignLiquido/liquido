@@ -134,7 +134,7 @@ export class Liquido implements LiquidoInterface {
         const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
         if (caminhoConfigArquivo.valor === false) {
-            console.log("Arquivo 'configuracao.delegua' não encontrado.");
+            console.info("Arquivo 'configuracao.delegua' não encontrado.");
             return null;
         }
 
@@ -172,7 +172,7 @@ export class Liquido implements LiquidoInterface {
                 }
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 

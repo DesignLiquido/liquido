@@ -1,5 +1,5 @@
 {
   "watch": ["rotas"],
-  "ext": "delegua",
+  "ext": "delegua, lmht, foles",
   "exec": "ts-node ./index.ts"
 }
