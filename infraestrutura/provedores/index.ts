@@ -1,4 +1,5 @@
 import { LinconesSQLite } from '@designliquido/lincones-sqlite';
+import { DeleguaModulo, FuncaoPadrao } from '@designliquido/delegua/fontes/estruturas';
 
 import { ProvedorInterface } from "../../interfaces/provedor-interface";
 
@@ -26,8 +27,16 @@ export class ProvedorLincones implements ProvedorInterface {
         return this.tecnologia !== "" && this.caminho !== "";
     }
 
-    resolver() {
+    /**
+     * Instancia classe resolvida e a mapeia como um módulo de Delégua.
+     * @returns 
+     */
+    resolver(): DeleguaModulo {
         const lincones = new LinconesSQLite();
-        return lincones;
+        const linconesComoModulo = new DeleguaModulo('lincones');
+        linconesComoModulo.componentes['executar'] = 
+            new FuncaoPadrao(lincones.executar.length, lincones.executar);
+
+        return linconesComoModulo;
     }
 }
