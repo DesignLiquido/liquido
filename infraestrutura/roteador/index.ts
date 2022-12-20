@@ -5,6 +5,8 @@ import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
+import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+
 export class Roteador {
     aplicacao: express.Express;
     porta: number;
@@ -20,6 +22,32 @@ export class Roteador {
     constructor() {
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+    }
+
+    ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
+        switch (nomePropriedade) {
+            case 'cors':
+                this.ativarDesativarCors(informacoesVariavel.valor);
+                break;
+            case 'cookieParser':
+                this.ativarDesativarCookieParser(informacoesVariavel.valor);
+                break;
+            case 'json':
+                this.ativarDesativarExpressJson(informacoesVariavel.valor);
+                break;
+            case 'passport':
+                this.ativarDesativarPassport(informacoesVariavel.valor);
+                break;
+            case 'morgan':
+                this.ativarDesativarMorgan(informacoesVariavel.valor);
+                break;
+            case 'helmet':
+                this.ativarDesativarHelmet(informacoesVariavel.valor);
+                break;
+            default:
+                console.log(`Método ${nomePropriedade} não reconhecido.`);
+                break;
+        }
     }
 
     iniciarMiddlewares() {
@@ -48,52 +76,27 @@ export class Roteador {
         }
     }
 
-    getCors(): boolean {
-        return this.cors;
-    }
-
-    setCors(valor: boolean): void {
-        console.log('Definindo intermediário CORS como: ', valor);
+    ativarDesativarCors(valor: boolean): void {
         this.cors = valor;
     }
 
-    getPassport(): boolean {
-        return this.passport;
-    }
-
-    setPassport(valor: boolean): void {
+    ativarDesativarPassport(valor: boolean): void {
         this.passport = valor;
     }
 
-    getCookieParser(): boolean {
-        return this.cookieParser;
-    }
-
-    setCookieParser(valor: boolean): void {
+    ativarDesativarCookieParser(valor: boolean): void {
         this.cookieParser = valor;
     }
 
-    getExpressJson(): boolean {
-        return this.expressJson;
-    }
-
-    setExpressJson(valor: boolean): void {
+    ativarDesativarExpressJson(valor: boolean): void {
         this.expressJson = valor;
     }
 
-    getHelmet(): boolean {
-        return this.helmet;
-    }
-
-    setHelmet(valor: boolean): void {
+    ativarDesativarHelmet(valor: boolean): void {
         this.helmet = valor;
     }
 
-    getMorgan(): boolean {
-        return this.morgan;
-    }
-
-    setMorgan(valor: boolean): void {
+    ativarDesativarMorgan(valor: boolean): void {
         this.morgan = valor;
     }
 

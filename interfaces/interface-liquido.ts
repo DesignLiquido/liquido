@@ -1,13 +1,11 @@
 import {
-    ErroAvaliadorSintatico,
     Importador,
     Interpretador,
-    RetornoImportador,
     RetornoInterpretador
 } from '@designliquido/delegua';
 import { Construto, FuncaoConstruto } from '@designliquido/delegua/fontes/construtos';
-import { ErroLexador } from '@designliquido/delegua/fontes/lexador/erro-lexador';
 import { Roteador } from '../infraestrutura/roteador';
+import { RetornoMiddleware } from './retorno-middleware';
 
 export interface LiquidoInterface {
     importador: Importador;
@@ -22,7 +20,7 @@ export interface LiquidoInterface {
     descobrirRotas(diretorio: string): void;
     resolverCaminhoRota(caminhoArquivo: string): string;
     importarArquivosRotas(): void;
-    importarArquivoMiddleware(): void;
+    importarArquivoConfiguracao(): void;
     resolverArquivoConfiguracao(caminhoTotal?: string): RetornoMiddleware;
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
@@ -39,14 +37,4 @@ export interface LiquidoInterface {
     adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void;
     adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void;
     adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void;
-}
-
-export interface RetornoMiddleware {
-    caminho: string;
-    valor: boolean;
-}
-
-export interface ErroLexadorLiquido {
-    erro: ErroLexador;
-    arquivo: string;
 }

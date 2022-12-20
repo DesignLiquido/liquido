@@ -23,8 +23,9 @@ import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
 import { Resposta } from './infraestrutura';
 import { Roteador } from './infraestrutura/roteador';
-import { LiquidoInterface, RetornoMiddleware } from './interfaces/interface-liquido';
+import { LiquidoInterface, RetornoMiddleware } from './interfaces';
 import { FormatadorLmht } from './infraestrutura/formatadores';
+import { ProvedorLincones } from './infraestrutura/provedores';
 
 /**
  * O núcleo do framework.
@@ -34,6 +35,7 @@ export class Liquido implements LiquidoInterface {
     interpretador: Interpretador;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
+    provedorLincones: ProvedorLincones;
 
     arquivosDelegua: string[];
     rotasDelegua: string[];
@@ -62,16 +64,82 @@ export class Liquido implements LiquidoInterface {
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
         this.roteador = new Roteador();
+        this.provedorLincones = new ProvedorLincones();
     }
 
     async iniciar(): Promise<void> {
-        this.importarArquivoMiddleware();
+        this.importarArquivoConfiguracao();
         this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 
         this.roteador.iniciar();
+        if (this.provedorLincones.configurado) {
+            this.interpretador.pilhaEscoposExecucao
+                .definirVariavel('lincones', this.provedorLincones.resolver());
+        }
     }
 
+    /**
+     * Método de importação do arquivo `configuracao.delegua`.
+     * @returns void.
+     */
+    importarArquivoConfiguracao(): void {
+        const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
+
+        if (caminhoConfigArquivo.valor === false) {
+            console.info("Arquivo 'configuracao.delegua' não encontrado.");
+            return null;
+        }
+
+        try {
+            const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
+
+            for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
+                const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
+                const nomePropriedade: string = expressao.nome.lexema;
+                const informacoesVariavel: VariavelInterface = expressao.valor;
+
+                if (expressao.objeto.simbolo.lexema === 'roteador') {
+                    this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
+                }
+
+                if (expressao.objeto.objeto.simbolo.lexema === 'dados') {
+                    if (expressao.objeto.simbolo.lexema === 'lincones') {
+                        this.provedorLincones.configurar(nomePropriedade, informacoesVariavel.valor);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    /**
+     * Retorna o caminho do arquivo de configuração se existir, senão retorna `null`.
+     * @param {string} caminhoTotal O caminho para o diretório a ser pesquisado.
+     * @returns Um objeto com duas propriedades: caminho e valor.
+     */
+    resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoMiddleware {
+        const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
+        const ListaDeItems = sistemaDeArquivos.readdirSync(diretorioBase);
+
+        for (const item of ListaDeItems) {
+            if (item === 'configuracao.delegua') {
+                return {
+                    caminho: caminho.join(diretorioBase, item),
+                    valor: true
+                } as RetornoMiddleware;
+            }
+        }
+        return {
+            caminho: null,
+            valor: false
+        } as RetornoMiddleware;
+    }
+
+    /**
+     * Método de descoberta de rotas.
+     */
     descobrirRotas(diretorio: string): void {
         const ListaDeItems = sistemaDeArquivos.readdirSync(diretorio);
 
@@ -88,6 +156,7 @@ export class Liquido implements LiquidoInterface {
                 return null;
             }
         });
+
         diretorioDescobertos.forEach((diretorioDescoberto) => {
             this.descobrirRotas(diretorioDescoberto);
         });
@@ -106,75 +175,7 @@ export class Liquido implements LiquidoInterface {
             .replace(new RegExp(`\\${caminho.sep}`, 'g'), '/')
             .replace(new RegExp(`/$`, 'g'), '');
         return rotaResolvida;
-    }
-
-    /**
-     * Retorna o caminho do arquivo de configuração se existir, senão retorna `null`.
-     * @param {string} caminhoTotal O caminho para o diretório a ser pesquisado.
-     * @returns Um objeto com duas propriedades: caminho e valor.
-     */
-    resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoMiddleware {
-        const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
-        const ListaDeItems = sistemaDeArquivos.readdirSync(diretorioBase);
-        for (const item of ListaDeItems) {
-            if (item === 'configuracao.delegua') {
-                return {
-                    caminho: caminho.join(diretorioBase, item),
-                    valor: true
-                } as RetornoMiddleware;
-            }
-        }
-        return {
-            caminho: null,
-            valor: false
-        } as RetornoMiddleware;
-    }
-
-    importarArquivoMiddleware(): void {
-        const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
-
-        if (caminhoConfigArquivo.valor === false) {
-            console.info("Arquivo 'configuracao.delegua' não encontrado.");
-            return null;
-        }
-
-        try {
-            const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
-
-            for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
-                const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
-                const nomePropriedade: string = expressao.nome.lexema;
-                const informacoesVariavel: VariavelInterface = expressao.valor;
-                if (expressao.objeto.simbolo.lexema === 'roteador') {
-                    switch (nomePropriedade) {
-                        case 'cors':
-                            this.roteador.setCors(informacoesVariavel.valor);
-                            break;
-                        case 'cookieParser':
-                            this.roteador.setCookieParser(informacoesVariavel.valor);
-                            break;
-                        case 'json':
-                            this.roteador.setExpressJson(informacoesVariavel.valor);
-                            break;
-                        case 'passport':
-                            this.roteador.setPassport(informacoesVariavel.valor);
-                            break;
-                        case 'morgan':
-                            this.roteador.setMorgan(informacoesVariavel.valor);
-                            break;
-                        case 'helmet':
-                            this.roteador.setHelmet(informacoesVariavel.valor);
-                            break;
-                        default:
-                            console.log(`Método ${nomePropriedade} não reconhecido.`);
-                            break;
-                    }
-                }
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
+    }    
 
     importarArquivosRotas(): void {
         this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
@@ -389,6 +390,7 @@ export class Liquido implements LiquidoInterface {
             }
         });
     }
+
     adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void {
         const funcao = argumentos[0] as FuncaoConstruto;
 
@@ -513,6 +515,7 @@ export class Liquido implements LiquidoInterface {
             }
         });
     }
+
     adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void {
         const funcao = argumentos[0] as FuncaoConstruto;
 
@@ -537,6 +540,7 @@ export class Liquido implements LiquidoInterface {
             }
         });
     }
+
     adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void {
         const funcao = argumentos[0] as FuncaoConstruto;
 
@@ -561,6 +565,7 @@ export class Liquido implements LiquidoInterface {
             }
         });
     }
+
     adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void {
         const funcao = argumentos[0] as FuncaoConstruto;
 
