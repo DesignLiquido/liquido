@@ -1,0 +1,23 @@
+<lmht>
+    <cabeça>
+        <titulo>Tela de clientes</titulo>
+    </cabeça>
+    <corpo>
+        <tabela>
+            <cabeça-tabela>
+                <linha>
+                    <celula>Id</celula>
+                    <celula>Nome</celula>
+                </linha>
+            </cabeça-tabela>
+            <corpo-tabela>
+            {{#each linhas}}
+                <linha>
+                    <celula>{{ID}}</celula>
+                    <celula>{{NOME}}</celula>
+                </linha>
+            {{/each}}
+            </corpo-tabela>
+        </tabela>
+    </corpo>
+</lmht>
