@@ -11,12 +11,12 @@
                 </linha>
             </cabeça-tabela>
             <corpo-tabela>
-            {{#each linhas}}
+            {{#cada linhas}}
                 <linha>
                     <celula>{{ID}}</celula>
                     <celula>{{NOME}}</celula>
                 </linha>
-            {{/each}}
+            {{/cada}}
             </corpo-tabela>
         </tabela>
     </corpo>

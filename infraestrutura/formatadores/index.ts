@@ -4,16 +4,18 @@ import * as sistemaDeArquivos from 'node:fs';
 import Handlebars from 'handlebars';
 
 import { ConversorLmht } from "@designliquido/lmht-js";
-import { PreprocessadorFolEs } from '../preprocessadores';
+import { PreprocessadorFolEs, PreprocessadorHandlebars } from '../preprocessadores';
 
 export class FormatadorLmht {
     conversorLmht: ConversorLmht;
     diretorioBase: string;
     preprocessadorFolEs: PreprocessadorFolEs;
+    preprocessadorHandlebars: PreprocessadorHandlebars;
 
     constructor(diretorioBase: string) {
         this.conversorLmht = new ConversorLmht();
         this.preprocessadorFolEs = new PreprocessadorFolEs();
+        this.preprocessadorHandlebars = new PreprocessadorHandlebars();
         this.diretorioBase = diretorioBase;
     }
 
@@ -35,12 +37,14 @@ export class FormatadorLmht {
         let textoBase = conteudoDoArquivo;
 
         if (valores) {
-            const template = Handlebars.compile(conteudoDoArquivo);
+            // Preprocessamento: Handlebars
+            textoBase = this.preprocessadorHandlebars.processar(textoBase);
+            const template = Handlebars.compile(textoBase);
             textoBase = template(valores);
         }
 
         // Preprocessamento: FolEs
-        textoBase = this.preprocessadorFolEs.processarFolhasEstilo(textoBase);
+        textoBase = this.preprocessadorFolEs.processar(textoBase);
 
         return await this.conversorLmht.converterPorTexto(textoBase);
     }
