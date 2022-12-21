@@ -31,11 +31,12 @@ export class ProvedorLincones implements ProvedorInterface {
      * Instancia classe resolvida e a mapeia como um módulo de Delégua.
      * @returns 
      */
-    resolver(): DeleguaModulo {
+    async resolver(): Promise<DeleguaModulo> {
         const lincones = new LinconesSQLite();
+        await lincones.clienteSQLite.abrir();
         const linconesComoModulo = new DeleguaModulo('lincones');
         linconesComoModulo.componentes['executar'] = 
-            new FuncaoPadrao(lincones.executar.length, lincones.executar);
+            new FuncaoPadrao(lincones.executar.length, lincones.executar.bind(lincones));
 
         return linconesComoModulo;
     }

@@ -1,7 +1,7 @@
 liquido.rotaGet(funcao(requisicao, resposta) {
     lincones.executar("CRIAR TABELA clientes (ID INTEIRO NAO NULO CHAVE PRIMARIA AUTO INCREMENTO, NOME TEXTO(100) NAO NULO)")
-    lincones.executar("INSERIR EM clientes (ID, NOME) VALORES ('Pernalonga')")
-    lincones.executar("INSERIR EM clientes (ID, NOME) VALORES ('Patolino')")
+    lincones.executar("INSERIR EM clientes (NOME) VALORES ('Pernalonga')")
+    lincones.executar("INSERIR EM clientes (NOME) VALORES ('Patolino')")
     var teste = lincones.executar("SELECIONAR * DE clientes")
     resposta.enviar(teste).status(200)
 })

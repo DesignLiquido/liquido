@@ -75,7 +75,7 @@ export class Liquido implements LiquidoInterface {
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
             this.interpretador.pilhaEscoposExecucao
-                .definirVariavel('lincones', this.provedorLincones.resolver());
+                .definirVariavel('lincones', await this.provedorLincones.resolver());
         }
     }
 
@@ -267,22 +267,52 @@ export class Liquido implements LiquidoInterface {
      * @returns O resultado da interpretação.
      */
     async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretador> {
-        return await this.interpretador.interpretar(
-            [
-                new Expressao(
-                    new Chamada(
-                        -1,
-                        new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)),
-                        new Simbolo('PARENTESE_DIREITO', '', null, -1, -1),
-                        [
-                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'requisicao', null, -1, -1)),
-                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1))
-                        ]
+        try {
+            return await this.interpretador.interpretar(
+                [
+                    new Expressao(
+                        new Chamada(
+                            -1,
+                            new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)),
+                            new Simbolo('PARENTESE_DIREITO', '', null, -1, -1),
+                            [
+                                new Variavel(-1, new Simbolo('IDENTIFICADOR', 'requisicao', null, -1, -1)),
+                                new Variavel(-1, new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1))
+                            ]
+                        )
                     )
-                )
-            ],
-            true
-        );
+                ],
+                true
+            );
+        } catch (erro: any) {
+            console.error(erro);
+        }   
+    }
+
+    private async logicaComumResultadoInterpretador(caminhoRota: string, retornoInterpretador: RetornoInterpretador): 
+        Promise<{ corpoRetorno: any, statusHttp: number }>
+    {
+        // O resultado que interessa é sempre o último.
+        // Ele vem como string, e precisa ser desserializado para ser usado.
+        const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
+
+        let statusHttp: number = 200;
+        if (valor.campos.statusHttp) {
+            statusHttp = valor.campos.statusHttp;
+        }
+
+        if (valor.campos.lmht) {
+            const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
+            return {
+                corpoRetorno: resultadoFormatacaoLmht,
+                statusHttp: statusHttp
+            };
+        } else if (valor.campos.mensagem) {
+            return {
+                corpoRetorno: valor.campos.mensagem,
+                statusHttp: statusHttp
+            };
+        }
     }
 
     /**
@@ -298,21 +328,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaGet(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaGet', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaGet');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaGet');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -322,22 +340,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaPost(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaPost', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaPost');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPost');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -347,22 +352,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaPut(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaPut', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaPut');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPut');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -372,22 +364,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaDelete(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaDelete', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaDelete');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaDelete');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -397,22 +376,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaPatch(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaPatch', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaPatch');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPatch');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -422,22 +388,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaOptions(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaOptions', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaOptions');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaOptions');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -447,22 +400,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaCopy(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaCopy', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaCopy');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaCopy');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -472,22 +412,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaHead(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaHead', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaHead');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaHead');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -497,22 +424,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaLock(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaLock', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaLock');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaLock');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -522,22 +436,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaUnlock(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaUnlock', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaUnlock');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaUnlock');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -547,22 +448,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaPurge(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaPurge', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaPurge');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPurge');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 
@@ -572,22 +460,9 @@ export class Liquido implements LiquidoInterface {
         this.roteador.rotaPropfind(caminhoRota, async (req, res) => {
             this.prepararRequisicao(req, 'funcaoRotaPropfind', funcao);
 
-            const retorno = await this.chamarInterpretador('funcaoRotaPropfind');
-
-            // O resultado que interessa é sempre o último.
-            // Ele vem como string, e precisa ser desserializado para ser usado.
-            const { valor } = JSON.parse(retorno.resultado.pop());
-
-            if (valor.campos.lmht) {
-                const resultado = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-                res.send(resultado);
-            } else if (valor.campos.mensagem) {
-                res.send(valor.campos.mensagem);
-            }
-
-            if (valor.campos.statusHttp) {
-                res.status(valor.campos.statusHttp);
-            }
+            const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPropfind');
+            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
         });
     }
 }
