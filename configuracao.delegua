@@ -1,3 +1,6 @@
+// Configuração de arquivos estáticos
+liquido.roteador.diretorioEstatico = 'publico'
+
 // Configuração do roteador.
 liquido.roteador.cors = verdadeiro
 liquido.roteador.bodyParser = verdadeiro
@@ -10,3 +13,4 @@ liquido.roteador.helmet = verdadeiro
 // Configuração de bases de dados
 liquido.dados.lincones.tecnologia = 'sqlite'
 liquido.dados.lincones.caminho = ':memory:'
+

@@ -15,6 +15,7 @@ export interface LiquidoInterface {
     rotasDelegua: string[];
     diretorioBase: string;
     diretorioDescobertos: string[];
+    diretorioEstatico: string;
 
     iniciar(): Promise<void>;
     descobrirRotas(diretorio: string): void;

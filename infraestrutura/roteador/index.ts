@@ -1,9 +1,9 @@
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import passport from 'passport';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
@@ -22,6 +22,10 @@ export class Roteador {
     constructor() {
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+    }
+
+    configuraArquivosEstaticos(diretorio: string = 'publico'): void {
+        this.aplicacao.use(express.static(diretorio));
     }
 
     ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
@@ -43,6 +47,9 @@ export class Roteador {
                 break;
             case 'helmet':
                 this.ativarDesativarHelmet(informacoesVariavel.valor);
+                break;
+            case 'diretorioEstatico':
+                this.configuraArquivosEstaticos(informacoesVariavel.valor);
                 break;
             default:
                 console.log(`Método ${nomePropriedade} não reconhecido.`);
