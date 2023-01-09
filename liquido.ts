@@ -1,5 +1,5 @@
-import * as caminho from 'path';
 import * as sistemaDeArquivos from 'node:fs';
+import * as caminho from 'path';
 
 import {
     AvaliadorSintatico,
@@ -22,10 +22,10 @@ import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
 import { Resposta } from './infraestrutura';
-import { Roteador } from './infraestrutura/roteador';
-import { LiquidoInterface, RetornoMiddleware } from './interfaces';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
+import { Roteador } from './infraestrutura/roteador';
+import { LiquidoInterface, RetornoMiddleware } from './interfaces';
 
 /**
  * O núcleo do framework.
@@ -36,11 +36,11 @@ export class Liquido implements LiquidoInterface {
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
-
     arquivosDelegua: string[];
     rotasDelegua: string[];
     diretorioBase: string;
     diretorioDescobertos: string[];
+    diretorioEstatico: string;
 
     arquivosAbertos: { [identificador: string]: string };
     conteudoArquivosAbertos: { [identificador: string]: string[] };
@@ -175,7 +175,7 @@ export class Liquido implements LiquidoInterface {
             .replace(new RegExp(`\\${caminho.sep}`, 'g'), '/')
             .replace(new RegExp(`/$`, 'g'), '');
         return rotaResolvida;
-    }    
+    }
 
     importarArquivosRotas(): void {
         this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
@@ -286,10 +286,10 @@ export class Liquido implements LiquidoInterface {
             );
         } catch (erro: any) {
             console.error(erro);
-        }   
+        }
     }
 
-    private async logicaComumResultadoInterpretador(caminhoRota: string, retornoInterpretador: RetornoInterpretador): 
+    private async logicaComumResultadoInterpretador(caminhoRota: string, retornoInterpretador: RetornoInterpretador):
         Promise<{ corpoRetorno: any, statusHttp: number }>
     {
         // O resultado que interessa é sempre o último.
