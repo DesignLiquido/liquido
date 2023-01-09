@@ -165,6 +165,18 @@ liquido.roteador.json = verdadeiro
 liquido.roteador.helmet = verdadeiro
 ```
 
+### Servindo arquivos estáticos
+
+Uma aplicação em Liquido pode servir arquivos estáticos se o roteador tiver uma configuração de diretório correspondente. Por exemplo:
+
+```js
+liquido.roteador.diretorioEstatico = 'publico'
+```
+
+Ou seja, havendo um diretório `publico` na sua aplicação, é possível servir arquivos como imagens, CSS, JS e assim por diante. 
+
+Se uma imagem com o nome `teste.png` é colocada dentro do diretório `publico`, ao iniciar sua aplicação em http://localhost:3000, a imagem pode ser acessada por http://localhost:3000/teste.png. 
+
 ### Padrões de Aplicação
 
 Liquido foi pensado para servir qualquer padrão de projeto para aplicações Web. A primeira versão de Liquido garante a implementação dos seguintes padrões:
