@@ -69,6 +69,7 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoConfiguracao();
+        
         this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 

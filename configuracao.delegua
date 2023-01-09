@@ -10,3 +10,6 @@ liquido.roteador.helmet = verdadeiro
 // Configuração de bases de dados
 liquido.dados.lincones.tecnologia = 'sqlite'
 liquido.dados.lincones.caminho = ':memory:'
+
+// Configuração de arquivos estáticos
+liquido.arquivosEstaticos.caminho = 'public'
