@@ -69,7 +69,7 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoConfiguracao();
-        
+        this.roteador.configuraArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 
@@ -79,6 +79,7 @@ export class Liquido implements LiquidoInterface {
                 .definirVariavel('lincones', await this.provedorLincones.resolver());
         }
     }
+
 
     /**
      * Método de importação do arquivo `configuracao.delegua`.
@@ -98,7 +99,7 @@ export class Liquido implements LiquidoInterface {
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
                 const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
                 const nomePropriedade: string = expressao.nome.lexema;
-                const informacoesVariavel: VariavelInterface = expressao.valor;
+                const informacoesVariavel: VariavelInterface = expressao.valor
 
                 if (expressao.objeto.simbolo.lexema === 'roteador') {
                     this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);

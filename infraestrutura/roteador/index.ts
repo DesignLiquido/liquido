@@ -24,7 +24,7 @@ export class Roteador {
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
     }
 
-    configuraArquivosEstaticos(diretorio: string): void {
+    configuraArquivosEstaticos(diretorio: string = 'public'): void {
         this.aplicacao.use(express.static(diretorio));
     }
 
@@ -47,6 +47,9 @@ export class Roteador {
                 break;
             case 'helmet':
                 this.ativarDesativarHelmet(informacoesVariavel.valor);
+                break;
+            case 'diretorioEstatico':
+                this.configuraArquivosEstaticos(informacoesVariavel.valor);
                 break;
             default:
                 console.log(`Método ${nomePropriedade} não reconhecido.`);
