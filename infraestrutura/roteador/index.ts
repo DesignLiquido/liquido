@@ -24,7 +24,7 @@ export class Roteador {
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
     }
 
-    configuraArquivosEstaticos(diretorio: string = 'public'): void {
+    configuraArquivosEstaticos(diretorio: string = 'publico'): void {
         this.aplicacao.use(express.static(diretorio));
     }
 

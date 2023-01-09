@@ -1,5 +1,5 @@
 // Configuração de arquivos estáticos
-liquido.roteador.diretorioEstatico = 'public'
+liquido.roteador.diretorioEstatico = 'publico'
 
 // Configuração do roteador.
 liquido.roteador.cors = verdadeiro
