@@ -2,6 +2,18 @@
 
 Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100% em português.
 
+<p align="center">
+  <a href="https://github.com/DesignLiquido/liquido/issues" target="_blank">
+    <img src="https://img.shields.io/github/issues/Designliquido/liquido" />
+  </a>
+  <img src="https://img.shields.io/github/stars/Designliquido/liquido" />
+  <img src="https://img.shields.io/github/forks/Designliquido/liquido" />
+  <a href="https://www.npmjs.com/package/liquido" target="_blank">
+    <img src="https://img.shields.io/npm/v/liquido" />
+  </a>
+  <img src="https://img.shields.io/github/license/Designliquido/liquido" />
+</p>
+
 ## Motivação
 
 - [Delégua](https://github.com/DesignLiquido/delegua) é uma linguagem de programação 100% em português;
