@@ -1,17 +1,26 @@
-import { XMLParser } from "fast-xml-parser";
+import { XMLBuilder, XMLParser } from "fast-xml-parser";
 
 export class PreprocessadorParciais {
-    constructor(private readonly leitorLmht: XMLParser) {}
+    private readonly leitorLmht: XMLParser;
+    private readonly construtorLmht: XMLBuilder
+    constructor() {
+        this.construtorLmht = new XMLBuilder({});
+        this.leitorLmht = new XMLParser();
+    }
 
     public processarParciais(texto: string): string {
         const objetoVisao = this.leitorLmht.parse(texto);
-        // TODO: @ItaloCobains Verificar qual o objeto correto de parciais.
-        const parciais = objetoVisao.lmht?.parciais;
 
-        if (parciais) {
-            // TODO: @ItaloCobains Implementar a lógica de processamento de parciais.
+        const corpo = objetoVisao.lmht?.corpo;
+
+        if (corpo) {
+            const parcial = corpo.parcial;
+            if (parcial) {
+                // TODO: @ItaloCobains Implementar o processamento de parciais.
+            }
         }
-        // TODO: @ItaloCobains Retornar o texto processado.
-        return ''
+
+        // const xmlContent = this.construtorLmht.build(objetoVisao);
+        return corpo;
     }
 }

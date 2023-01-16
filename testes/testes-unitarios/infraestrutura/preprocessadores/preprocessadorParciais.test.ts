@@ -1,16 +1,15 @@
-import { XMLParser } from "fast-xml-parser";
 import { PreprocessadorParciais } from "../../../../infraestrutura/preprocessadores/preprocessadorParciais";
 
 describe('Preprocessador de parciais', () => {
-    let preprocessador: PreprocessadorParciais;
+    let preProcessador: PreprocessadorParciais;
 
     beforeEach(() => {
-        preprocessador = new PreprocessadorParciais(new XMLParser());
+        preProcessador = new PreprocessadorParciais();
     })
 
-    it('Deve capturar a tag <parcial> e retorna true', () => {
-        const texto = '<parcial>teste</parcial>';
-        const resultado = preprocessador.processarParciais(texto);
+    it.only('Deve capturar a tag <parcial> e retorna true', () => {
+        const texto = "<lmht><corpo><parcial>teste</parcial></corpo></lmht>";
+        const resultado = preProcessador.processarParciais(texto);
         // TODO: @ItaloCobains Ajustar os expect do teste.
         expect(resultado).toBe('');
     });
