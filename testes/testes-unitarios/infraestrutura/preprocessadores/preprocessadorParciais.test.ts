@@ -11,6 +11,7 @@ describe('Preprocessador de parciais', () => {
     it('Deve capturar a tag <parcial> e retorna true', () => {
         const texto = '<parcial>teste</parcial>';
         const resultado = preprocessador.processarParciais(texto);
+        // TODO: @ItaloCobains Ajustar os expect do teste.
         expect(resultado).toBe('');
     });
 })
