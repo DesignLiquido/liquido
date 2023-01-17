@@ -5,7 +5,8 @@ import * as path from 'path';
 export class PreprocessadorParciais {
     private readonly leitorLmht: XMLParser;
     private readonly construtorLmht: XMLBuilder
-    private readonly DiretorioParcial = "partials";
+    private readonly DiretorioParcial = "parciais";
+    private readonly DiretorioRaizCaminho = process.cwd();
 
     constructor() {
         this.construtorLmht = new XMLBuilder({});
@@ -13,7 +14,7 @@ export class PreprocessadorParciais {
     }
 
     private VerificaAtributoParcial(DiretorioParcial: string): boolean {
-        return fs.existsSync(path.join(__dirname, DiretorioParcial));
+        return fs.existsSync(path.join(this.DiretorioRaizCaminho, DiretorioParcial));
     }
 
     public processarParciais(texto: string): string | Error {

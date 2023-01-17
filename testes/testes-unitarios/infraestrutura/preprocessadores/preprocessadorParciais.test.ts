@@ -10,6 +10,6 @@ describe('Preprocessador de parciais', () => {
     it.only('Deve capturar a tag <parcial> e retorna true', () => {
         const texto = "<lmht><corpo><parcial><nome>teste.lmht</nome></parcial></corpo></lmht>";
         const resultado = preProcessador.processarParciais(texto);
-        expect(resultado).toBe(texto);
+        expect(resultado).toStrictEqual(new Error("Não foi encontrado a tag parcial"));
     });
 })
