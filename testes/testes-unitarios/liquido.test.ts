@@ -1,5 +1,6 @@
-import { Liquido } from '../../liquido';
 import * as caminho from 'path';
+
+import { Liquido } from '../../liquido';
 import { RetornoMiddleware } from '../../interfaces';
 
 describe('Liquido', () => {
@@ -14,8 +15,8 @@ describe('Liquido', () => {
         const rota1 = liquido.arquivosDelegua[0].split('rotas')[1];
         const rota2 = liquido.arquivosDelegua[1].split('rotas')[1];
         expect(liquido.arquivosDelegua).toHaveLength(2);
-        expect(rota1).toBe('\\inicial.delegua');
-        expect(rota2).toBe('\\mvc\\inicial.delegua');
+        expect(rota1).toBe(`${caminho.sep}inicial.delegua`);
+        expect(rota2).toBe(`${caminho.sep}mvc${caminho.sep}inicial.delegua`);
     });
 
     it('Testando resolverCaminhoRota()', () => {
