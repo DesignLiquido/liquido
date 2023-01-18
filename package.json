@@ -24,7 +24,7 @@
 		"lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
 		"lint": "eslint . --ext .ts",
 		"prettier-format": "prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
-		"testes": "jest --runInBand",
+		"testes": "jest --coverage",
 		"testes:w": "jest --runInBand --watchAll"
 	},
 	"dependencies": {
