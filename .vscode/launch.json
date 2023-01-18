@@ -14,6 +14,19 @@
 			"console": "integratedTerminal",
 			"runtimeExecutable": "nodemon",
 			"runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
-		}
-	]
+		},
+        {
+            "name": "Liquido > Testes unitários",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/jest/bin/jest.js",
+                "--runInBand"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+    ]
 }
+
