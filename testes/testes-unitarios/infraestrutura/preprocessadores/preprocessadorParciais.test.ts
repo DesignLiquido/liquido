@@ -1,4 +1,14 @@
+import * as xmlParser from 'fast-xml-parser';
 import { PreprocessadorParciais } from "../../../../infraestrutura/preprocessadores/preprocessadorParciais";
+
+const isXML = (xml: string): boolean => {
+    try {
+        xmlParser.XMLValidator.validate(xml);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
 
 describe('Preprocessador de parciais', () => {
     let preProcessador: PreprocessadorParciais;
@@ -7,9 +17,9 @@ describe('Preprocessador de parciais', () => {
         preProcessador = new PreprocessadorParciais();
     })
 
-    it.skip('Deve tratar o parcial e retorna o xmlContent', () => {
+    it('Deve tratar o parcial e retorna o xmlContent', () => {
         const texto = `<lmht><corpo><parcial nome="minha-parcial" /></corpo></lmht>`;
         const resultado = preProcessador.processarParciais(texto);
-        expect(resultado).toBe('');
+        expect(isXML(resultado as string)).toBeTruthy();
     });
 })
