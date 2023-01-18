@@ -18,29 +18,33 @@ export class PreprocessadorParciais {
         this.construtorLmht = new XMLBuilder({});
     }
 
+    get DiretorioParcialGetter(): string {
+        return this.DiretorioParcial;
+    }
+
     public processarParciais(texto: string): string | Error {
         const objetoVisao = this.leitorLmht.parse(texto);
 
         const corpo = objetoVisao.lmht?.corpo;
 
-        if (corpo) {
-            const parcial = corpo.parcial;
-            if (parcial) {
+        if (corpo || corpo === "") {
+            if (corpo.parcial || corpo.parcial === "") {
+                const parcial = corpo.parcial;
                 if (!parcial.nome) {
                     return new Error("Em Parcial o atributo nome não foi informado");
                 }
 
                 parcial.nome = `${parcial.nome}.lmht`
 
-                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcial)) {
-                    return new Error(`O diretorio ${this.DiretorioParcial} não foi encontrado`);
+                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcialGetter)) {
+                    return new Error(`O diretorio ${this.DiretorioParcialGetter} não foi encontrado`);
                 }
 
-                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcial, parcial.nome)) {
+                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcialGetter, parcial.nome)) {
                     return new Error(`O arquivo ${parcial.nome} não foi encontrado`);
                 }
 
-                const caminho = path.join(this.DiretorioRaizCaminho, this.DiretorioParcial, parcial.nome);
+                const caminho = path.join(this.DiretorioRaizCaminho, this.DiretorioParcialGetter, parcial.nome);
 
                 const xmlContent = this.construtorLmht.build(this.ConteudoDoArquivoParcial(caminho));
 
@@ -67,7 +71,7 @@ export class PreprocessadorParciais {
 
         if (!file) {
             if (!fs.existsSync(directory)) {
-                return new Error(`O diretorio ${directory} não foi encontrado`);
+                return false
             }
             return true
         }
@@ -80,9 +84,14 @@ export class PreprocessadorParciais {
             }
         } catch (err) {
             console.error(err);
-            return new Error(err);
+            return false
         }
-        return [files, true];
+
+        if (files.length === 0) {
+            return false
+        }
+
+        return true
     }
 
 
