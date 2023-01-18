@@ -27,9 +27,20 @@ export class FormatadorLmht {
      * @returns O resultado das duas conversões.
      */
     async formatar(caminhoRota: string, valores: any): Promise<any> {
-        let visaoCorrespondente = caminho.join(this.diretorioBase, "visoes", caminhoRota, ".lmht");
-        if (visaoCorrespondente.endsWith(caminho.sep + ".lmht")) {
-            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", caminho.sep + "inicial.lmht");
+        let visaoCorrespondente: string = caminho.join(this.diretorioBase, "visoes", caminhoRota, ".lmht");
+        const diretorioOuArquivo = caminho.join(this.diretorioBase, "visoes", caminhoRota);
+        if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
+            // É diretório
+            if (visaoCorrespondente.endsWith(caminho.sep + ".lmht")) {
+                visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", caminho.sep + "inicial.lmht");
+            }
+        } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + ".lmht")) {
+            // É arquivo
+            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", ".lmht");
+        } else {
+            // Caminho não existe
+            return Promise.reject(
+                `Visão correspondente à rota ${caminhoRota} não existe. Caminhos tentados: ${diretorioOuArquivo}, ${diretorioOuArquivo + ".lmht"}`);
         }
 
         const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
