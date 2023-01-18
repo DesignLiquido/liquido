@@ -14,6 +14,7 @@ export default async (): Promise<Config.InitialOptions> => {
 		collectCoverage: true,
 		transform: { '^.+\\.tsx?$': 'ts-jest' },
 		globalTeardown: '<rootDir>/testes/jest-globals-teardown.ts',
-		forceExit: true
+		forceExit: true,
+		coverageReporters: ['json-summary', 'lcov', 'text', 'text-summary']
 	};
 };
