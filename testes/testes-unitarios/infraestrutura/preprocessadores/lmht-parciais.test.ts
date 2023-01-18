@@ -1,12 +1,12 @@
 
-import { PreprocessadorParciais } from "../../../../infraestrutura/preprocessadores/preprocessadorParciais";
+import { PreprocessadorLmhtParciais } from "../../../../infraestrutura/preprocessadores/lmht-parciais";
 import { VerificaXml } from "../../../ajudadores/VerificaXml";
 
-describe('Preprocessador de parciais', () => {
-    let preProcessador: PreprocessadorParciais;
+describe('Preprocessador de parciais em LMHT', () => {
+    let preProcessador: PreprocessadorLmhtParciais;
 
     beforeEach(() => {
-        preProcessador = new PreprocessadorParciais();
+        preProcessador = new PreprocessadorLmhtParciais();
     })
 
     it('Deve tratar o parcial e retorna o xmlContent', () => {

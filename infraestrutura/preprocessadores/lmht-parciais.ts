@@ -3,7 +3,7 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import * as fs from 'fs';
 import path from "path";
 
-export class PreprocessadorParciais {
+export class PreprocessadorLmhtParciais {
     private readonly leitorLmht: XMLParser;
     private readonly construtorLmht: XMLBuilder
     private readonly DiretorioParcial = "parciais";
