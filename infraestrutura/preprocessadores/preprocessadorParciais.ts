@@ -1,6 +1,7 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
-import fs from 'fs';
-import * as path from 'path';
+
+import * as fs from 'fs';
+import path from "path";
 
 export class PreprocessadorParciais {
     private readonly leitorLmht: XMLParser;
@@ -29,11 +30,11 @@ export class PreprocessadorParciais {
                     return new Error("Em Parcial o atributo nome não foi informado");
                 }
 
-                if (!this.VerificaAtributoParcial(this.DiretorioParcial)) {
+                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcial)) {
                     return new Error(`O diretorio ${this.DiretorioParcial} não foi encontrado`);
                 }
 
-                if (!this.VerificaArquivoParcialEmDiretorio(parcial.nome)) {
+                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcial, parcial.nome)) {
                     return new Error(`O arquivo ${parcial.nome} não foi encontrado`);
                 }
 
@@ -44,12 +45,31 @@ export class PreprocessadorParciais {
         return corpo;
     }
 
-    private VerificaArquivoParcialEmDiretorio(nomeArquivo: string): boolean {
-        nomeArquivo = `${nomeArquivo}.lmht`;
-        return fs.existsSync(path.join(this.DiretorioRaizCaminho, this.DiretorioParcial, nomeArquivo))
+
+    private  buscaDiretorioOuArquivo(directory: string, file?: string) {
+        let files: string[] = [];
+
+        file = file ? `${file}.lmht` : file;
+
+        if (!file) {
+            if (!fs.existsSync(directory)) {
+                return new Error(`O diretorio ${directory} não foi encontrado`);
+            }
+            return true
+        }
+
+        try {
+            files = fs.readdirSync(path.join(this.DiretorioRaizCaminho, directory))
+
+            if(file) {
+                files = files.filter(f => f.includes(file));
+            }
+        } catch (err) {
+            console.error(err);
+            return new Error(err);
+        }
+        return [files, true];
     }
 
-    private VerificaAtributoParcial(DiretorioParcial: string): boolean {
-        return fs.existsSync(path.join(this.DiretorioRaizCaminho, DiretorioParcial));
-    }
+
 }
