@@ -1,0 +1,8 @@
+<lmht>
+    <cabeca>
+        <titulo>Teste de Parciais</titulo>
+    </cabeca>
+    <corpo>
+        <parcial nome="minha-parcial">
+    </corpo>
+</lmht>
