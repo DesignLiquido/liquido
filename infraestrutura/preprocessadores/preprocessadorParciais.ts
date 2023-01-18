@@ -7,14 +7,14 @@ export class PreprocessadorParciais {
     private readonly construtorLmht: XMLBuilder
     private readonly DiretorioParcial = "parciais";
     private readonly DiretorioRaizCaminho = process.cwd();
-
-    constructor() {
-        this.construtorLmht = new XMLBuilder({});
-        this.leitorLmht = new XMLParser();
+    private readonly opcoesLeitorLmht = {
+        ignoreAttributes: false,
+        attributeNamePrefix : ""
     }
 
-    private VerificaAtributoParcial(DiretorioParcial: string): boolean {
-        return fs.existsSync(path.join(this.DiretorioRaizCaminho, DiretorioParcial));
+    constructor() {
+        this.leitorLmht = new XMLParser(this.opcoesLeitorLmht);
+        this.construtorLmht = new XMLBuilder({});
     }
 
     public processarParciais(texto: string): string | Error {
@@ -30,16 +30,26 @@ export class PreprocessadorParciais {
                 }
 
                 if (!this.VerificaAtributoParcial(this.DiretorioParcial)) {
-                    return new Error(`O arquivo ${parcial.nome} não foi encontrado no diretorio ${this.DiretorioParcial}`);
+                    return new Error(`O diretorio ${this.DiretorioParcial} não foi encontrado`);
                 }
 
-                //TODO: @ItaloCobains - Implementar sintax de execução do parcial
+                if (!this.VerificaArquivoParcialEmDiretorio(parcial.nome)) {
+                    return new Error(`O arquivo ${parcial.nome} não foi encontrado`);
+                }
 
             }
             return new Error("Não foi encontrado a tag parcial")
         }
 
-        // const xmlContent = this.construtorLmht.build(objetoVisao);
         return corpo;
+    }
+
+    private VerificaArquivoParcialEmDiretorio(nomeArquivo: string): boolean {
+        nomeArquivo = `${nomeArquivo}.lmht`;
+        return fs.existsSync(path.join(this.DiretorioRaizCaminho, this.DiretorioParcial, nomeArquivo))
+    }
+
+    private VerificaAtributoParcial(DiretorioParcial: string): boolean {
+        return fs.existsSync(path.join(this.DiretorioRaizCaminho, DiretorioParcial));
     }
 }
