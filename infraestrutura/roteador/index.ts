@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
@@ -15,6 +16,7 @@ export class Roteador {
     private helmet = false;
     private expressJson = false;
     private cookieParser = false;
+    private bodyParser = false;
 
     private cors = false;
     private passport = false;
@@ -35,6 +37,9 @@ export class Roteador {
                 break;
             case 'cookieParser':
                 this.ativarDesativarCookieParser(informacoesVariavel.valor);
+                break;
+            case 'bodyParser':
+                this.ativarDesativarBodyParser(informacoesVariavel.valor);
                 break;
             case 'json':
                 this.ativarDesativarExpressJson(informacoesVariavel.valor);
@@ -64,6 +69,10 @@ export class Roteador {
 
         if (this.helmet) {
             this.aplicacao.use(helmet());
+        }
+
+        if (this.bodyParser) {
+            this.aplicacao.use(bodyParser.json());
         }
 
         if (this.expressJson) {
@@ -97,6 +106,10 @@ export class Roteador {
 
     ativarDesativarExpressJson(valor: boolean): void {
         this.expressJson = valor;
+    }
+
+    ativarDesativarBodyParser(valor: boolean): void {
+        this.bodyParser = valor;
     }
 
     ativarDesativarHelmet(valor: boolean): void {
