@@ -1,0 +1,3 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.lmht({ "fraseQualquer": "Olá Mundo!" })
+})
