@@ -55,22 +55,23 @@ export class FormatadorLmht {
 
         if (valores) {
             // Preprocessamento: Parciais
+            const parciaisResolvidos: string[] = [];
+            let parciais: string[] = [];
             if (this.verificaTagParcial(textoBase)) {
-                const parciaisResolvidos: string[] = [];
-                const parciais = this.DevolveParciais(textoBase);
+                parciais = this.DevolveParciais(textoBase);
                 const textoParcial = parciais.map((parcial) => {
                     return `<lmht><corpo>${parcial}</corpo></lmht>`;
                 });
                 textoParcial.map((parcial) => {
-                    const result: Error | string = this.preprocessadorLmhtParciais.processarParciais(parcial);
+                    const result = this.preprocessadorLmhtParciais.processarParciais(parcial);
                     if (result instanceof Error) {
                         throw result;
                     }
-                    parciaisResolvidos.push(result);
+                    parciaisResolvidos.push(result.conteudo);
                 });
             }
 
-            
+            textoBase = this.FormataTextoBase(textoBase, parciais, parciaisResolvidos);
 
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
@@ -82,6 +83,17 @@ export class FormatadorLmht {
         textoBase = this.preprocessadorFolEs.processar(textoBase);
 
         return await this.conversorLmht.converterPorTexto(textoBase);
+    }
+
+    private FormataTextoBase(
+        textoBase: string,
+        listaDeParciais: Array<string>,
+        parciaisResolvidos: Array<string>
+    ): string {
+        for (let i = 0; i < listaDeParciais.length; i++) {
+            textoBase = textoBase.replace(listaDeParciais[i], parciaisResolvidos[i]);
+        }
+        return textoBase;
     }
 
     private DevolveParciais(textoLmht: string): string[] {
