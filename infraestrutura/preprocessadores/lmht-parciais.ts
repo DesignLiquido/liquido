@@ -6,8 +6,8 @@ import path from 'path';
 export class PreprocessadorLmhtParciais {
     private readonly leitorLmht: XMLParser;
     private readonly construtorLmht: XMLBuilder;
-    private readonly DiretorioParcial = 'visoes/parciais';
-    private readonly DiretorioRaizCaminho = process.cwd();
+    private readonly _diretorioParcial = 'visoes/parciais';
+    private readonly _diretorioRaizCaminho = process.cwd();
     private readonly opcoesLeitorLmht = {
         ignoreAttributes: false,
         attributeNamePrefix: ''
@@ -18,8 +18,8 @@ export class PreprocessadorLmhtParciais {
         this.construtorLmht = new XMLBuilder({});
     }
 
-    get DiretorioParcialGetter(): string {
-        return this.DiretorioParcial;
+    get diretorioParcial(): string {
+        return this._diretorioParcial;
     }
 
     public processarParciais(texto: string) {
@@ -36,15 +36,15 @@ export class PreprocessadorLmhtParciais {
 
                 parcial.nome = `${parcial.nome}.lmht`;
 
-                if (!this.buscarDiretorioOuArquivo(this.DiretorioParcialGetter)) {
-                    return new Error(`O diretorio ${this.DiretorioParcialGetter} não foi encontrado`);
+                if (!this.buscarDiretorioOuArquivo(this.diretorioParcial)) {
+                    return new Error(`O diretorio ${this.diretorioParcial} não foi encontrado`);
                 }
 
-                if (!this.buscarDiretorioOuArquivo(this.DiretorioParcialGetter, parcial.nome)) {
+                if (!this.buscarDiretorioOuArquivo(this.diretorioParcial, parcial.nome)) {
                     return new Error(`O arquivo ${parcial.nome} não foi encontrado`);
                 }
 
-                const caminho = path.join(this.DiretorioRaizCaminho, this.DiretorioParcialGetter, parcial.nome);
+                const caminho = path.join(this._diretorioRaizCaminho, this.diretorioParcial, parcial.nome);
 
                 const conteudo = this.obterConteudoDoArquivoParcial(caminho);
 
@@ -82,7 +82,7 @@ export class PreprocessadorLmhtParciais {
         }
 
         try {
-            files = fs.readdirSync(path.join(this.DiretorioRaizCaminho, directory));
+            files = fs.readdirSync(path.join(this._diretorioRaizCaminho, directory));
 
             if (file) {
                 files = files.filter((f) => f.includes(file));
