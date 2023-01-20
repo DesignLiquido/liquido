@@ -1,21 +1,24 @@
-import * as caminho from 'path';
 import * as sistemaDeArquivos from 'node:fs';
+import * as caminho from 'path';
 
 import Handlebars from 'handlebars';
 
-import { ConversorLmht } from "@designliquido/lmht-js";
-import { PreprocessadorFolEs, PreprocessadorHandlebars } from '../preprocessadores';
+import { ConversorLmht } from '@designliquido/lmht-js';
+import { PreprocessadorFolEs, PreprocessadorHandlebars, PreprocessadorLmhtParciais } from '../preprocessadores';
 
 export class FormatadorLmht {
     conversorLmht: ConversorLmht;
     diretorioBase: string;
     preprocessadorFolEs: PreprocessadorFolEs;
     preprocessadorHandlebars: PreprocessadorHandlebars;
+    preprocessadorLmhtParciais: PreprocessadorLmhtParciais;
+    private readonly regexParcial = /<parcial nome="([^"]+)".*?(?:\/>|><\/parcial>)/g;
 
     constructor(diretorioBase: string) {
         this.conversorLmht = new ConversorLmht();
         this.preprocessadorFolEs = new PreprocessadorFolEs();
         this.preprocessadorHandlebars = new PreprocessadorHandlebars();
+        this.preprocessadorLmhtParciais = new PreprocessadorLmhtParciais();
         this.diretorioBase = diretorioBase;
     }
 
@@ -27,20 +30,23 @@ export class FormatadorLmht {
      * @returns O resultado das duas conversões.
      */
     async formatar(caminhoRota: string, valores: any): Promise<any> {
-        let visaoCorrespondente: string = caminho.join(this.diretorioBase, "visoes", caminhoRota, ".lmht");
-        const diretorioOuArquivo = caminho.join(this.diretorioBase, "visoes", caminhoRota);
+        let visaoCorrespondente: string = caminho.join(this.diretorioBase, 'visoes', caminhoRota, '.lmht');
+        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRota);
         if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
             // É diretório
-            if (visaoCorrespondente.endsWith(caminho.sep + ".lmht")) {
-                visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", caminho.sep + "inicial.lmht");
+            if (visaoCorrespondente.endsWith(caminho.sep + '.lmht')) {
+                visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', caminho.sep + 'inicial.lmht');
             }
-        } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + ".lmht")) {
+        } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + '.lmht')) {
             // É arquivo
-            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + ".lmht", ".lmht");
+            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', '.lmht');
         } else {
             // Caminho não existe
             return Promise.reject(
-                `Visão correspondente à rota ${caminhoRota} não existe. Caminhos tentados: ${diretorioOuArquivo}, ${diretorioOuArquivo + ".lmht"}`);
+                `Visão correspondente à rota ${caminhoRota} não existe. Caminhos tentados: ${diretorioOuArquivo}, ${
+                    diretorioOuArquivo + '.lmht'
+                }`
+            );
         }
 
         const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
@@ -48,6 +54,24 @@ export class FormatadorLmht {
         let textoBase = conteudoDoArquivo;
 
         if (valores) {
+            // Preprocessamento: Parciais
+            if (this.verificaTagParcial(textoBase)) {
+                const parciaisResolvidos: string[] = [];
+                const parciais = this.DevolveParciais(textoBase);
+                const textoParcial = parciais.map((parcial) => {
+                    return `<lmht><corpo>${parcial}</corpo></lmht>`;
+                });
+                textoParcial.map((parcial) => {
+                    const result: Error | string = this.preprocessadorLmhtParciais.processarParciais(parcial);
+                    if (result instanceof Error) {
+                        throw result;
+                    }
+                    parciaisResolvidos.push(result);
+                });
+            }
+
+            
+
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
             const template = Handlebars.compile(textoBase);
@@ -58,5 +82,16 @@ export class FormatadorLmht {
         textoBase = this.preprocessadorFolEs.processar(textoBase);
 
         return await this.conversorLmht.converterPorTexto(textoBase);
+    }
+
+    private DevolveParciais(textoLmht: string): string[] {
+        return textoLmht.match(this.regexParcial).map((parcial) => {
+            return parcial.toString();
+        });
+    }
+
+    private verificaTagParcial(textoLmht: string): boolean {
+        const matches = textoLmht.match(this.regexParcial);
+        return matches?.length > 0 ? true : false;
     }
 }
