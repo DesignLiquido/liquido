@@ -6,7 +6,7 @@ import path from "path";
 export class PreprocessadorLmhtParciais {
     private readonly leitorLmht: XMLParser;
     private readonly construtorLmht: XMLBuilder
-    private readonly DiretorioParcial = "parciais";
+    private readonly DiretorioParcial = "visoes/parciais";
     private readonly DiretorioRaizCaminho = process.cwd();
     private readonly opcoesLeitorLmht = {
         ignoreAttributes: false,
