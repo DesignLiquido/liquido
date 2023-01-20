@@ -75,11 +75,9 @@ export class Liquido implements LiquidoInterface {
 
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
-            this.interpretador.pilhaEscoposExecucao
-                .definirVariavel('lincones', await this.provedorLincones.resolver());
+            this.interpretador.pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
         }
     }
-
 
     /**
      * Método de importação do arquivo `configuracao.delegua`.
@@ -99,7 +97,7 @@ export class Liquido implements LiquidoInterface {
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
                 const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
                 const nomePropriedade: string = expressao.nome.lexema;
-                const informacoesVariavel: VariavelInterface = expressao.valor
+                const informacoesVariavel: VariavelInterface = expressao.valor;
 
                 if (expressao.objeto.simbolo.lexema === 'roteador') {
                     this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
@@ -291,9 +289,10 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private async logicaComumResultadoInterpretador(caminhoRota: string, retornoInterpretador: RetornoInterpretador):
-        Promise<{ corpoRetorno: any, statusHttp: number }>
-    {
+    private async logicaComumResultadoInterpretador(
+        caminhoRota: string,
+        retornoInterpretador: RetornoInterpretador
+    ): Promise<{ corpoRetorno: any; statusHttp: number }> {
         // O resultado que interessa é sempre o último.
         // Ele vem como string, e precisa ser desserializado para ser usado.
         const { valor } = JSON.parse(retornoInterpretador.resultado.pop());

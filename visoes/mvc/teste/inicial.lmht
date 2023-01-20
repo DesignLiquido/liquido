@@ -1,0 +1,14 @@
+<lmht>
+    <cabeca>
+        <estilo>
+            lmht {
+                tamanho-fonte: 12px;
+            }
+        </estilo>
+    </cabeca>
+    <corpo>
+        <parcial nome="cabecalho" />
+        <titulo1>Testando partial = {{fraseQualquer}}</titulo1>
+        <p>Teste de texto.</p>
+    </corpo>
+</lmht>

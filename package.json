@@ -30,6 +30,7 @@
 	"dependencies": {
 		"@designliquido/foles": "^0.2.0",
 		"@designliquido/lmht-js": "^0.1.6",
+		"body-parser": "^1.20.1",
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
 		"delegua": "^0.11.0",
@@ -44,6 +45,7 @@
 	},
 	"devDependencies": {
 		"@designliquido/lincones-sqlite": "^0.0.2",
+		"@types/body-parser": "^1.19.2",
 		"@types/cookie-parser": "^1.4.3",
 		"@types/cors": "^2.8.12",
 		"@types/dotenv": "^8.2.0",

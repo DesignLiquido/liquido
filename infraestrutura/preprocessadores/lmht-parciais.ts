@@ -1,17 +1,17 @@
-import { XMLBuilder, XMLParser } from "fast-xml-parser";
+import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 import * as fs from 'fs';
-import path from "path";
+import path from 'path';
 
 export class PreprocessadorLmhtParciais {
     private readonly leitorLmht: XMLParser;
-    private readonly construtorLmht: XMLBuilder
-    private readonly DiretorioParcial = "parciais";
+    private readonly construtorLmht: XMLBuilder;
+    private readonly DiretorioParcial = 'visoes/parciais';
     private readonly DiretorioRaizCaminho = process.cwd();
     private readonly opcoesLeitorLmht = {
         ignoreAttributes: false,
-        attributeNamePrefix : ""
-    }
+        attributeNamePrefix: ''
+    };
 
     constructor() {
         this.leitorLmht = new XMLParser(this.opcoesLeitorLmht);
@@ -22,19 +22,19 @@ export class PreprocessadorLmhtParciais {
         return this.DiretorioParcial;
     }
 
-    public processarParciais(texto: string): string | Error {
+    public processarParciais(texto: string) {
         const objetoVisao = this.leitorLmht.parse(texto);
 
         const corpo = objetoVisao.lmht?.corpo;
 
-        if (corpo || corpo === "") {
-            if (corpo.parcial || corpo.parcial === "") {
+        if (corpo || corpo === '') {
+            if (corpo.parcial || corpo.parcial === '') {
                 const parcial = corpo.parcial;
                 if (!parcial.nome) {
-                    return new Error("Em Parcial o atributo nome não foi informado");
+                    return new Error('Em Parcial o atributo nome não foi informado');
                 }
 
-                parcial.nome = `${parcial.nome}.lmht`
+                parcial.nome = `${parcial.nome}.lmht`;
 
                 if (!this.buscaDiretorioOuArquivo(this.DiretorioParcialGetter)) {
                     return new Error(`O diretorio ${this.DiretorioParcialGetter} não foi encontrado`);
@@ -46,53 +46,56 @@ export class PreprocessadorLmhtParciais {
 
                 const caminho = path.join(this.DiretorioRaizCaminho, this.DiretorioParcialGetter, parcial.nome);
 
-                const xmlContent = this.construtorLmht.build(this.ConteudoDoArquivoParcial(caminho));
+                const conteudo = this.ConteudoDoArquivoParcial(caminho);
 
-                return xmlContent;
+                if (conteudo instanceof Error) {
+                    return conteudo;
+                }
 
+                const xmlContent = this.construtorLmht.build(conteudo);
+
+                return { xmlContent, conteudo };
             }
-            return new Error("Não foi encontrado a tag parcial")
+            return new Error('Não foi encontrado a tag parcial');
         }
-        return new Error("Não foi encontrado a tag corpo")
+        return new Error('Não foi encontrado a tag corpo');
     }
 
     private ConteudoDoArquivoParcial(caminho: string): string | Error {
-        let conteudo: string = "";
+        let conteudo: string = '';
         try {
             conteudo = fs.readFileSync(caminho, 'utf8');
-        } catch(err) {
+        } catch (err) {
             return new Error(err);
         }
         return conteudo;
     }
 
-    private  buscaDiretorioOuArquivo(directory: string, file?: string) {
+    private buscaDiretorioOuArquivo(directory: string, file?: string) {
         let files: string[] = [];
 
         if (!file) {
             if (!fs.existsSync(directory)) {
-                return false
+                return false;
             }
-            return true
+            return true;
         }
 
         try {
-            files = fs.readdirSync(path.join(this.DiretorioRaizCaminho, directory))
+            files = fs.readdirSync(path.join(this.DiretorioRaizCaminho, directory));
 
-            if(file) {
-                files = files.filter(f => f.includes(file));
+            if (file) {
+                files = files.filter((f) => f.includes(file));
             }
         } catch (err) {
             console.error(err);
-            return false
+            return false;
         }
 
         if (files.length === 0) {
-            return false
+            return false;
         }
 
-        return true
+        return true;
     }
-
-
 }
