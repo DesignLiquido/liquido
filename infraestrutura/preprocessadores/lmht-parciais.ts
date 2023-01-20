@@ -36,17 +36,17 @@ export class PreprocessadorLmhtParciais {
 
                 parcial.nome = `${parcial.nome}.lmht`;
 
-                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcialGetter)) {
+                if (!this.buscarDiretorioOuArquivo(this.DiretorioParcialGetter)) {
                     return new Error(`O diretorio ${this.DiretorioParcialGetter} não foi encontrado`);
                 }
 
-                if (!this.buscaDiretorioOuArquivo(this.DiretorioParcialGetter, parcial.nome)) {
+                if (!this.buscarDiretorioOuArquivo(this.DiretorioParcialGetter, parcial.nome)) {
                     return new Error(`O arquivo ${parcial.nome} não foi encontrado`);
                 }
 
                 const caminho = path.join(this.DiretorioRaizCaminho, this.DiretorioParcialGetter, parcial.nome);
 
-                const conteudo = this.ConteudoDoArquivoParcial(caminho);
+                const conteudo = this.obterConteudoDoArquivoParcial(caminho);
 
                 if (conteudo instanceof Error) {
                     return conteudo;
@@ -61,7 +61,7 @@ export class PreprocessadorLmhtParciais {
         return new Error('Não foi encontrado a tag corpo');
     }
 
-    private ConteudoDoArquivoParcial(caminho: string): string | Error {
+    private obterConteudoDoArquivoParcial(caminho: string): string | Error {
         let conteudo: string = '';
         try {
             conteudo = fs.readFileSync(caminho, 'utf8');
@@ -71,7 +71,7 @@ export class PreprocessadorLmhtParciais {
         return conteudo;
     }
 
-    private buscaDiretorioOuArquivo(directory: string, file?: string) {
+    private buscarDiretorioOuArquivo(directory: string, file?: string) {
         let files: string[] = [];
 
         if (!file) {

@@ -57,8 +57,8 @@ export class FormatadorLmht {
             // Preprocessamento: Parciais
             const parciaisResolvidos: string[] = [];
             let parciais: string[] = [];
-            if (this.verificaTagParcial(textoBase)) {
-                parciais = this.DevolveParciais(textoBase);
+            if (this.verificarEstruturaParcial(textoBase)) {
+                parciais = this.devolverParciais(textoBase);
                 const textoParcial = parciais.map((parcial) => {
                     return `<lmht><corpo>${parcial}</corpo></lmht>`;
                 });
@@ -71,7 +71,7 @@ export class FormatadorLmht {
                 });
             }
 
-            textoBase = this.FormataTextoBase(textoBase, parciais, parciaisResolvidos);
+            textoBase = this.formatarTextoBase(textoBase, parciais, parciaisResolvidos);
 
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
@@ -85,7 +85,7 @@ export class FormatadorLmht {
         return await this.conversorLmht.converterPorTexto(textoBase);
     }
 
-    private FormataTextoBase(
+    private formatarTextoBase(
         textoBase: string,
         listaDeParciais: Array<string>,
         parciaisResolvidos: Array<string>
@@ -96,13 +96,13 @@ export class FormatadorLmht {
         return textoBase;
     }
 
-    private DevolveParciais(textoLmht: string): string[] {
+    private devolverParciais(textoLmht: string): string[] {
         return textoLmht.match(this.regexParcial).map((parcial) => {
             return parcial.toString();
         });
     }
 
-    private verificaTagParcial(textoLmht: string): boolean {
+    private verificarEstruturaParcial(textoLmht: string): boolean {
         const matches = textoLmht.match(this.regexParcial);
         return matches?.length > 0 ? true : false;
     }
