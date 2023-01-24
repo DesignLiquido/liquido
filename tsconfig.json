@@ -8,7 +8,12 @@
         "sourceMap": true,
         "declaration": true,
         "esModuleInterop": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
-    "exclude": ["babel.config.js", "dist/**/*"]
+    "exclude": [
+        "babel.config.js",
+        "dist/**/*"
+    ]
 }
