@@ -5,6 +5,7 @@ import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import passport from 'passport';
+import swaggerUi from "swagger-ui-express";
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
@@ -169,6 +170,14 @@ export class Roteador {
     }
 
     iniciar() {
+        this.aplicacao.use("/docs", swaggerUi.serve, swaggerUi.setup(
+            undefined,
+            {
+                swaggerOptions: {
+                    url: "/swagger.json",
+                }
+            }
+        ))
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
         });

@@ -25,7 +25,11 @@
 		"lint": "eslint . --ext .ts",
 		"prettier-format": "prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
 		"testes": "jest --coverage",
-		"testes:w": "jest --runInBand --watchAll"
+		"testes:w": "jest --runInBand --watchAll",
+        "predev": "npm run swagger",
+        "prebuild": "npm run swagger",
+        "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
+        "swagger": "tsoa spec"
 	},
 	"dependencies": {
 		"@designliquido/foles": "^0.2.0",
