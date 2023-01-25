@@ -4,8 +4,7 @@ import cors from 'cors';
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import passport from 'passport';
-import swaggerUi from "swagger-ui-express";
+import autenticacao from '../utilidades/autenticacao'
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
@@ -89,7 +88,7 @@ export class Roteador {
         }
 
         if (this.passport) {
-            this.aplicacao.use(passport.initialize());
+            this.aplicacao.use(autenticacao().initialize());
         }
     }
 
@@ -170,14 +169,6 @@ export class Roteador {
     }
 
     iniciar() {
-        this.aplicacao.use("/docs", swaggerUi.serve, swaggerUi.setup(
-            undefined,
-            {
-                swaggerOptions: {
-                    url: "/swagger.json",
-                }
-            }
-        ))
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
         });

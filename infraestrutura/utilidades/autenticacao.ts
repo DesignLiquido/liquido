@@ -2,6 +2,7 @@
 import passport from "passport"
 import passportJWT from 'passport-jwt'
 import config from '../../config'
+import e from "express"
 
 const { Strategy, ExtractJwt } = passportJWT
 const params = {
@@ -9,8 +10,12 @@ const params = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }
 
+type AutenticacaoType = {
+    initialize: () => e.Handler;
+    authenticate: () => any;
+}
 
-const autenticacao = () => {
+const autenticacao = (): AutenticacaoType => {
     const estrategia = new Strategy(params, (payload, done) => {
         // aqui vai a lógica de autenticação
 
@@ -35,3 +40,5 @@ const autenticacao = () => {
         }
     }
 }
+
+export default autenticacao
