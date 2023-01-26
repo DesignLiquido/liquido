@@ -4,7 +4,9 @@ import cors from 'cors';
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import jwt from 'jwt-simple'
 import autenticacao from '../utilidades/autenticacao'
+import cfg from '../../config'
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
@@ -167,6 +169,33 @@ export class Roteador {
     rotaPropfind(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.propfind(caminho, execucao);
     }
+
+    // TODO: @ItaloCobains implementar db a autenticação
+
+    // adicionandoRotaToken() {
+    //     this.aplicacao.post("/token", (req: Request, res: Response) => {
+    //         if (req.body.email && req.body.password) {
+    //             const email = req.body.email;
+    //             const password = req.body.password;
+    //             const user = users.find(function(u) {
+    //                 return u.email === email && u.password === password;
+    //             });
+    //             if (user) {
+    //                 const payload = {
+    //                     id: user.id
+    //                 };
+    //                 const token = jwt.encode(payload, cfg.jwtSecret);
+    //                 res.json({
+    //                     token: token
+    //                 });
+    //             } else {
+    //                 res.sendStatus(401);
+    //             }
+    //         } else {
+    //             res.sendStatus(401);
+    //         }
+    //     })
+    // }
 
     iniciar() {
         this.aplicacao.listen(this.porta, () => {
