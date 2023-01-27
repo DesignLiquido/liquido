@@ -171,11 +171,6 @@ export class Roteador {
         this.aplicacao.propfind(caminho, execucao);
     }
 
-    // Todo @ItaloCobains
-    // Entt vai ser uma rota pra gerar o token
-    // e outra para validar o token
-
-    // e o LMTH eu ainda n sei como funciona vou ter q ver
 
     adicionandoRotaToken() {
         this.aplicacao.post("/token", (req: Request, res: Response) => {
@@ -220,7 +215,9 @@ export class Roteador {
 
 
     iniciar() {
-        this.adicionandoRotaToken();
+        if (this.passport === true) {
+            this.adicionandoRotaToken();
+        }
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
         });
