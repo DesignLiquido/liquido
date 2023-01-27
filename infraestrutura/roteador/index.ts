@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import jwt from 'jwt-simple'
 import autenticacao from '../utilidades/autenticacao'
 import cfg from '../../config'
+import users from '../../usuarios';
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
@@ -197,7 +198,37 @@ export class Roteador {
     //     })
     // }
 
+    // Todo @ItaloCobains
+    // Entt vai ser uma rota pra gerar o token
+    // e outra para validar o token
+
+    // e o LMTH eu ainda n sei como funciona vou ter q ver
+
+    adicionandoRotaToken() {
+        this.aplicacao.post("/token", (req: Request, res: Response) => {
+            if (req.body.email && req.body.senha) {
+                const { email, senha } = req.body;
+                const usuario = users.find((u) => {
+                    return u.email === email && u.senha === senha;
+                })
+                if (usuario) {
+                    const payload = {
+                        id: usuario.id
+                    }
+                    const token = jwt.encode(payload, cfg.jwtSecret);
+                    return res.json({token})
+                } else {
+                    res.sendStatus(401);
+                }
+            } else {
+                res.sendStatus(401);
+            }
+        });
+    }
+
     iniciar() {
+
+        this.adicionandoRotaToken();
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
         });

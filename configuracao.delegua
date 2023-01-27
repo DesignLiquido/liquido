@@ -14,3 +14,4 @@ liquido.roteador.helmet = verdadeiro
 liquido.dados.lincones.tecnologia = 'sqlite'
 liquido.dados.lincones.caminho = ':memory:'
 
+liquido.autenticacao.tecnologia = 'jwt'
