@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import jwt from 'jwt-simple'
@@ -171,33 +171,6 @@ export class Roteador {
         this.aplicacao.propfind(caminho, execucao);
     }
 
-    // TODO: @ItaloCobains implementar db a autenticação
-
-    // adicionandoRotaToken() {
-    //     this.aplicacao.post("/token", (req: Request, res: Response) => {
-    //         if (req.body.email && req.body.password) {
-    //             const email = req.body.email;
-    //             const password = req.body.password;
-    //             const user = users.find(function(u) {
-    //                 return u.email === email && u.password === password;
-    //             });
-    //             if (user) {
-    //                 const payload = {
-    //                     id: user.id
-    //                 };
-    //                 const token = jwt.encode(payload, cfg.jwtSecret);
-    //                 res.json({
-    //                     token: token
-    //                 });
-    //             } else {
-    //                 res.sendStatus(401);
-    //             }
-    //         } else {
-    //             res.sendStatus(401);
-    //         }
-    //     })
-    // }
-
     // Todo @ItaloCobains
     // Entt vai ser uma rota pra gerar o token
     // e outra para validar o token
@@ -216,6 +189,7 @@ export class Roteador {
                         id: usuario.id
                     }
                     const token = jwt.encode(payload, cfg.jwtSecret);
+                    users.find((u) => u.id === usuario.id).token = token;
                     return res.json({token})
                 } else {
                     res.sendStatus(401);
@@ -226,8 +200,26 @@ export class Roteador {
         });
     }
 
-    iniciar() {
+    validarToken(req: Request, res: Response, next: NextFunction) {
+        const token = req.headers["authorization"];
+        if (token) {
+            try {
+                const decoded = jwt.decode(token, cfg.jwtSecret);
+                if (decoded) {
+                    next();
+                } else {
+                    res.sendStatus(401);
+                }
+            } catch (error) {
+                res.sendStatus(401);
+            }
+        } else {
+            res.sendStatus(401);
+        }
+    }
 
+
+    iniciar() {
         this.adicionandoRotaToken();
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
