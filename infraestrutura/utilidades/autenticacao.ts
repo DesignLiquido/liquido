@@ -1,4 +1,3 @@
-// modelo de users
 import passport from "passport"
 import passportJWT from 'passport-jwt'
 import config from '../../config'
@@ -29,10 +28,10 @@ const autenticacao = (): AutenticacaoType => {
     })
     passport.use(estrategia);
     return {
-        initialize: function() {
+        initialize: function () {
             return passport.initialize();
         },
-        authenticate: function() {
+        authenticate: function () {
             return passport.authenticate("jwt", config.jwtSession);
         }
     }

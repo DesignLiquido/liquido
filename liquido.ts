@@ -105,7 +105,7 @@ export class Liquido implements LiquidoInterface {
 
                 if (expressao.objeto.simbolo.lexema === 'autenticacao') {
                     if (nomePropriedade === 'tecnologia') {
-                        switch(informacoesVariavel.valor) {
+                        switch (informacoesVariavel.valor) {
                             case 'jwt':
                                 this.roteador.ativarDesativarPassport(true);
                                 break;
