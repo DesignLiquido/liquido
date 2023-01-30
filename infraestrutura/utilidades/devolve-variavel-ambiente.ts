@@ -13,7 +13,7 @@ export const buscaVariavelAmbienteEmArquivo = (nomeVariavel: string): string | u
     let linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
-            return linha.split('=')[1];
+            return linha.split('=')[1].trim();
         }
     }
     return undefined;
@@ -26,3 +26,4 @@ export const devolveVariavelAmbiente = (nomeVariavel: string): string | boolean 
     if (valor === 'false' || valor === 'False') return false;
     return valor;
 };
+
