@@ -41,7 +41,7 @@ describe('Preprocessador de parciais em LMHT', () => {
     it('Deve retornar um Error por não encontrar o diretorio error', () => {
         const texto = `<lmht><corpo><parcial nome="error" /></corpo></lmht>`;
 
-        jest.spyOn(preProcessador, 'DiretorioParcialGetter', 'get').mockReturnValue('error');
+        jest.spyOn(preProcessador, 'diretorioParcial', 'get').mockReturnValue('error');
 
         const resultado = preProcessador.processarParciais(texto);
         expect(resultado).toBeInstanceOf(Error);
