@@ -1,12 +1,12 @@
 import passport from "passport"
 import passportJWT from 'passport-jwt'
-import config from '../../config'
 import e from "express"
 import users from "../../usuarios"
+import { devolveVariavelAmbiente } from './devolve-variavel-ambiente'
 
 const { Strategy, ExtractJwt } = passportJWT
 const params = {
-    secretOrKey: config.jwtSecret,
+    secretOrKey: devolveVariavelAmbiente('chaveSecreta') as string,
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
 }
 
@@ -16,6 +16,7 @@ type AutenticacaoType = {
 }
 
 const autenticacao = (): AutenticacaoType => {
+
     const estrategia = new Strategy(params, (payload, done) => {
         const user = users[payload.id] || null;
         if (user) {
@@ -32,7 +33,7 @@ const autenticacao = (): AutenticacaoType => {
             return passport.initialize();
         },
         authenticate: function () {
-            return passport.authenticate("jwt", config.jwtSession);
+            return passport.authenticate("jwt", { session: devolveVariavelAmbiente('session') as boolean });
         }
     }
 }

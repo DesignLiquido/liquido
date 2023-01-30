@@ -1,17 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-export const lerTextoDeArquivo = async (caminho: string): Promise<string[]> => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(caminho, 'utf-8', (err, data) => {
-            if (err) reject(err);
-            else resolve(data.split('\n'));
-        });
-    });
-};
+export const lerTextoDeArquivo = (caminho: string) => {
+    const linhas: string[] = fs.readFileSync(caminho, 'utf8').split('\n');
+    return linhas;
+}
 
-export const buscaVariavelAmbienteEmArquivo = async (nomeVariavel: string): Promise<string | undefined> => {
-    const linhas = await lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
+export const buscaVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
+    let linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
             return linha.split('=')[1];
@@ -20,8 +16,10 @@ export const buscaVariavelAmbienteEmArquivo = async (nomeVariavel: string): Prom
     return undefined;
 };
 
-export const devolveVariavelAmbiente = async (nomeVariavel: string): Promise<string> => {
-    const valor = process.env[nomeVariavel] || await buscaVariavelAmbienteEmArquivo(nomeVariavel);
+export const devolveVariavelAmbiente = (nomeVariavel: string): string | boolean => {
+    const valor = process.env[nomeVariavel] || buscaVariavelAmbienteEmArquivo(nomeVariavel);
     if (!valor) throw new Error(`Variável de ambiente ${nomeVariavel} não encontrada`);
+    if (valor === 'true' || valor === 'True') return true;
+    if (valor === 'false' || valor === 'False') return false;
     return valor;
 };
