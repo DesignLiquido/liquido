@@ -2,9 +2,12 @@ import fs from 'fs';
 import path from 'path';
 
 export const lerTextoDeArquivo = (caminho: string) => {
-    const linhas: string[] = fs.readFileSync(caminho, 'utf8').split('\n');
-    return linhas;
-}
+    if (fs.existsSync(caminho)) {
+        const linhas: string[] = fs.readFileSync(caminho, 'utf8').split('\n');
+        return linhas;
+    }
+    return [];
+};
 
 export const buscaVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
     let linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
