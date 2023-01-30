@@ -1,18 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path'
 
-export async function lerTextoDeArquivo(caminho: string): Promise<string> {
+export async function lerTextoDeArquivo(caminho: string): Promise<Array<String>> {
     return new Promise((resolve, reject) => {
         fs.readFile(caminho, 'utf-8', (err, data) => {
-            if (err) reject(err);
-            resolve(data);
+            if (err) {
+                reject(err);
+            } else {
+                const linhas = data.split('\n');
+                resolve(linhas)
+            }
         })
     })
 }
 
 export async function buscaVariavelAmbienteEmArquivo(nomeVariavel: string) {
     const textoArquivo = await lerTextoDeArquivo(path.join(process.cwd(), nomeVariavel));
-    console.log(textoArquivo);
+
 }
 
 // export const devolveVariavelAmbiente = (nomeVariavel: string): string => {
