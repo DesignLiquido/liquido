@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const lerTextoDeArquivo = async (caminho: string): Promise<string[]> => {
+export const lerTextoDeArquivo = async (caminho: string): Promise<string[]> => {
     return new Promise((resolve, reject) => {
         fs.readFile(caminho, 'utf-8', (err, data) => {
             if (err) reject(err);
@@ -10,7 +10,7 @@ const lerTextoDeArquivo = async (caminho: string): Promise<string[]> => {
     });
 };
 
-const buscaVariavelAmbienteEmArquivo = async (nomeVariavel: string): Promise<string | undefined> => {
+export const buscaVariavelAmbienteEmArquivo = async (nomeVariavel: string): Promise<string | undefined> => {
     const linhas = await lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
