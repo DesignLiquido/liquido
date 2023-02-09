@@ -25,7 +25,11 @@
 		"lint": "eslint . --ext .ts",
 		"prettier-format": "prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
 		"testes": "jest --coverage",
-		"testes:w": "jest --runInBand --watchAll"
+		"testes:w": "jest --runInBand --watchAll",
+		"predev": "npm run swagger",
+		"prebuild": "npm run swagger",
+		"dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
+		"swagger": "tsoa spec"
 	},
 	"dependencies": {
 		"@designliquido/foles": "^0.2.0",
@@ -39,9 +43,11 @@
 		"fast-xml-parser": "^4.0.12",
 		"handlebars": "^4.7.7",
 		"helmet": "^6.0.0",
+		"jwt-simple": "^0.5.6",
 		"morgan": "^1.10.0",
 		"nodemon": "^2.0.20",
-		"passport": "^0.6.0"
+		"passport": "^0.6.0",
+		"passport-jwt": "^4.0.1"
 	},
 	"devDependencies": {
 		"@designliquido/lincones-sqlite": "^0.0.2",
@@ -51,11 +57,14 @@
 		"@types/dotenv": "^8.2.0",
 		"@types/express": "^4.17.14",
 		"@types/jest": "^29.2.3",
+		"@types/jwt-simple": "^0.5.33",
 		"@types/morgan": "^1.9.3",
 		"@types/node": "^17.0.13",
 		"@types/passport": "^1.0.11",
+		"@types/passport-jwt": "^3.0.8",
 		"@typescript-eslint/eslint-plugin": "^5.44.0",
 		"@typescript-eslint/parser": "^5.44.0",
+		"concurrently": "^7.6.0",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-prettier": "^4.2.1",

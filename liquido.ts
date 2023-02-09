@@ -103,6 +103,18 @@ export class Liquido implements LiquidoInterface {
                     this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
                 }
 
+                if (expressao.objeto.simbolo.lexema === 'autenticacao') {
+                    if (nomePropriedade === 'tecnologia') {
+                        switch (informacoesVariavel.valor) {
+                            case 'jwt':
+                                this.roteador.ativarDesativarPassport(true);
+                                break;
+                            default:
+                                console.error('Tecnologia de autenticação não suportada.');
+                        }
+                    }
+                }
+
                 if (expressao.objeto.objeto.simbolo.lexema === 'dados') {
                     if (expressao.objeto.simbolo.lexema === 'lincones') {
                         this.provedorLincones.configurar(nomePropriedade, informacoesVariavel.valor);

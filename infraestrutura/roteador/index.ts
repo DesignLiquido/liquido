@@ -1,12 +1,15 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import passport from 'passport';
+import jwt from 'jwt-simple'
+import autenticacao from '../utilidades/autenticacao'
+import users from '../../usuarios';
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+import { devolveVariavelAmbiente } from '../utilidades/devolve-variavel-ambiente';
 
 export class Roteador {
     aplicacao: express.Express;
@@ -21,7 +24,10 @@ export class Roteador {
     private cors = false;
     private passport = false;
 
+
+
     constructor() {
+
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
     }
@@ -88,7 +94,7 @@ export class Roteador {
         }
 
         if (this.passport) {
-            this.aplicacao.use(passport.initialize());
+            this.aplicacao.use(autenticacao().initialize());
         }
     }
 
@@ -168,7 +174,55 @@ export class Roteador {
         this.aplicacao.propfind(caminho, execucao);
     }
 
+
+    adicionandoRotaToken() {
+
+
+        this.aplicacao.post("/token", (req: Request, res: Response) => {
+            if (req.body.email && req.body.senha) {
+                const { email, senha } = req.body;
+                const usuario = users.find((u) => {
+                    return u.email === email && u.senha === senha;
+                })
+                if (usuario) {
+                    const payload = {
+                        id: usuario.id
+                    }
+                    const token = jwt.encode(payload, devolveVariavelAmbiente('chaveSecreta') as string);
+                    users.find((u) => u.id === usuario.id).token = token;
+                    return res.json({ token })
+                } else {
+                    res.sendStatus(401);
+                }
+            } else {
+                res.sendStatus(401);
+            }
+        });
+    }
+
+    validarToken(req: Request, res: Response, next: NextFunction) {
+        const token = req.headers["authorization"];
+        if (token) {
+            try {
+                const decoded = jwt.decode(token, devolveVariavelAmbiente('chaveSecreta') as string);
+                if (decoded) {
+                    next();
+                } else {
+                    res.sendStatus(401);
+                }
+            } catch (error) {
+                res.sendStatus(401);
+            }
+        } else {
+            res.sendStatus(401);
+        }
+    }
+
+
     iniciar() {
+        if (this.passport === true) {
+            this.adicionandoRotaToken();
+        }
         this.aplicacao.listen(this.porta, () => {
             console.log(`Aplicação iniciada na porta ${this.porta}`);
         });
