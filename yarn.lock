@@ -324,25 +324,33 @@
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-matematica/-/delegua-matematica-0.2.0.tgz#a1f15318cf3efc28f31297f7ff2ea7174d68a66e"
   integrity sha512-QG10FBbo7i+wW50+8s9lASBzJ8MdgPPcbfpsxFSU+7PEDGTrOalPtT6WbdhbWpV/meKl6q1lP7isLkeiF40WCQ==
 
+"@designliquido/delegua-node@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.6.0.tgz#2abcf3fddae3bf8af83ad527c010af621e9e7d80"
+  integrity sha512-8YbxlWJMxDyDzhrPqNh/Eyjb8bdJRVBqdFwkCtlNz9ACRixKGHrQoi0Zp/z0ApL1dvA+H6ZYLiC7wJ5oDVd4hw==
+  dependencies:
+    "@designliquido/delegua" "^0.14.6"
+    chalk "4.1.2"
+    commander "^9.4.1"
+
 "@designliquido/delegua-tempo@0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-tempo/-/delegua-tempo-0.0.1.tgz#964834d127354857cda1c388f5de9327735b6747"
   integrity sha512-/O1/eXlTXPTWSZGZ862i6uHHKCW0cmP6KnOV29zK4d4hgn03QjcNDeFKVC9L9vz3OJ6pPY0d/S8ANJkgBnnoaQ==
 
-"@designliquido/delegua@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.11.0.tgz#25bceb3da5ec16c197d1c6a39dd6ce46afccfc67"
-  integrity sha512-7qfthIGBiEZ/LTCHDr0zts/D05oznIINNv2VM0Pd0QU0HDwpY457NrKSWMSgXooaedGwXiR7uIwBNA91MEEyeg==
+"@designliquido/delegua@^0.14.6":
+  version "0.14.6"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.14.6.tgz#233038fda81a1c1ff2c2a258d29c00d568f717b1"
+  integrity sha512-87d7QQoZpTOJwxOJ0ybcYej62sWUzpPQAn+SGRQuqZoBLg2Ub1nKBvGtuniyATJ7BgwQ9DSAaDTdt/xXvaJBHA==
   dependencies:
+    antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
-    chalk "4.1.2"
-    commander "^9.4.1"
     esprima "^4.0.1"
 
-"@designliquido/foles@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.2.0.tgz#7a1b18ae3a55e3f23b39bb8900458159d9ee3b80"
-  integrity sha512-sdNC+Xg/qWl9HIvwsdm0Sg/kZeViz0tKaMkI3e/CmcXYEMLwGrQRxeK3KFG6U12MvUSmR/neTueoNuhQFWGLMg==
+"@designliquido/foles@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.2.1.tgz#4a1f5af0b32e62d7159f9055d0054a9bc996674e"
+  integrity sha512-FJra8CZi0nJvW2uI9rwdOrapPG/ZAb+bW8pUoQ9vgUaFxiP7aBCnkVg8ufiDRKwu2/uqL+zHZ6T0Of8LANYqmw==
   dependencies:
     commander "^9.4.1"
 
@@ -1344,6 +1352,11 @@ ansi-styles@^6.1.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.2.1.tgz#0e62320cf99c21afff3b3012192546aacbfb05c5"
   integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
 
+antlr4ts@^0.5.0-alpha.4:
+  version "0.5.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/antlr4ts/-/antlr4ts-0.5.0-alpha.4.tgz#71702865a87478ed0b40c0709f422cf14d51652a"
+  integrity sha512-WPQDt1B74OfPv/IMS2ekXAKkTZIHl88uMetg6q3OTqgFxZ/dxDXI0EWLyZid/1Pe6hTftyg5N7gel5wNAGxXyQ==
+
 anymatch@^3.0.3, anymatch@~3.1.2:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/anymatch/-/anymatch-3.1.3.tgz#790c58b19ba1720a84205b57c618d5ad8524973e"
@@ -2108,16 +2121,16 @@ delegates@^1.0.0:
   resolved "https://registry.yarnpkg.com/delegates/-/delegates-1.0.0.tgz#84c6e159b81904fdca59a0ef44cd870d31250f9a"
   integrity sha512-bd2L678uiWATM6m5Z1VzNCErI3jiGzt6HGY8OVICs40JQq/HALfbyNJmp0UDakEY4pMMaN0Ly5om/B1VI/+xfQ==
 
-delegua@^0.11.0:
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/delegua/-/delegua-0.11.0.tgz#af91bc6621e1265a939e0c0a8b5b3f97de6b3f49"
-  integrity sha512-+1EA5kBmd9ldXkgzzkbW9s6Z/PhLssJ+g/hmJUVpfJWMrIsrs+lwzibs3Abjg8O8BuomV0xrkhbq9B1V+CLqZA==
+delegua@^0.14.6:
+  version "0.14.6"
+  resolved "https://registry.yarnpkg.com/delegua/-/delegua-0.14.6.tgz#1df5f9ff050c42c4502afe299ee7134f7cfb7d75"
+  integrity sha512-/8WivSfE2SjQyTzrn6aOPhGBH8suyyZ3MCUiNsl5akmVp/Qf1Aa0w64XJeqwuS9muK6nvVWlsff6KU4LloBODw==
   dependencies:
-    "@designliquido/delegua" "0.11.0"
     "@designliquido/delegua-estatistica" "0.0.5"
     "@designliquido/delegua-fisica" "0.0.2"
     "@designliquido/delegua-json" "^0.0.0"
     "@designliquido/delegua-matematica" "0.2.0"
+    "@designliquido/delegua-node" "0.6.0"
     "@designliquido/delegua-tempo" "0.0.1"
 
 depd@2.0.0, depd@~2.0.0:

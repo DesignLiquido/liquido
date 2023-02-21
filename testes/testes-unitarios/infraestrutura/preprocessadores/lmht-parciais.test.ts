@@ -1,5 +1,5 @@
 import { PreprocessadorLmhtParciais } from '../../../../infraestrutura/preprocessadores/lmht-parciais';
-import { VerificaXml } from '../../../ajudadores/VerificaXml';
+import { VerificaXml } from '../../../ajudadores/verifica-xml';
 
 describe('Preprocessador de parciais em LMHT', () => {
     let preProcessador: PreprocessadorLmhtParciais;

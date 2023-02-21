@@ -1,10 +1,8 @@
 import * as sistemaDeArquivos from 'node:fs';
-import * as caminho from 'path';
+import * as caminho from 'node:path';
 
 import {
     AvaliadorSintatico,
-    Importador,
-    Interpretador,
     Lexador,
     RetornoInterpretador,
     Simbolo
@@ -26,6 +24,8 @@ import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
 import { Roteador } from './infraestrutura/roteador';
 import { LiquidoInterface, RetornoMiddleware } from './interfaces';
+import { Importador } from '@designliquido/delegua-node/fontes/importador';
+import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
 
 /**
  * O núcleo do framework.
