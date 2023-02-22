@@ -55,6 +55,7 @@ export class Liquido implements LiquidoInterface {
         this.rotasDelegua = [];
         this.diretorioDescobertos = [];
         this.diretorioBase = diretorioBase;
+        this.diretorioEstatico = 'publico';
 
         this.importador = new Importador(
             new Lexador(),
@@ -73,7 +74,7 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         this.importarArquivoConfiguracao();
-        this.roteador.configuraArquivosEstaticos(this.diretorioEstatico);
+        this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
         this.importarArquivosRotas();
 
@@ -84,13 +85,13 @@ export class Liquido implements LiquidoInterface {
 
         const arquivosEstilos = this.descobrirEstilos();
 
-        if (!sistemaDeArquivos.existsSync('./publico/css')) {
-            sistemaDeArquivos.mkdirSync('./publico/css', { recursive: true });
+        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
+            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
         }
         
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
-            const arquivoDestino = caminho.join(process.cwd(), 'publico/css', arquivo.replace('estilos', '').replace('.foles', '.css'));
+            const arquivoDestino = caminho.join(process.cwd(), `./${this.diretorioEstatico}/css`, arquivo.replace('estilos', '').replace('.foles', '.css'));
             sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
                 if (erro) {
                     return console.log(erro);

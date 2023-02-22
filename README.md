@@ -189,6 +189,10 @@ Ou seja, havendo um diretório `publico` na sua aplicação, é possível servir
 
 Se uma imagem com o nome `teste.png` é colocada dentro do diretório `publico`, ao iniciar sua aplicação em http://localhost:3000, a imagem pode ser acessada por http://localhost:3000/teste.png. 
 
+#### Conversões automáticas para diretório estático
+
+Ao inicializar, Liquido verifica um diretório `estilos`. Havendo arquivos FolEs nele (extensão `.foles`), cada arquivo é automaticamente convertido para CSS e salvo em um diretório dentro do diretório estático definido na configuração chamado `css`.
+
 ### Padrões de Aplicação
 
 Liquido foi pensado para servir qualquer padrão de projeto para aplicações Web. A primeira versão de Liquido garante a implementação dos seguintes padrões:

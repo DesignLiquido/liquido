@@ -5,10 +5,12 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import jwt from 'jwt-simple'
+
+import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+
 import autenticacao from '../utilidades/autenticacao'
 import users from '../../usuarios';
 
-import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 import { devolveVariavelAmbiente } from '../utilidades/devolve-variavel-ambiente';
 
 export class Roteador {
@@ -24,15 +26,12 @@ export class Roteador {
     private cors = false;
     private passport = false;
 
-
-
     constructor() {
-
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
     }
 
-    configuraArquivosEstaticos(diretorio: string = 'publico'): void {
+    configurarArquivosEstaticos(diretorio: string = 'publico'): void {
         this.aplicacao.use(express.static(diretorio));
     }
 
@@ -60,7 +59,7 @@ export class Roteador {
                 this.ativarDesativarHelmet(informacoesVariavel.valor);
                 break;
             case 'diretorioEstatico':
-                this.configuraArquivosEstaticos(informacoesVariavel.valor);
+                this.configurarArquivosEstaticos(informacoesVariavel.valor);
                 break;
             default:
                 console.log(`Método ${nomePropriedade} não reconhecido.`);
