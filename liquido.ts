@@ -26,6 +26,7 @@ import { Roteador } from './infraestrutura/roteador';
 import { LiquidoInterface, RetornoMiddleware } from './interfaces';
 import { Importador } from '@designliquido/delegua-node/fontes/importador';
 import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
+import { FolEs } from '@designliquido/foles';
 
 /**
  * O núcleo do framework.
@@ -36,6 +37,8 @@ export class Liquido implements LiquidoInterface {
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
+    foles: FolEs;
+
     arquivosDelegua: string[];
     rotasDelegua: string[];
     diretorioBase: string;
@@ -65,6 +68,7 @@ export class Liquido implements LiquidoInterface {
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
         this.roteador = new Roteador();
         this.provedorLincones = new ProvedorLincones();
+        this.foles = new FolEs();
     }
 
     async iniciar(): Promise<void> {
@@ -76,6 +80,24 @@ export class Liquido implements LiquidoInterface {
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
             this.interpretador.pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
+        }
+
+        const arquivosEstilos = this.descobrirEstilos();
+
+        if (!sistemaDeArquivos.existsSync('./publico/css')) {
+            sistemaDeArquivos.mkdirSync('./publico/css', { recursive: true });
+        }
+        
+        for (const arquivo of arquivosEstilos) {
+            const teste = this.foles.converterParaCss(arquivo);
+            const arquivoDestino = caminho.join(process.cwd(), 'publico/css', arquivo.replace('estilos', '').replace('.foles', '.css'));
+            sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
+                if (erro) {
+                    return console.log(erro);
+                }
+
+                console.log(`Salvo: ${arquivoDestino}`);
+            });
         }
     }
 
@@ -150,28 +172,44 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
-     * Método de descoberta de rotas.
+     * Método de descoberta de rotas. Recursivo.
+     * @param diretorio O diretório a ser pesquisado.
      */
     descobrirRotas(diretorio: string): void {
-        const ListaDeItems = sistemaDeArquivos.readdirSync(diretorio);
+        const listaDeItems = sistemaDeArquivos.readdirSync(diretorio);
 
         const diretorioDescobertos = [];
 
-        ListaDeItems.forEach((diretorioOuArquivo) => {
+        listaDeItems.forEach((diretorioOuArquivo) => {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
             if (caminhoAbsoluto.endsWith('.delegua')) {
                 this.arquivosDelegua.push(caminhoAbsoluto);
-                return null;
+                return;
             }
+
             if (sistemaDeArquivos.lstatSync(caminhoAbsoluto).isDirectory()) {
                 diretorioDescobertos.push(caminhoAbsoluto);
-                return null;
             }
         });
 
         diretorioDescobertos.forEach((diretorioDescoberto) => {
             this.descobrirRotas(diretorioDescoberto);
         });
+    }
+
+    descobrirEstilos() {
+        const listaDeItems = sistemaDeArquivos.readdirSync('./estilos');
+
+        const arquivosDescobertos = [];
+
+        listaDeItems.forEach((diretorioOuArquivo) => {
+            const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
+            if (caminhoAbsoluto.endsWith('.foles')) {
+                arquivosDescobertos.push(caminhoAbsoluto);
+            }
+        });
+
+        return arquivosDescobertos;
     }
 
     /**
