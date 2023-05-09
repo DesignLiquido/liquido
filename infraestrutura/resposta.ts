@@ -19,7 +19,8 @@ export class Resposta extends DeleguaClasse {
                 -1,
                 [
                     {
-                        tipo: 'padrao',
+                        abrangencia: 'padrao',
+                        tipo: 'numero',
                         nome: new Simbolo('IDENTIFICADOR', 'mensagem', null, -1, -1)
                     } as ParametroInterface
                 ],
@@ -49,7 +50,8 @@ export class Resposta extends DeleguaClasse {
                 -1,
                 [
                     {
-                        tipo: 'padrao',
+                        abrangencia: 'padrao',
+                        tipo: 'numero',
                         nome: new Simbolo('IDENTIFICADOR', 'statusHttp', null, -1, -1)
                     } as ParametroInterface
                 ],
@@ -79,7 +81,8 @@ export class Resposta extends DeleguaClasse {
                 -1,
                 [
                     {
-                        tipo: 'padrao',
+                        abrangencia: 'padrao',
+                        tipo: 'numero',
                         nome: new Simbolo('IDENTIFICADOR', 'valores', null, -1, -1)
                     } as ParametroInterface
                 ],

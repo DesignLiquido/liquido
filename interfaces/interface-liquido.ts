@@ -1,9 +1,8 @@
-import {
-    Importador,
-    Interpretador,
-    RetornoInterpretador
-} from '@designliquido/delegua';
+import { RetornoInterpretador } from '@designliquido/delegua';
+import { Importador } from '@designliquido/delegua-node/fontes/importador';
 import { Construto, FuncaoConstruto } from '@designliquido/delegua/fontes/construtos';
+import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
+
 import { Roteador } from '../infraestrutura/roteador';
 import { RetornoMiddleware } from './retorno-middleware';
 
