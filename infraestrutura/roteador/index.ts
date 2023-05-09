@@ -11,7 +11,7 @@ import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 import autenticacao from '../utilidades/autenticacao'
 import users from '../../usuarios';
 
-import { devolveVariavelAmbiente } from '../utilidades/devolve-variavel-ambiente';
+import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 
 export class Roteador {
     aplicacao: express.Express;
@@ -187,7 +187,7 @@ export class Roteador {
                     const payload = {
                         id: usuario.id
                     }
-                    const token = jwt.encode(payload, devolveVariavelAmbiente('chaveSecreta') as string);
+                    const token = jwt.encode(payload, devolverVariavelAmbiente('chaveSecreta') as string);
                     users.find((u) => u.id === usuario.id).token = token;
                     return res.json({ token })
                 } else {
@@ -203,7 +203,7 @@ export class Roteador {
         const token = req.headers["authorization"];
         if (token) {
             try {
-                const decoded = jwt.decode(token, devolveVariavelAmbiente('chaveSecreta') as string);
+                const decoded = jwt.decode(token, devolverVariavelAmbiente('chaveSecreta') as string);
                 if (decoded) {
                     next();
                 } else {

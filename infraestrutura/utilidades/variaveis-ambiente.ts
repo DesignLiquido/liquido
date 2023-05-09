@@ -9,8 +9,8 @@ export const lerTextoDeArquivo = (caminho: string) => {
     return [];
 };
 
-export const buscaVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
-    let linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), 'variavel-ambiente.env'));
+export const buscarVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
+    const linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), '.ambiente'));
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
             return linha.split('=')[1].trim();
@@ -19,8 +19,8 @@ export const buscaVariavelAmbienteEmArquivo = (nomeVariavel: string): string | u
     return undefined;
 };
 
-export const devolveVariavelAmbiente = (nomeVariavel: string): string | boolean => {
-    const valor = process.env[nomeVariavel] || buscaVariavelAmbienteEmArquivo(nomeVariavel);
+export const devolverVariavelAmbiente = (nomeVariavel: string): string | boolean => {
+    const valor = process.env[nomeVariavel] || buscarVariavelAmbienteEmArquivo(nomeVariavel);
     if (!valor) throw new Error(`Variável de ambiente ${nomeVariavel} não encontrada`);
     if (valor === 'true' || valor === 'True') return true;
     if (valor === 'false' || valor === 'False') return false;

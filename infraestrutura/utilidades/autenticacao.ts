@@ -1,41 +1,42 @@
-import passport from "passport"
-import passportJWT from 'passport-jwt'
-import e from "express"
-import users from "../../usuarios"
-import { devolveVariavelAmbiente } from './devolve-variavel-ambiente'
+import passport from 'passport';
+import passportJWT from 'passport-jwt';
+import express from 'express';
 
-const { Strategy, ExtractJwt } = passportJWT
-const params = {
-    secretOrKey: devolveVariavelAmbiente('chaveSecreta') as string,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
-}
+import users from '../../usuarios';
+import { devolverVariavelAmbiente } from './variaveis-ambiente';
 
-type AutenticacaoType = {
-    initialize: () => e.Handler;
+const { Strategy, ExtractJwt } = passportJWT;
+
+type TipoAutenticacao = {
+    initialize: () => express.Handler;
     authenticate: () => any;
-}
+};
 
-const autenticacao = (): AutenticacaoType => {
+const autenticacao = (): TipoAutenticacao => {
+    const parametros = {
+        secretOrKey: devolverVariavelAmbiente('chaveSecreta') as string,
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+    };
 
-    const estrategia = new Strategy(params, (payload, done) => {
-        const user = users[payload.id] || null;
-        if (user) {
+    const estrategia = new Strategy(parametros, (payload, done) => {
+        const usuario = users[payload.id] || null;
+        if (usuario) {
             return done(null, {
-                id: user.id
-            })
+                id: usuario.id
+            });
         } else {
-            return done(new Error(`User not found`), null)
+            return done(new Error(`Usuário não encontrado.`), null);
         }
-    })
+    });
     passport.use(estrategia);
     return {
         initialize: function () {
             return passport.initialize();
         },
         authenticate: function () {
-            return passport.authenticate("jwt", { session: devolveVariavelAmbiente('session') as boolean });
+            return passport.authenticate('jwt', { session: devolverVariavelAmbiente('session') as boolean });
         }
-    }
-}
+    };
+};
 
-export default autenticacao
+export default autenticacao;
