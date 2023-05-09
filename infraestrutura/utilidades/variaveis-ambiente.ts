@@ -1,16 +1,16 @@
-import fs from 'fs';
-import path from 'path';
+import sistemaArquivos from 'fs';
+import caminho from 'path';
 
 export const lerTextoDeArquivo = (caminho: string) => {
-    if (fs.existsSync(caminho)) {
-        const linhas: string[] = fs.readFileSync(caminho, 'utf8').split('\n');
+    if (sistemaArquivos.existsSync(caminho)) {
+        const linhas: string[] = sistemaArquivos.readFileSync(caminho, 'utf8').split('\n');
         return linhas;
     }
     return [];
 };
 
 export const buscarVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
-    const linhas: string[] = lerTextoDeArquivo(path.join(process.cwd(), '.ambiente'));
+    const linhas: string[] = lerTextoDeArquivo(caminho.join(process.cwd(), '.ambiente'));
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
             return linha.split('=')[1].trim();

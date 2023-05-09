@@ -15,7 +15,7 @@ export class PreprocessadorFolEs {
     processar(conteudoLmht: string): string {
         const objetoVisao = this.leitorLmht.parse(conteudoLmht);
 
-        const cabeca = objetoVisao.lmht?.cabeca;
+        const cabeca = objetoVisao.lmht?.cabeca || objetoVisao.lmht?.cabeça;
         if (cabeca) {
             // Procurar por estrutura de estilo.
             const estilo = cabeca.estilo;

@@ -198,19 +198,24 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    descobrirEstilos() {
-        const listaDeItems = sistemaDeArquivos.readdirSync('./estilos');
+    descobrirEstilos(): any[] {
+        try {
+            const listaDeItems = sistemaDeArquivos.readdirSync('./estilos');
 
-        const arquivosDescobertos = [];
-
-        listaDeItems.forEach((diretorioOuArquivo) => {
-            const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
-            if (caminhoAbsoluto.endsWith('.foles')) {
-                arquivosDescobertos.push(caminhoAbsoluto);
-            }
-        });
-
-        return arquivosDescobertos;
+            const arquivosDescobertos = [];
+    
+            listaDeItems.forEach((diretorioOuArquivo) => {
+                const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
+                if (caminhoAbsoluto.endsWith('.foles')) {
+                    arquivosDescobertos.push(caminhoAbsoluto);
+                }
+            });
+    
+            return arquivosDescobertos;
+        } catch (erro: any) {
+            console.log(`Pulando descoberta de estilos. Causa: ${erro}`);
+            return [];
+        }
     }
 
     /**
@@ -353,17 +358,21 @@ export class Liquido implements LiquidoInterface {
             statusHttp = valor.campos.statusHttp;
         }
 
-        if (valor.campos.lmht) {
-            const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
-            return {
-                corpoRetorno: resultadoFormatacaoLmht,
-                statusHttp: statusHttp
-            };
-        } else if (valor.campos.mensagem) {
-            return {
-                corpoRetorno: valor.campos.mensagem,
-                statusHttp: statusHttp
-            };
+        try {
+            if (valor.campos.lmht) {
+                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
+                return {
+                    corpoRetorno: resultadoFormatacaoLmht,
+                    statusHttp: statusHttp
+                };
+            } else if (valor.campos.mensagem) {
+                return {
+                    corpoRetorno: valor.campos.mensagem,
+                    statusHttp: statusHttp
+                };
+            }
+        } catch (erro: any) {
+            console.log(`Erro ao processar LMHT: ${erro}`);
         }
     }
 

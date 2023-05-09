@@ -6,7 +6,7 @@ liquido.roteador.cors = verdadeiro
 liquido.roteador.bodyParser = verdadeiro
 liquido.roteador.morgan = verdadeiro
 liquido.roteador.cookieParser = verdadeiro
-liquido.roteador.passport = verdadeiro
+liquido.roteador.passport = falso
 liquido.roteador.json = verdadeiro
 liquido.roteador.helmet = verdadeiro
 
@@ -14,4 +14,4 @@ liquido.roteador.helmet = verdadeiro
 liquido.dados.lincones.tecnologia = 'sqlite'
 liquido.dados.lincones.caminho = ':memory:'
 
-liquido.autenticacao.tecnologia = 'jwt'
+// liquido.autenticacao.tecnologia = 'jwt'
