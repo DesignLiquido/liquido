@@ -5,11 +5,12 @@
         <meta nome="author" conteudo="Leonel Sanches da Silva" />
         <meta nome="viewport" conteudo="width=device-width, initial-scale=1.0" />
         <titulo>Meu blog</titulo>
-        <estilo>
+        <recurso tipo="stylesheet" destino="/publico/css/teste.css" />
+        <!-- estilo>
             lmht {
 	            tamanho-fonte: 22px;
             }
-        </estilo>
+        </estilo -->
     </cabeça>
     <corpo>
         <artigo>

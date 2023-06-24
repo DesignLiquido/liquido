@@ -1,4 +1,4 @@
-import * as sistemaDeArquivos from 'node:fs';
+import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
 import Handlebars from 'handlebars';

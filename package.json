@@ -32,8 +32,8 @@
 		"swagger": "tsoa spec"
 	},
 	"dependencies": {
-		"@designliquido/delegua-node": "^0.20.1",
-		"@designliquido/foles": "^0.2.1",
+		"@designliquido/delegua-node": "0.20.1",
+		"@designliquido/foles": "^0.3.1",
 		"@designliquido/lmht-js": "^0.2.0",
 		"body-parser": "^1.20.1",
 		"cookie-parser": "^1.4.6",
@@ -45,7 +45,7 @@
 		"helmet": "^6.0.0",
 		"jwt-simple": "^0.5.6",
 		"morgan": "^1.10.0",
-		"nodemon": "^2.0.20",
+		"nodemon": "^2.0.22",
 		"passport": "^0.6.0",
 		"passport-jwt": "^4.0.1"
 	},

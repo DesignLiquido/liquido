@@ -304,7 +304,7 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-node@^0.20.1":
+"@designliquido/delegua-node@0.20.1":
   version "0.20.1"
   resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.20.1.tgz#bc178fdeaaf3f2470e9288fab9150544898b8e08"
   integrity sha512-1i4R8SHThvOrfOH2myzVDUHzivwtWPmcFB5jMek9dSvkFvqiV3RiQ05QCI2MGVHIJHJKn6aCInZJamGN/2b9Hw==
@@ -322,12 +322,13 @@
     browser-process-hrtime "^1.0.0"
     esprima "^4.0.1"
 
-"@designliquido/foles@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.2.1.tgz#4a1f5af0b32e62d7159f9055d0054a9bc996674e"
-  integrity sha512-FJra8CZi0nJvW2uI9rwdOrapPG/ZAb+bW8pUoQ9vgUaFxiP7aBCnkVg8ufiDRKwu2/uqL+zHZ6T0Of8LANYqmw==
+"@designliquido/foles@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.3.1.tgz#af5ea25d877a010f063c02568d94b6082275d684"
+  integrity sha512-FLB/6ptQg+17tyZn2qJH3goiShBoLc8XhEduSFs429/0YUrIfr/R8ko+daC2EvCNnNxSeQaJE1vUSgOqQkXy6A==
   dependencies:
     commander "^9.4.1"
+    vlq "^2.0.4"
 
 "@designliquido/lincones-sqlite@^0.0.2":
   version "0.0.2"
@@ -4419,10 +4420,10 @@ node-releases@^2.0.6:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
   integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
 
-nodemon@^2.0.20:
-  version "2.0.20"
-  resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.20.tgz#e3537de768a492e8d74da5c5813cb0c7486fc701"
-  integrity sha512-Km2mWHKKY5GzRg6i1j5OxOHQtuvVsgskLfigG25yTtbyfRGn/GNvIbRyOf1PSCKJ2aT/58TiuUsuOU5UToVViw==
+nodemon@^2.0.22:
+  version "2.0.22"
+  resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.22.tgz#182c45c3a78da486f673d6c1702e00728daf5258"
+  integrity sha512-B8YqaKMmyuCO7BowF1Z1/mkPqLk6cs/l63Ojtd6otKjMx47Dq1utxfRxcavH1I7VSaL8n5BUaoutadnsX3AAVQ==
   dependencies:
     chokidar "^3.5.2"
     debug "^3.2.7"
@@ -5874,6 +5875,11 @@ vary@^1, vary@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
+
+vlq@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/vlq/-/vlq-2.0.4.tgz#6057b85729245b9829e3cc7755f95b228d4fe041"
+  integrity sha512-aodjPa2wPQFkra1G8CzJBTHXhgk3EVSwxSWXNPr1fgdFLUb8kvLV1iEb6rFgasIsjP82HWI6dsb5Io26DDnasA==
 
 vm2@^3.9.8:
   version "3.9.12"
