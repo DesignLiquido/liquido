@@ -304,28 +304,31 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-node@0.20.1":
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.20.1.tgz#bc178fdeaaf3f2470e9288fab9150544898b8e08"
-  integrity sha512-1i4R8SHThvOrfOH2myzVDUHzivwtWPmcFB5jMek9dSvkFvqiV3RiQ05QCI2MGVHIJHJKn6aCInZJamGN/2b9Hw==
+"@designliquido/delegua-node@0.22.7":
+  version "0.22.7"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.22.7.tgz#f002d09bbf226780cdd03dcbd201ae98692c4bcf"
+  integrity sha512-3X+G0IpoA+TA1mpn+wNcNsJqlSf0Y0S4ytYki0jOeFV/ohnWSVyZKcGilhGh5NrgZ8EpVeQ/2XsqHFgIKSHpLQ==
   dependencies:
-    "@designliquido/delegua" "0.20.1"
+    "@designliquido/delegua" "0.22.7"
     chalk "4.1.2"
     commander "^9.4.1"
+    json-colorizer "^2.2.2"
+    lodash.clonedeep "^4.5.0"
 
-"@designliquido/delegua@0.20.1":
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.20.1.tgz#96ee7a0d0c7fe3c7224799747b82ae9d12cc9a88"
-  integrity sha512-Y/4WK8TZHJccZ1RZ0UfXMxwBzlarv/ve3piJ55Al+19zqCrcm4HgulLA5YG18m1eLs4ybf/msCkx28xLWyDOSg==
+"@designliquido/delegua@0.22.7":
+  version "0.22.7"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.22.7.tgz#cec11b78a40a7da1088e4efb1e10ea44b01072c5"
+  integrity sha512-oTzCIQy9JGDy/5gRo2mCEbT1AdYFdZ09hxxfJ3ANzpeyHBhWVPmrce3eAOk5x6L6qKNyiAidsdfIRashlxvLCQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
     esprima "^4.0.1"
+    lodash.clonedeep "^4.5.0"
 
-"@designliquido/foles@^0.3.1":
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.3.1.tgz#af5ea25d877a010f063c02568d94b6082275d684"
-  integrity sha512-FLB/6ptQg+17tyZn2qJH3goiShBoLc8XhEduSFs429/0YUrIfr/R8ko+daC2EvCNnNxSeQaJE1vUSgOqQkXy6A==
+"@designliquido/foles@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.4.0.tgz#e502c61a29b40f21e4a1fca05cdebb60de1c9349"
+  integrity sha512-rb60+SscKZt+j3Dp0oPwI6SlBTzoWAEUjUXdbVhrkMwM+PopyN4tT8mjTGY/Bm9IaitYi1Xlr7lnO6RFbLPuyA==
   dependencies:
     commander "^9.4.1"
     vlq "^2.0.4"
@@ -1709,7 +1712,7 @@ chalk@5.0.1:
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-5.0.1.tgz#ca57d71e82bb534a296df63bbacc4a1c22b2a4b6"
   integrity sha512-Fo07WOYGqMfCWHOzSXOt2CxDbC6skS/jO9ynEcmpANMoPrD+W1r1K6Vx7iNm+AQmETU1Xr2t+n8nzkV9t6xh3w==
 
-chalk@^2.0.0:
+chalk@^2.0.0, chalk@^2.4.1:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
   integrity sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==
@@ -3951,6 +3954,14 @@ json-buffer@3.0.1:
   resolved "https://registry.yarnpkg.com/json-buffer/-/json-buffer-3.0.1.tgz#9338802a30d3b6605fbe0613e094008ca8c05a13"
   integrity sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==
 
+json-colorizer@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/json-colorizer/-/json-colorizer-2.2.2.tgz#07c2ac8cef36558075948e1566c6cfb4ac1668e6"
+  integrity sha512-56oZtwV1piXrQnRNTtJeqRv+B9Y/dXAYLqBBaYl/COcUdoZxgLBLAO88+CnkbT6MxNs0c5E9mPBIb2sFcNz3vw==
+  dependencies:
+    chalk "^2.4.1"
+    lodash.get "^4.4.2"
+
 json-parse-even-better-errors@^2.3.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz#7c47805a94319928e05777405dc12e1f7a4ee02d"
@@ -4068,6 +4079,16 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash.clonedeep@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
+  integrity sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==
+
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+  integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
 
 lodash.memoize@4.x:
   version "4.1.2"
