@@ -1,12 +1,12 @@
 import * as sistemaDeArquivos from 'node:fs';
 import * as caminho from 'node:path';
 
+import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
 import {
-    AvaliadorSintatico,
     Lexador,
-    RetornoInterpretador,
     Simbolo
-} from '@designliquido/delegua';
+} from '@designliquido/delegua/fontes/lexador';
+import { RetornoInterpretador } from '@designliquido/delegua/fontes/interpretador';
 import {
     AcessoMetodo,
     Chamada,
@@ -59,7 +59,7 @@ export class Liquido implements LiquidoInterface {
 
         this.importador = new Importador(
             new Lexador(),
-            new AvaliadorSintatico(),
+            new AvaliadorSintatico() as any,
             this.arquivosAbertos,
             this.conteudoArquivosAbertos,
             false
@@ -309,7 +309,7 @@ export class Liquido implements LiquidoInterface {
         this.interpretador.pilhaEscoposExecucao.definirVariavel('requisicao', requisicao);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'resposta',
-            new Resposta().chamar(this.interpretador, [])
+            new Resposta().chamar(this.interpretador as any, [])
         );
 
         const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);

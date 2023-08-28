@@ -1,4 +1,4 @@
-import { Simbolo } from '@designliquido/delegua';
+import { Simbolo } from '@designliquido/delegua/fontes/lexador';
 import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designliquido/delegua/fontes/construtos';
 import { Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
