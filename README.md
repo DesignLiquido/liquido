@@ -1,5 +1,9 @@
 # Liquido
 
+<p align="center">
+  <img src="./recursos/imagens/icone-liquido.png" alt="delegua" width="auto" height="130px">
+</p>
+
 Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100% em português.
 
 <p align="center">
