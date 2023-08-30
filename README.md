@@ -195,7 +195,7 @@ Se uma imagem com o nome `teste.png` é colocada dentro do diretório `publico`,
 
 #### Conversões automáticas para diretório estático
 
-Ao inicializar, Liquido verifica um diretório `estilos`. Havendo arquivos FolEs nele (extensão `.foles`), cada arquivo é automaticamente convertido para CSS e salvo em um diretório dentro do diretório estático definido na configuração chamado `css`.
+Ao inicializar, Liquido verifica um diretório `estilos`. Havendo arquivos FolEs nele (extensão `.foles`), cada arquivo é automaticamente convertido para CSS e salvo em um diretório dentro do diretório estático definido na configuração chamado `css`. Ou seja, um arquivo `teste.foles` é salvo em `/publico/css/teste.css` e pode ser acessado por http://localhost:3000/css/teste.css. 
 
 ### Padrões de Aplicação
 
@@ -213,4 +213,4 @@ Futuras versões de Liquido terão:
 
 Liquido permite a qualquer desenvolvedor que saiba português a escrever aplicações Web, e possivelmente criar um ecossistema profissional a partir dele. Procuramos traduzir o máximo possível de informações e conceitos por uma questão de acessibilidade, mas há limites para isso. Por exemplo, não traduzimos os métodos de HTTP porque entendemos que uma tradução disso implicaria em um protocolo novo de transferência.
 
-O que tentamos fazer é instigar os desenvolvedores a aprenderem inglês conforme vão dominando outros conceitos. Um aprendizado direcionado de inglês é muito mais eficiente do que o aprendizado pelo aprendizado.
+O que tentamos fazer é instigar os desenvolvedores a aprenderem inglês conforme vão dominando outros conceitos. Um aprendizado direcionado de inglês é muito mais eficiente do que o aprendizado da língua por si só, sem um objetivo no horizonte.
