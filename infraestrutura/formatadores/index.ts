@@ -82,7 +82,7 @@ export class FormatadorLmht {
         // Preprocessamento: FolEs
         textoBase = this.preprocessadorFolEs.processar(textoBase);
 
-        return await this.conversorLmht.converterPorTexto(textoBase);
+        return this.conversorLmht.converterPorTexto(textoBase);
     }
 
     private formatarTextoBase(

@@ -32,7 +32,7 @@ export class Roteador {
     }
 
     configurarArquivosEstaticos(diretorio: string = 'publico'): void {
-        this.aplicacao.use(express.static(diretorio));
+        this.aplicacao.use(express.static(diretorio, { redirect: true }));
     }
 
     ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
