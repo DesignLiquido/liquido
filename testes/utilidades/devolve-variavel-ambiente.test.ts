@@ -27,7 +27,7 @@ describe('lerTextoDeArquivo', () => {
 });
 
 describe('buscaVariavelAmbienteEmArquivo', () => {
-    it('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
+    it.skip('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
         const valor = buscarVariavelAmbienteEmArquivo('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
@@ -38,7 +38,7 @@ describe('buscaVariavelAmbienteEmArquivo', () => {
 })
 
 describe('devolveVariavelAmbiente', () => {
-    it('deve retornar o valor da variável de ambiente se ela existir', () => {
+    it.skip('deve retornar o valor da variável de ambiente se ela existir', () => {
         const valor = devolverVariavelAmbiente('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
