@@ -11,6 +11,7 @@ export const lerTextoDeArquivo = (caminho: string) => {
 
 export const buscarVariavelAmbienteEmArquivo = (nomeVariavel: string): string | undefined => {
     const linhas: string[] = lerTextoDeArquivo(caminho.join(process.cwd(), '.ambiente'));
+    console.log(nomeVariavel, linhas)
     for (const linha of linhas) {
         if (linha.startsWith(`${nomeVariavel}=`)) {
             return linha.split('=')[1].trim();

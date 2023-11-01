@@ -1,10 +1,10 @@
-import {
-    lerTextoDeArquivo,
-    buscarVariavelAmbienteEmArquivo,
-    devolverVariavelAmbiente
-} from '../../infraestrutura/utilidades/variaveis-ambiente';
 import fs from 'fs';
-import path from 'path'
+import path from 'path';
+import {
+    buscarVariavelAmbienteEmArquivo,
+    devolverVariavelAmbiente,
+    lerTextoDeArquivo
+} from '../../infraestrutura/utilidades/variaveis-ambiente';
 
 describe('lerTextoDeArquivo', () => {
     it('deve ler um arquivo de texto e retornar suas linhas', () => {
@@ -27,7 +27,7 @@ describe('lerTextoDeArquivo', () => {
 });
 
 describe('buscaVariavelAmbienteEmArquivo', () => {
-    it.skip('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
+    it('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
         const valor = buscarVariavelAmbienteEmArquivo('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
