@@ -13,7 +13,7 @@ export class PreprocessadorFolEs {
         this.construtorLmht = new XMLBuilder({
             ignoreAttributes : false
         });
-        this.foles = new FolEs();
+        this.foles = new FolEs(false);
     }
 
     processar(conteudoLmht: string): string {
