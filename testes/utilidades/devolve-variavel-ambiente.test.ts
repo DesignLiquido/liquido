@@ -38,7 +38,7 @@ describe('buscaVariavelAmbienteEmArquivo', () => {
 })
 
 describe('devolveVariavelAmbiente', () => {
-    it.skip('deve retornar o valor da variável de ambiente se ela existir', () => {
+    it('deve retornar o valor da variável de ambiente se ela existir', () => {
         const valor = devolverVariavelAmbiente('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
