@@ -69,14 +69,14 @@ export class Liquido implements LiquidoInterface {
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
         this.roteador = new Roteador();
         this.provedorLincones = new ProvedorLincones();
-        this.foles = new FolEs();
+        this.foles = new FolEs(false);
     }
 
     async iniciar(): Promise<void> {
         this.importarArquivoConfiguracao();
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
-        this.importarArquivosRotas();
+        await this.importarArquivosRotas();
 
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
@@ -233,7 +233,7 @@ export class Liquido implements LiquidoInterface {
         return rotaResolvida;
     }
 
-    importarArquivosRotas(): void {
+    async importarArquivosRotas(): Promise<void> {
         this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
 
         try {
@@ -250,40 +250,40 @@ export class Liquido implements LiquidoInterface {
                     if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
                         switch (metodo.lexema) {
                             case 'rotaGet':
-                                this.adicionarRotaGet(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaGet(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaPost':
-                                this.adicionarRotaPost(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaPost(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaPut':
-                                this.adicionarRotaPut(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaPut(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaDelete':
-                                this.adicionarRotaDelete(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaDelete(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaPatch':
-                                this.adicionarRotaPatch(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaPatch(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaOptions':
-                                this.adicionarRotaOptions(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaOptions(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaCopy':
-                                this.adicionarRotaCopy(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaCopy(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaHead':
-                                this.adicionarRotaHead(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaHead(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaLock':
-                                this.adicionarRotaLock(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaLock(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaUnlock':
-                                this.adicionarRotaUnlock(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaUnlock(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaPurge':
-                                this.adicionarRotaPurge(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaPurge(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             case 'rotaPropfind':
-                                this.adicionarRotaPropfind(this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                                await this.adicionarRotaPropfind(this.resolverCaminhoRota(arquivo), expressao.argumentos);
                                 break;
                             default:
                                 console.log(`Método ${metodo.lexema} não reconhecido.`);
@@ -305,11 +305,12 @@ export class Liquido implements LiquidoInterface {
      * @param nomeFuncao O nome da função a ser chamada pelo Interpretador.
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
-    prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void {
+    async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
         this.interpretador.pilhaEscoposExecucao.definirVariavel('requisicao', requisicao);
+        const classeResposta = new Resposta();
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'resposta',
-            new Resposta().chamar(this.interpretador as any, [])
+            await classeResposta.chamar(this.interpretador as any, [])
         );
 
         const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);
@@ -383,11 +384,11 @@ export class Liquido implements LiquidoInterface {
      *                   para a resolução da rota. Por enquanto apenas a primeira
      *                   função é executada.
      */
-    adicionarRotaGet(caminhoRota: string, argumentos: Construto[]) {
+    async adicionarRotaGet(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaGet(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaGet', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaGet', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaGet');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -395,11 +396,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaPost(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaPost(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaPost(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaPost', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaPost', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPost');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -407,11 +408,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaPut(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaPut(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaPut', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaPut', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPut');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -419,11 +420,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaDelete(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaDelete(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaDelete(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaDelete', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaDelete', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaDelete');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -431,11 +432,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaPatch(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaPatch(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaPatch', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaPatch', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPatch');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -443,11 +444,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaOptions(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaOptions(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaOptions(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaOptions', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaOptions', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaOptions');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -455,11 +456,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaCopy(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaCopy(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaCopy(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaCopy', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaCopy', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaCopy');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -467,11 +468,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaHead(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaHead(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaHead(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaHead', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaHead', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaHead');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -479,11 +480,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaLock(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaLock(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaLock(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaLock', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaLock', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaLock');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -491,11 +492,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaUnlock(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaUnlock(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaUnlock', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaUnlock', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaUnlock');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -503,11 +504,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaPurge(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaPurge(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaPurge', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaPurge', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPurge');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
@@ -515,11 +516,11 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): void {
+    async adicionarRotaPropfind(caminhoRota: string, argumentos: Construto[]): Promise<void> {
         const funcao = argumentos[0] as FuncaoConstruto;
 
         this.roteador.rotaPropfind(caminhoRota, async (req, res) => {
-            this.prepararRequisicao(req, 'funcaoRotaPropfind', funcao);
+            await this.prepararRequisicao(req, 'funcaoRotaPropfind', funcao);
 
             const retornoInterpretador = await this.chamarInterpretador('funcaoRotaPropfind');
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
