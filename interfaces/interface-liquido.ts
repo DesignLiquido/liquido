@@ -1,4 +1,4 @@
-import { RetornoInterpretador } from '@designliquido/delegua';
+import { RetornoInterpretador } from '@designliquido/delegua/fontes/interfaces/retornos';
 import { Importador } from '@designliquido/delegua-node/fontes/importador';
 import { Construto, FuncaoConstruto } from '@designliquido/delegua/fontes/construtos';
 import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
