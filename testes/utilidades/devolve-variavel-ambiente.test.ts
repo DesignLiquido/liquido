@@ -45,4 +45,14 @@ describe('devolveVariavelAmbiente', () => {
     it('deve retornar um erro se a variável de ambiente não existir', () => {
         expect(() => devolverVariavelAmbiente('chaveSecretaInexistente')).toThrowError('Variável de ambiente chaveSecretaInexistente não encontrada');
     });
+
+    it('deve retornar true se a variável de ambiente for true', () => {
+        const valor = devolverVariavelAmbiente('variavelTrue');
+        expect(valor).toBe(true)
+    })
+
+    it('deve retornar false se a variável de ambiente for false', () => {
+        const valor = devolverVariavelAmbiente('variavelFalse');
+        expect(valor).toBe(false)
+    })
 });

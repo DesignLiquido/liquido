@@ -1,2 +1,4 @@
 chaveSecreta=MinhaChave
-session=False
+session=Falso
+variavelTrue=verdadeiro
+variavelFalse=falso

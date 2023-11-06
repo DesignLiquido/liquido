@@ -22,8 +22,8 @@ export const buscarVariavelAmbienteEmArquivo = (nomeVariavel: string): string | 
 export const devolverVariavelAmbiente = (nomeVariavel: string): string | boolean => {
     const valor = process.env[nomeVariavel] || buscarVariavelAmbienteEmArquivo(nomeVariavel);
     if (!valor) throw new Error(`Variável de ambiente ${nomeVariavel} não encontrada`);
-    if (valor === 'true' || valor === 'True') return true;
-    if (valor === 'false' || valor === 'False') return false;
+    if (valor === 'verdadeiro' || valor === 'Verdadeiro') return true;
+    if (valor === 'falso' || valor === 'Falso') return false;
     return valor;
 };
 
