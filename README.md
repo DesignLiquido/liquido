@@ -100,6 +100,7 @@ A maior inspiração deste projeto é a [FastAPI](https://fastapi.tiangolo.com/)
 - [Nuxt.js](https://nuxtjs.org/)
 - [Ruby on Rails](https://rubyonrails.org/)
 - [Nyan](https://github.com/bucknellu/Nyan)
+- [Express](https://expressjs.com)
 
 Algumas ideias retiradas desses projetos:
 
