@@ -5,16 +5,31 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Liquido",
 			"type": "node",
 			"request": "launch",
 			"restart": true,
-			"name": "Liquido",
 			"skipFiles": ["<node_internals>/**"],
 			"cwd": "${workspaceRoot}",
 			"console": "integratedTerminal",
 			"runtimeExecutable": "nodemon",
 			"runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
 		},
+		{
+            "name": "Liquido > ILC",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+				"novo",
+				"meu-projeto"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
         {
             "name": "Liquido > Testes unitários",
             "type": "node",
