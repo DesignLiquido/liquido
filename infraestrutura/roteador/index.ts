@@ -3,13 +3,13 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
+import jwt from 'jwt-simple';
 import morgan from 'morgan';
-import jwt from 'jwt-simple'
 
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
 
-import autenticacao from '../utilidades/autenticacao'
 import users from '../../usuarios';
+import autenticacao from '../utilidades/autenticacao';
 
 import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 
@@ -17,14 +17,14 @@ export class Roteador {
     aplicacao: express.Express;
     porta: number;
 
-    private morgan = false;
-    private helmet = false;
-    private expressJson = false;
-    private cookieParser = false;
-    private bodyParser = false;
+    morgan = false;
+    helmet = false;
+    expressJson = false;
+    cookieParser = false;
+    bodyParser = false;
 
-    private cors = false;
-    private passport = false;
+    cors = false;
+    passport = false;
 
     constructor() {
         this.aplicacao = express();
@@ -175,8 +175,6 @@ export class Roteador {
 
 
     adicionandoRotaToken() {
-
-
         this.aplicacao.post("/token", (req: Request, res: Response) => {
             if (req.body.email && req.body.senha) {
                 const { email, senha } = req.body;

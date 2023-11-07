@@ -353,12 +353,7 @@ export class Liquido implements LiquidoInterface {
         // O resultado que interessa é sempre o último.
         // Ele vem como string, e precisa ser desserializado para ser usado.
 
-        let valor: any;
-        try {
-           valor = JSON.parse(retornoInterpretador.resultado.pop()).valor;
-        } catch (err) {
-            console.log(`Erro ao desserializar JSON: ${err}`);
-        }
+        const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
 
         let statusHttp: number = 200;
         if (valor.campos.statusHttp) {
