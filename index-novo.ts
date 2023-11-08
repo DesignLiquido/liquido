@@ -1,7 +1,5 @@
-import sistemaArquivos from 'fs';
-import caminho from 'path';
-
 import prompts from 'prompts';
+import { criarDiretorioAplicacao } from './interface-linha-comando';
 
 const pontoDeEntradaNovo = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
@@ -12,6 +10,7 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
         const resposta = await prompts({
             type: 'confirm',
             message: 'Confirma?',
+            name: 'confirmado',
             initial: true,
             onRender() {
                 this.yesMsg = 'Sim';
@@ -20,11 +19,24 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
             }
         });
 
-        if (resposta.value && !sistemaArquivos.existsSync(argumentos[2])) {
-            sistemaArquivos.mkdirSync(argumentos[2]);
-            console.log(`Diretório criado: ${process.cwd() + caminho.sep + argumentos[2]}`);
+        if (resposta.confirmado) {
+            const diretorioCompleto = criarDiretorioAplicacao(argumentos[2]);
+            // process.chdir(diretorioCompleto);
+
+            const tipoProjetoSelecionado = await prompts({
+                type: 'select',
+                name: 'value',
+                message: 'Selecione o tipo de projeto',
+                choices: [
+                    { title: 'MVC', description: 'Modelo-Visão-Controlador', value: 'mvc' },
+                    { title: 'API REST', description: 'Interface de dados usando o modelo REST', value: 'api-rest' }
+                ],
+                initial: 1
+            });
+
+
         }
     }
-}
+};
 
 pontoDeEntradaNovo(process.argv);
