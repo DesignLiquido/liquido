@@ -1,4 +1,4 @@
-import { Roteador } from '../../infraestrutura/roteador';
+import { Roteador } from '../../../infraestrutura/roteador';
 
 jest.mock('express', () => {
   return () => ({
