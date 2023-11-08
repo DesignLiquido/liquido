@@ -5,8 +5,19 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
     // argumentos[1] é o nome do arquivo deste ponto de entrada.
     // argumentos[2] pode ou não ter o nome do projeto.
-    if (argumentos[2] && argumentos[2].length > 0) {
-        console.log(`Iremos criar um novo projeto em Liquido chamado "${argumentos[2]}"`);
+    let nomeProjeto = argumentos[2];
+    if (nomeProjeto === undefined || nomeProjeto.length <= 0) {
+        const respostaNomeProjeto = await prompts({
+            type: 'text',
+            name: 'nomeProjeto',
+            message: 'Qual o nome do seu projeto?'
+        });
+
+        nomeProjeto = respostaNomeProjeto.nomeProjeto;
+    }
+
+    if (nomeProjeto.length > 0) {
+        console.log(`Iremos criar um novo projeto em Liquido chamado "${nomeProjeto}"`);
         const resposta = await prompts({
             type: 'confirm',
             message: 'Confirma?',
@@ -20,12 +31,12 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
         });
 
         if (resposta.confirmado) {
-            const diretorioCompleto = criarDiretorioAplicacao(argumentos[2]);
+            const diretorioCompleto = criarDiretorioAplicacao(nomeProjeto);
             // process.chdir(diretorioCompleto);
 
             const tipoProjetoSelecionado = await prompts({
                 type: 'select',
-                name: 'value',
+                name: 'tipoProjeto',
                 message: 'Selecione o tipo de projeto',
                 choices: [
                     { title: 'MVC', description: 'Modelo-Visão-Controlador', value: 'mvc' },
