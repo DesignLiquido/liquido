@@ -14,214 +14,212 @@ import autenticacao from '../utilidades/autenticacao';
 import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 
 export class Roteador {
-    aplicacao: express.Express;
-    porta: number;
+  aplicacao: express.Express;
+  porta: number;
 
-    morgan = false;
-    helmet = false;
-    expressJson = false;
-    cookieParser = false;
-    bodyParser = false;
+  morgan = false;
+  helmet = false;
+  expressJson = false;
+  cookieParser = false;
+  bodyParser = false;
 
-    cors = false;
-    passport = false;
+  cors = false;
+  passport = false;
 
-    constructor() {
-        this.aplicacao = express();
-        this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+  constructor() {
+    this.aplicacao = express();
+    this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+  }
+
+  configurarArquivosEstaticos(diretorio: string = 'publico'): void {
+    this.aplicacao.use(express.static(diretorio, { redirect: true }));
+  }
+
+  ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
+    switch (nomePropriedade) {
+      case 'cors':
+        this.ativarDesativarCors(informacoesVariavel.valor);
+        break;
+      case 'cookieParser':
+        this.ativarDesativarCookieParser(informacoesVariavel.valor);
+        break;
+      case 'bodyParser':
+        this.ativarDesativarBodyParser(informacoesVariavel.valor);
+        break;
+      case 'json':
+        this.ativarDesativarExpressJson(informacoesVariavel.valor);
+        break;
+      case 'passport':
+        this.ativarDesativarPassport(informacoesVariavel.valor);
+        break;
+      case 'morgan':
+        this.ativarDesativarMorgan(informacoesVariavel.valor);
+        break;
+      case 'helmet':
+        this.ativarDesativarHelmet(informacoesVariavel.valor);
+        break;
+      case 'diretorioEstatico':
+        this.configurarArquivosEstaticos(informacoesVariavel.valor);
+        break;
+      default:
+        console.log(`Método ${nomePropriedade} não reconhecido.`);
+        break;
+    }
+  }
+
+  iniciarMiddlewares() {
+    if (this.morgan) {
+      this.aplicacao.use(morgan('dev'));
     }
 
-    configurarArquivosEstaticos(diretorio: string = 'publico'): void {
-        this.aplicacao.use(express.static(diretorio, { redirect: true }));
+    if (this.helmet) {
+      this.aplicacao.use(helmet());
     }
 
-    ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
-        switch (nomePropriedade) {
-            case 'cors':
-                this.ativarDesativarCors(informacoesVariavel.valor);
-                break;
-            case 'cookieParser':
-                this.ativarDesativarCookieParser(informacoesVariavel.valor);
-                break;
-            case 'bodyParser':
-                this.ativarDesativarBodyParser(informacoesVariavel.valor);
-                break;
-            case 'json':
-                this.ativarDesativarExpressJson(informacoesVariavel.valor);
-                break;
-            case 'passport':
-                this.ativarDesativarPassport(informacoesVariavel.valor);
-                break;
-            case 'morgan':
-                this.ativarDesativarMorgan(informacoesVariavel.valor);
-                break;
-            case 'helmet':
-                this.ativarDesativarHelmet(informacoesVariavel.valor);
-                break;
-            case 'diretorioEstatico':
-                this.configurarArquivosEstaticos(informacoesVariavel.valor);
-                break;
-            default:
-                console.log(`Método ${nomePropriedade} não reconhecido.`);
-                break;
-        }
+    if (this.bodyParser) {
+      this.aplicacao.use(bodyParser.json());
     }
 
-    iniciarMiddlewares() {
-        if (this.morgan) {
-            this.aplicacao.use(morgan('dev'));
-        }
-
-        if (this.helmet) {
-            this.aplicacao.use(helmet());
-        }
-
-        if (this.bodyParser) {
-            this.aplicacao.use(bodyParser.json());
-        }
-
-        if (this.expressJson) {
-            this.aplicacao.use(express.json());
-        }
-
-        if (this.cookieParser) {
-            this.aplicacao.use(cookieParser());
-        }
-
-        if (this.cors) {
-            this.aplicacao.use(cors());
-        }
-
-        if (this.passport) {
-            this.aplicacao.use(autenticacao().initialize());
-        }
+    if (this.expressJson) {
+      this.aplicacao.use(express.json());
     }
 
-    ativarDesativarCors(valor: boolean): void {
-        this.cors = valor;
+    if (this.cookieParser) {
+      this.aplicacao.use(cookieParser());
     }
 
-    ativarDesativarPassport(valor: boolean): void {
-        this.passport = valor;
+    if (this.cors) {
+      this.aplicacao.use(cors());
     }
 
-    ativarDesativarCookieParser(valor: boolean): void {
-        this.cookieParser = valor;
+    if (this.passport) {
+      this.aplicacao.use(autenticacao().initialize());
     }
+  }
 
-    ativarDesativarExpressJson(valor: boolean): void {
-        this.expressJson = valor;
-    }
+  ativarDesativarCors(valor: boolean): void {
+    this.cors = valor;
+  }
 
-    ativarDesativarBodyParser(valor: boolean): void {
-        this.bodyParser = valor;
-    }
+  ativarDesativarPassport(valor: boolean): void {
+    this.passport = valor;
+  }
 
-    ativarDesativarHelmet(valor: boolean): void {
-        this.helmet = valor;
-    }
+  ativarDesativarCookieParser(valor: boolean): void {
+    this.cookieParser = valor;
+  }
 
-    ativarDesativarMorgan(valor: boolean): void {
-        this.morgan = valor;
-    }
+  ativarDesativarExpressJson(valor: boolean): void {
+    this.expressJson = valor;
+  }
 
-    rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.get(caminho, execucao);
-    }
+  ativarDesativarBodyParser(valor: boolean): void {
+    this.bodyParser = valor;
+  }
 
-    rotaPost(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.post(caminho, execucao);
-    }
+  ativarDesativarHelmet(valor: boolean): void {
+    this.helmet = valor;
+  }
 
-    rotaPut(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.put(caminho, execucao);
-    }
+  ativarDesativarMorgan(valor: boolean): void {
+    this.morgan = valor;
+  }
 
-    rotaPatch(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.patch(caminho, execucao);
-    }
+  rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.get(caminho, execucao);
+  }
 
-    rotaDelete(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.delete(caminho, execucao);
-    }
+  rotaPost(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.post(caminho, execucao);
+  }
 
-    rotaOptions(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.options(caminho, execucao);
-    }
+  rotaPut(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.put(caminho, execucao);
+  }
 
-    rotaCopy(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.copy(caminho, execucao);
-    }
+  rotaPatch(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.patch(caminho, execucao);
+  }
 
-    rotaHead(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.head(caminho, execucao);
-    }
+  rotaDelete(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.delete(caminho, execucao);
+  }
 
-    rotaLock(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.lock(caminho, execucao);
-    }
+  rotaOptions(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.options(caminho, execucao);
+  }
 
-    rotaUnlock(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.unlock(caminho, execucao);
-    }
+  rotaCopy(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.copy(caminho, execucao);
+  }
 
-    rotaPurge(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.purge(caminho, execucao);
-    }
+  rotaHead(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.head(caminho, execucao);
+  }
 
-    rotaPropfind(caminho: string, execucao: (req: Request, res: Response) => void) {
-        this.aplicacao.propfind(caminho, execucao);
-    }
+  rotaLock(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.lock(caminho, execucao);
+  }
 
+  rotaUnlock(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.unlock(caminho, execucao);
+  }
 
-    adicionandoRotaToken() {
-        this.aplicacao.post("/token", (req: Request, res: Response) => {
-            if (req.body.email && req.body.senha) {
-                const { email, senha } = req.body;
-                const usuario = users.find((u) => {
-                    return u.email === email && u.senha === senha;
-                })
-                if (usuario) {
-                    const payload = {
-                        id: usuario.id
-                    }
-                    const token = jwt.encode(payload, devolverVariavelAmbiente('chaveSecreta') as string);
-                    users.find((u) => u.id === usuario.id).token = token;
-                    return res.json({ token })
-                } else {
-                    res.sendStatus(401);
-                }
-            } else {
-                res.sendStatus(401);
-            }
+  rotaPurge(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.purge(caminho, execucao);
+  }
+
+  rotaPropfind(caminho: string, execucao: (req: Request, res: Response) => void) {
+    this.aplicacao.propfind(caminho, execucao);
+  }
+
+  adicionandoRotaToken() {
+    this.aplicacao.post('/token', (req: Request, res: Response) => {
+      if (req.body.email && req.body.senha) {
+        const { email, senha } = req.body;
+        const usuario = users.find((u) => {
+          return u.email === email && u.senha === senha;
         });
-    }
-
-    validarToken(req: Request, res: Response, next: NextFunction) {
-        const token = req.headers["authorization"];
-        if (token) {
-            try {
-                const decoded = jwt.decode(token, devolverVariavelAmbiente('chaveSecreta') as string);
-                if (decoded) {
-                    next();
-                } else {
-                    res.sendStatus(401);
-                }
-            } catch (error) {
-                res.sendStatus(401);
-            }
+        if (usuario) {
+          const payload = {
+            id: usuario.id
+          };
+          const token = jwt.encode(payload, devolverVariavelAmbiente('chaveSecreta') as string);
+          users.find((u) => u.id === usuario.id).token = token;
+          return res.json({ token });
         } else {
-            res.sendStatus(401);
+          res.sendStatus(401);
         }
-    }
+      } else {
+        res.sendStatus(401);
+      }
+    });
+  }
 
-
-    iniciar() {
-        if (this.passport === true) {
-            this.adicionandoRotaToken();
+  validarToken(req: Request, res: Response, next: NextFunction) {
+    const token = req.headers['authorization'];
+    if (token) {
+      try {
+        const decoded = jwt.decode(token, devolverVariavelAmbiente('chaveSecreta') as string);
+        if (decoded) {
+          next();
+        } else {
+          res.sendStatus(401);
         }
-        this.aplicacao.listen(this.porta, () => {
-            console.log(`Aplicação iniciada na porta ${this.porta}`);
-        });
+      } catch (error) {
+        res.sendStatus(401);
+      }
+    } else {
+      res.sendStatus(401);
     }
+  }
+
+  iniciar() {
+    if (this.passport === true) {
+      this.adicionandoRotaToken();
+    }
+    this.aplicacao.listen(this.porta, () => {
+      console.log(`Aplicação iniciada na porta ${this.porta}`);
+    });
+  }
 }
