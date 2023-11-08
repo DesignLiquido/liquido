@@ -50,6 +50,12 @@ Isso deve criar um arquivo `package.json` com algumas informações de dependên
   }
 ```
 
+E então execute com:
+
+```sh
+yarn liquido
+```
+
 ### Uso com Nodemon
 
 Se quiser usar liquido com o [nodemon](https://nodemon.io/) para que a aplicação seja recarregada toda vez que houver alteração nos fontes, primeiro instale o nodemon:
@@ -66,7 +72,19 @@ Modifique seu script para o seguinte:
   }
 ```
 
-## Olá mundo em liquido
+## Primeiros passos
+
+Você pode começar seu primeiro projeto do zero, criando todos os arquivos e diretórios manualmente, ou pode utilizar o modo ILC (Interface por Linha de Comando, ou CLI, em inglês) para gerar uma estrutura básica de arquivos e diretórios.
+
+Para gerar um novo projeto, utilize o comando:
+
+```sh
+npx liquido novo [nome-do-projeto]
+```
+
+`nome-do-projeto` é opcional. Se não for fornecido, a interface deverá perguntar pelo nome do projeto.
+
+### Olá mundo em liquido
 
 Crie no seu projeto um diretório chamado `rotas`. Depois, crie dentro de `rotas` um arquivo chamado `inicial.delegua`.
 

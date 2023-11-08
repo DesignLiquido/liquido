@@ -5,9 +5,9 @@ const pontoDeEntrada = async () => {
     analisadorArgumentos;
 
     analisadorArgumentos
-        .helpOption('-h, --ajuda', 'Exibe a ajuda para o comando.')
+        .helpOption('-?, --ajuda', 'Exibe a ajuda para o comando.')
         .command('servidor', 'Serve o diretório local como uma aplicação para a internet.', { isDefault: true })
-        .command('novo <nome>', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.');
+        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.');
 
     analisadorArgumentos.parse();
 }

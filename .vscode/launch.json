@@ -16,7 +16,21 @@
 			"runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
 		},
 		{
-            "name": "Liquido > ILC",
+            "name": "Liquido > ILC > Menu de ajuda",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+				"-?"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+		{
+            "name": "Liquido > ILC > Novo projeto",
             "type": "node",
             "request": "launch",
             "skipFiles": ["<node_internals>/**", "node_modules/**"],
@@ -26,6 +40,20 @@
                 "${workspaceFolder}${pathSeparator}index.ts",
 				"novo",
 				"meu-projeto"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
+		{
+            "name": "Liquido > ILC > Novo projeto (sem nome)",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+				"novo"
             ],
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
