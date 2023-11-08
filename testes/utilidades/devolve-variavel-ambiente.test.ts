@@ -1,10 +1,10 @@
-import {
-    lerTextoDeArquivo,
-    buscarVariavelAmbienteEmArquivo,
-    devolverVariavelAmbiente
-} from '../../infraestrutura/utilidades/variaveis-ambiente';
 import fs from 'fs';
-import path from 'path'
+import path from 'path';
+import {
+    buscarVariavelAmbienteEmArquivo,
+    devolverVariavelAmbiente,
+    lerTextoDeArquivo
+} from '../../infraestrutura/utilidades/variaveis-ambiente';
 
 describe('lerTextoDeArquivo', () => {
     it('deve ler um arquivo de texto e retornar suas linhas', () => {
@@ -27,7 +27,7 @@ describe('lerTextoDeArquivo', () => {
 });
 
 describe('buscaVariavelAmbienteEmArquivo', () => {
-    it.skip('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
+    it('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
         const valor = buscarVariavelAmbienteEmArquivo('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
@@ -38,11 +38,21 @@ describe('buscaVariavelAmbienteEmArquivo', () => {
 })
 
 describe('devolveVariavelAmbiente', () => {
-    it.skip('deve retornar o valor da variável de ambiente se ela existir', () => {
+    it('deve retornar o valor da variável de ambiente se ela existir', () => {
         const valor = devolverVariavelAmbiente('chaveSecreta');
         expect(valor).toBe('MinhaChave')
     });
     it('deve retornar um erro se a variável de ambiente não existir', () => {
         expect(() => devolverVariavelAmbiente('chaveSecretaInexistente')).toThrowError('Variável de ambiente chaveSecretaInexistente não encontrada');
     });
+
+    it('deve retornar true se a variável de ambiente for true', () => {
+        const valor = devolverVariavelAmbiente('variavelTrue');
+        expect(valor).toBe(true)
+    })
+
+    it('deve retornar false se a variável de ambiente for false', () => {
+        const valor = devolverVariavelAmbiente('variavelFalse');
+        expect(valor).toBe(false)
+    })
 });

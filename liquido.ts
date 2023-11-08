@@ -3,11 +3,6 @@ import * as caminho from 'node:path';
 
 import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
 import {
-    Lexador,
-    Simbolo
-} from '@designliquido/delegua/fontes/lexador';
-import { RetornoInterpretador } from '@designliquido/delegua/fontes/interpretador';
-import {
     AcessoMetodo,
     Chamada,
     Construto,
@@ -18,15 +13,20 @@ import {
 import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+import { RetornoInterpretador } from '@designliquido/delegua/fontes/interpretador';
+import {
+    Lexador,
+    Simbolo
+} from '@designliquido/delegua/fontes/lexador';
 
+import { Importador } from '@designliquido/delegua-node/fontes/importador';
+import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
+import { FolEs } from '@designliquido/foles';
 import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
 import { Roteador } from './infraestrutura/roteador';
 import { LiquidoInterface, RetornoMiddleware } from './interfaces';
-import { Importador } from '@designliquido/delegua-node/fontes/importador';
-import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
-import { FolEs } from '@designliquido/foles';
 
 /**
  * O núcleo do framework.
@@ -88,7 +88,7 @@ export class Liquido implements LiquidoInterface {
         if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
             sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
         }
-        
+
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
             const arquivoDestino = caminho.join(process.cwd(), `./${this.diretorioEstatico}/css`, arquivo.replace('estilos', '').replace('.foles', '.css'));
@@ -203,14 +203,14 @@ export class Liquido implements LiquidoInterface {
             const listaDeItems = sistemaDeArquivos.readdirSync('./estilos');
 
             const arquivosDescobertos = [];
-    
+
             listaDeItems.forEach((diretorioOuArquivo) => {
                 const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
                 if (caminhoAbsoluto.endsWith('.foles')) {
                     arquivosDescobertos.push(caminhoAbsoluto);
                 }
             });
-    
+
             return arquivosDescobertos;
         } catch (erro: any) {
             console.log(`Pulando descoberta de estilos. Causa: ${erro}`);
@@ -352,6 +352,7 @@ export class Liquido implements LiquidoInterface {
     ): Promise<{ corpoRetorno: any; statusHttp: number }> {
         // O resultado que interessa é sempre o último.
         // Ele vem como string, e precisa ser desserializado para ser usado.
+
         const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
 
         let statusHttp: number = 200;
