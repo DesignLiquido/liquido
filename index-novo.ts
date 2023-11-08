@@ -1,5 +1,5 @@
 import prompts from 'prompts';
-import { criarDiretorioAplicacao } from './interface-linha-comando';
+import { copiarExemploParaProjeto, criarDiretorioAplicacao } from './interface-linha-comando';
 
 const pontoDeEntradaNovo = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
@@ -32,9 +32,8 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
 
         if (resposta.confirmado) {
             const diretorioCompleto = criarDiretorioAplicacao(nomeProjeto);
-            // process.chdir(diretorioCompleto);
 
-            const tipoProjetoSelecionado = await prompts({
+            const perguntaTipoProjeto = await prompts({
                 type: 'select',
                 name: 'tipoProjeto',
                 message: 'Selecione o tipo de projeto',
@@ -45,7 +44,8 @@ const pontoDeEntradaNovo = async (argumentos: string[]) => {
                 initial: 1
             });
 
-
+            await copiarExemploParaProjeto(perguntaTipoProjeto.tipoProjeto, diretorioCompleto);
+            console.info(`Seu projeto foi criado com sucesso! ${diretorioCompleto}`);
         }
     }
 };
