@@ -304,21 +304,21 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-node@^0.26.3":
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.26.3.tgz#14e25976883469bdb9fc3478e328bf2a1cdef667"
-  integrity sha512-SHZHru0MYJClzOIgIwQaBxdXpeySIojzWy8ZdzzLc8djHpeog01Su9APHjxnPj88WTKT1GbqrXZ/5CXF6iy3/w==
+"@designliquido/delegua-node@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.27.0.tgz#9738c3380086215ead856098fb34b19ed43d58c3"
+  integrity sha512-wvD8R/ONHzCm5mrlhJwRLd6PbkkOlFvaTrHUJx0Ds8KUzByq8cDgP7j36fYJDAfPuzX0tJLYnrPQsUBTjniDfw==
   dependencies:
-    "@designliquido/delegua" "0.26.3"
+    "@designliquido/delegua" "0.27.0"
     chalk "4.1.2"
     commander "^9.4.1"
     json-colorizer "^2.2.2"
     lodash.clonedeep "^4.5.0"
 
-"@designliquido/delegua@0.26.3":
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.26.3.tgz#0ea565c5098a9545098f65792a5a904baab0ef80"
-  integrity sha512-SE+Gzg/dEZXbzL5y1M2gNDHeEnXZ6SUsVoUF2/dK6BzJovLfWskQXVfRfFvhOT8HCvRL03UknFWLw9QBvA35bg==
+"@designliquido/delegua@0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.27.0.tgz#375c64cba3bf3b43a32d019b1b323834d1582705"
+  integrity sha512-67gAwFoAn2B4UHoRWUJT7EuWE2M3q9NCXW1Euc55juuPDQGxh2s0mYr7I/GGXZGmrIVPWP43ENlkEDneqHJxGA==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -2683,7 +2683,7 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==
 
-fast-xml-parser@^4.3.2:
+fast-xml-parser@^4.2.7:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.3.2.tgz#761e641260706d6e13251c4ef8e3f5694d4b0d79"
   integrity sha512-rmrXUXwbJedoXkStenj1kkljNF7ugn5ZjR9FJcwmCfcCbtOMDghPajbc+Tck6vE6F5XsDmx+Pr2le9fw8+pXBg==
