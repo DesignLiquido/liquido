@@ -25,7 +25,7 @@
         "registry": "https://registry.npmjs.org/"
     },
     "scripts": {
-        "empacotar": "rimraf ./dist && tsc && copyfiles -V ./README.md ./dist",
+        "empacotar": "rimraf ./dist && tsc && copyfiles -V ./bin/liquido ./bin/liquido.cmd ./dist && copyfiles -V ./README.md ./dist",
         "publicar-npm": "npm publish --access public",
         "iniciar": "nodemon",
         "lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
