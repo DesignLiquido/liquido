@@ -343,10 +343,10 @@
     sqlite "4.1.2"
     sqlite3 "^5.1.4"
 
-"@designliquido/lmht-js@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.2.tgz#c2b2a60e9958b8dc552a241688bb90a669b6ac62"
-  integrity sha512-cwH8zQ1bfzW+kkLS2/kcHv1JvYlxWwtd3vLpgvYj+XPX2aC4V3cDHv/3DKnR8ZAYV1VVILO981CVT4R5DQU5/w==
+"@designliquido/lmht-js@^0.4.3":
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.3.tgz#d57ae86ff6604f9249b2109b5f4c5996bbc20bed"
+  integrity sha512-8JryvfgysMjg8yTzv39Q5L3pUjyWbdLPQT7RqdV3SR5SPdUSs7xU+y773rT5MIRpJHdjLkXxo+QGkGR285EMZA==
   dependencies:
     jsdom "^21.1.1"
     xslt-processor "^2.1.1"
