@@ -343,13 +343,13 @@
     sqlite "4.1.2"
     sqlite3 "^5.1.4"
 
-"@designliquido/lmht-js@^0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.3.tgz#d57ae86ff6604f9249b2109b5f4c5996bbc20bed"
-  integrity sha512-8JryvfgysMjg8yTzv39Q5L3pUjyWbdLPQT7RqdV3SR5SPdUSs7xU+y773rT5MIRpJHdjLkXxo+QGkGR285EMZA==
+"@designliquido/lmht-js@^0.4.4":
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.4.tgz#d0f88553122a113f89f6516ec1d29a40a0061a81"
+  integrity sha512-mpL2mlZSsjRptkaoS4X0XOSiTzVH/QwVrpdJr6w1MjgJwWGPO/qsdlL/zRUwL6cW7JDo8B3scN3h2wHoOvY5aw==
   dependencies:
     jsdom "^21.1.1"
-    xslt-processor "^2.1.1"
+    xslt-processor "^2.1.2"
 
 "@eslint/eslintrc@^1.3.3":
   version "1.3.3"
@@ -2595,7 +2595,7 @@ expect@^29.0.0, expect@^29.3.1:
     jest-message-util "^29.3.1"
     jest-util "^29.3.1"
 
-express@^4.18.1:
+express@^4.18.2:
   version "4.18.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.18.2.tgz#3fabe08296e930c796c19e3c516979386ba9fd59"
   integrity sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ==
@@ -6304,10 +6304,10 @@ xregexp@2.0.0:
   resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-2.0.0.tgz#52a63e56ca0b84a7f3a5f3d61872f126ad7a5943"
   integrity sha512-xl/50/Cf32VsGq/1R8jJE5ajH1yMCQkpmoS10QbFZWl2Oor4H0Me64Pu2yxvsRWK3m6soJbmGfzSR7BYmDcWAA==
 
-xslt-processor@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/xslt-processor/-/xslt-processor-2.1.1.tgz#605fb53d7865cfa645e68cfdf42553993191249d"
-  integrity sha512-IeefuOkhK6D1gGc6z7RDgstuFoJ1Mi8wsdjekHHhmssUGUyKSjjtqPH4n+r7/jS6efGD/bNjg9nPblPp7MVDVw==
+xslt-processor@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/xslt-processor/-/xslt-processor-2.1.2.tgz#3e116c737906aaf079c271115ae83e73a5e6d332"
+  integrity sha512-AwMLtLzRIRgVZuLgSra1Bz3wFUb6fBKYCK2gVaufXkIR2g7o4U9Ml5rCEcHoTc6LSDrKhSiFKnJEG+kKyrFvxw==
   dependencies:
     he "^1.2.0"
 
