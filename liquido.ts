@@ -72,6 +72,9 @@ export class Liquido implements LiquidoInterface {
         this.foles = new FolEs(false);
 
         this.interpretador.pilhaEscoposExecucao.definirVariavel('roteador', this.roteador);
+        this.interpretador.pilhaEscoposExecucao.definirVariavel('log', function (mensagem: string) {
+            console.log(mensagem);
+        })
     }
 
     async iniciar(): Promise<void> {
