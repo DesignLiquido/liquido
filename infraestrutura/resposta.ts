@@ -1,8 +1,8 @@
-import { Simbolo } from '@designliquido/delegua/fontes/lexador';
 import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designliquido/delegua/fontes/construtos';
-import { Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
+import { Escreva, Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
+import { Simbolo } from '@designliquido/delegua/fontes/lexador';
 
 /**
  * A classe de Resposta é usada por Delégua para instrumentação do Express.
@@ -12,6 +12,58 @@ import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
 export class Resposta extends DeleguaClasse {
     constructor() {
         const metodos = {};
+        metodos['definirItemNoCorpo'] = new DeleguaFuncao(
+            'definirItemNoCorpo',
+            new FuncaoConstruto(
+                -1,
+                -1,
+                [
+                    {
+                        abrangencia: 'padrao',
+                        tipo: 'texto',
+                        nome: new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1)
+                    } as ParametroInterface,
+                    {
+                        abrangencia: 'padrao',
+                        tipo: 'texto',
+                        nome: new Simbolo('IDENTIFICADOR', 'valor', null, -1, -1)
+                    } as ParametroInterface
+                ],
+                [
+                    new Expressao(
+                        new DefinirValor(
+                            -1,
+                            -1,
+                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
+                            new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1),
+                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1))
+                        ),
+                    ),
+                    new Expressao(
+                        new DefinirValor(
+                            -1, -1,
+                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
+                            new Simbolo('IDENTIFICADOR', 'valor',
+                                null, -1, -1),
+                            new Variavel(-1, new Simbolo(
+                                'IDENTIFICADOR', 'valor', null, -1, -1
+                            ))
+                        )
+                    ),
+                    new Expressao(
+                        new Escreva(-1, -1, [
+                            new Literal(-1, -1, 'definirItemNoCorpo'),
+                        ])
+                    ),
+                    new Retorna(
+                        new Simbolo('IDENTIFICADOR', 'qualquerCoisa', null, -1, -1),
+                        new Variavel(-1, new Simbolo('IDENTIFICADOR', 'isto', null, -1, -1))
+                    )
+                ]
+            ),
+            null,
+            false
+        );
         metodos['enviar'] = new DeleguaFuncao(
             'enviar',
             new FuncaoConstruto(
