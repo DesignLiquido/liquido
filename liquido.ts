@@ -70,6 +70,8 @@ export class Liquido implements LiquidoInterface {
         this.roteador = new Roteador();
         this.provedorLincones = new ProvedorLincones();
         this.foles = new FolEs(false);
+
+        this.interpretador.pilhaEscoposExecucao.definirVariavel('roteador', this.roteador);
     }
 
     async iniciar(): Promise<void> {
