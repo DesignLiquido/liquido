@@ -1,7 +1,8 @@
-import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designliquido/delegua/fontes/construtos';
-import { Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
+import { AcessoMetodo, DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designliquido/delegua/fontes/construtos';
+import { Escreva, Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
+import { Simbolo } from '@designliquido/delegua/fontes/lexador';
 import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
@@ -13,9 +14,44 @@ export class Resposta extends DeleguaClasse {
     constructor() {
         const metodos = {};
 
-        // Todo @Italo: Verificar se isso é melhor para instrumentar métodos.
-        /*  const geradorExpressoes = new GeradorExpressoes();
-            metodos['enviar'] = geradorExpressoes.gerarMetodo('enviar',
+        const geradorExpressoes = new GeradorExpressoes();
+
+        metodos['definirItemNoCorpo'] = geradorExpressoes.gerarMetodo(
+            'definirItemNoCorpo',
+            geradorExpressoes.gerarDeclaracao([
+                geradorExpressoes.gerarParametro('chave', 'texto'),
+                geradorExpressoes.gerarParametro('valor', 'texto')
+            ],
+                [
+                    new Escreva(
+                        -1, -1,
+                        [
+                            new AcessoMetodo(
+                                -1,
+
+                                    new AcessoMetodo(-1,
+                                        new AcessoMetodo(-1, new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)), new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1)),
+                                    new Simbolo('IDENTIFICADOR', 'aplicacao', null, -1, -1))
+                                ,
+                                new Simbolo('IDENTIFICADOR', 'params', null, -1, -1),
+                            )
+                        ]
+                    )
+            ])
+        );
+
+        metodos['itemDoCorpo'] = geradorExpressoes.gerarMetodo(
+            'itemDoCorpo',
+            geradorExpressoes.gerarDeclaracao(
+                [geradorExpressoes.gerarParametro('chave', 'texto')],
+                [
+
+                ]
+            )
+        );
+
+        /* metodos['enviar'] = geradorExpressoes.gerarMetodo(
+            'enviar',
             geradorExpressoes.gerarDeclaracao(
                 [geradorExpressoes.gerarParametro('mensagem', 'numero')],
                 [
@@ -26,7 +62,7 @@ export class Resposta extends DeleguaClasse {
                     geradorExpressoes.gerarRetornoDeFuncao('isto')
                 ]
             )
-        ); */
+        );*/
 
         metodos['enviar'] = new DeleguaFuncao(
             'enviar',
