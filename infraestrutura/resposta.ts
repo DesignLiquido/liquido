@@ -3,6 +3,7 @@ import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designl
 import { Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
+import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
  * A classe de Resposta é usada por Delégua para instrumentação do Express.
@@ -12,6 +13,22 @@ import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
 export class Resposta extends DeleguaClasse {
     constructor() {
         const metodos = {};
+
+        // Todo @Italo: Verificar se isso é melhor para instrumentar métodos.
+        /*  const geradorExpressoes = new GeradorExpressoes();
+            metodos['enviar'] = geradorExpressoes.gerarMetodo('enviar', 
+            geradorExpressoes.gerarDeclaracao(
+                [geradorExpressoes.gerarParametro('mensagem', 'numero')],
+                [
+                    geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                        'mensagem', 
+                        geradorExpressoes.gerarReferenciaVariavel('mensagem')
+                    ),
+                    geradorExpressoes.gerarRetornoDeFuncao('isto')
+                ]
+            )
+        ); */
+        
         metodos['enviar'] = new DeleguaFuncao(
             'enviar',
             new FuncaoConstruto(
