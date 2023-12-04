@@ -2,7 +2,7 @@ import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designl
 import { Expressao, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
-import { Simbolo } from '@designliquido/delegua/fontes/lexador';
+import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
  * A classe de Resposta é usada por Delégua para instrumentação do Express.
@@ -12,64 +12,22 @@ import { Simbolo } from '@designliquido/delegua/fontes/lexador';
 export class Resposta extends DeleguaClasse {
     constructor() {
         const metodos = {};
-        metodos['definirItemNoCorpo'] = new DeleguaFuncao(
-            'definirItemNoCorpo',
-            new FuncaoConstruto(
-                -1,
-                -1,
+
+        // Todo @Italo: Verificar se isso é melhor para instrumentar métodos.
+        /*  const geradorExpressoes = new GeradorExpressoes();
+            metodos['enviar'] = geradorExpressoes.gerarMetodo('enviar',
+            geradorExpressoes.gerarDeclaracao(
+                [geradorExpressoes.gerarParametro('mensagem', 'numero')],
                 [
-                    {
-                        abrangencia: 'padrao',
-                        tipo: 'texto',
-                        nome: new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1)
-                    } as ParametroInterface,
-                    {
-                        abrangencia: 'padrao',
-                        tipo: 'texto',
-                        nome: new Simbolo('IDENTIFICADOR', 'valor', null, -1, -1)
-                    } as ParametroInterface
-                ],
-                [
-                    new Expressao(
-                        new DefinirValor(
-                            -1,
-                            -1,
-                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
-                            new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1),
-                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'chave', null, -1, -1))
-                        ),
+                    geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                        'mensagem',
+                        geradorExpressoes.gerarReferenciaVariavel('mensagem')
                     ),
-                    new Expressao(
-                        new DefinirValor(
-                            -1, -1,
-                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
-                            new Simbolo('IDENTIFICADOR', 'valor',
-                                null, -1, -1),
-                            new Variavel(-1, new Simbolo(
-                                'IDENTIFICADOR', 'valor', null, -1, -1
-                            ))
-                        )
-                    ),
-                    new Expressao(
-                        new DefinirValor(
-                            -1, -1,
-                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
-                            new Simbolo('IDENTIFICADOR', 'corpo',
-                                null, -1, -1),
-                            new Variavel(-1, new Simbolo(
-                                'IDENTIFICADOR', 'corpo', null, -1, -1
-                            ))
-                        )
-                    ),
-                    new Retorna(
-                        new Simbolo('IDENTIFICADOR', 'qualquerCoisa', null, -1, -1),
-                        new Variavel(-1, new Simbolo('IDENTIFICADOR', 'isto', null, -1, -1))
-                    )
+                    geradorExpressoes.gerarRetornoDeFuncao('isto')
                 ]
-            ),
-            null,
-            false
-        );
+            )
+        ); */
+
         metodos['enviar'] = new DeleguaFuncao(
             'enviar',
             new FuncaoConstruto(
