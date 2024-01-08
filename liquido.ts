@@ -1,5 +1,5 @@
-import * as sistemaDeArquivos from 'node:fs';
-import * as caminho from 'node:path';
+import * as sistemaDeArquivos from 'fs';
+import * as caminho from 'path';
 
 import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
 import {

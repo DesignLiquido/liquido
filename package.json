@@ -39,8 +39,8 @@
         "swagger": "tsoa spec"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^0.27.0",
-        "@designliquido/foles": "^0.5.1",
+        "@designliquido/delegua-node": "^0.28.0",
+        "@designliquido/foles": "^0.6.1",
         "@designliquido/lincones-sqlite": "^0.0.2",
         "@designliquido/lmht-js": "^0.4.4",
         "body-parser": "^1.20.1",
