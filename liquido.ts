@@ -3,7 +3,7 @@ import * as caminho from 'path';
 
 import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
 import {
-    AcessoMetodo,
+    AcessoMetodoOuPropriedade,
     Chamada,
     Construto,
     DefinirValor,
@@ -244,7 +244,7 @@ export class Liquido implements LiquidoInterface {
                 // um Construto do tipo Chamada.
                 for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
                     const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-                    const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
+                    const entidadeChamada: AcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
                     const objeto = entidadeChamada.objeto as Variavel;
                     const metodo = entidadeChamada.simbolo;
                     if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
