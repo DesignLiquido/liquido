@@ -15,6 +15,20 @@
 			"runtimeExecutable": "nodemon",
 			"runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
 		},
+        {
+            "name": "Liquido > ILC > Geração a partir de modelo (sem nome)",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+				"gerar"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
 		{
             "name": "Liquido > ILC > Menu de ajuda",
             "type": "node",
