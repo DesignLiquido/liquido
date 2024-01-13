@@ -1,8 +1,9 @@
 import prompts from 'prompts';
 
 import { Classe } from '@designliquido/delegua/fontes/declaracoes';
+import { pluralizar } from '@designliquido/flexoes';
 
-import { criarDiretorioControladoresSeNaoExiste, criarNovoControlador, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { criarDiretorioSeNaoExiste, criarNovaVisao, criarNovoControlador, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
 
 const pontoDeEntradaGerar = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
@@ -24,14 +25,30 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
     }
 
     const declaracoes = importarModelos(nomeModelo);
-    criarDiretorioControladoresSeNaoExiste();
+    criarDiretorioSeNaoExiste('controladores');
 
     // Aqui apenas aceitamos declarações de classes. Pode ser mais de uma.
     for (const declaracao of declaracoes.filter((d) => d instanceof Classe)) {
         const declaracaoClasse = <Classe>declaracao;
+        const nomeBaseModelo = declaracaoClasse.simbolo.lexema.toLocaleLowerCase('pt');
+        const nomeControladorPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 
-        const caminhoControlador = criarNovoControlador(declaracaoClasse.simbolo.lexema);
-        console.info(`Controlador ${caminhoControlador} criado com sucesso!`);
+        const caminhoControlador = criarNovoControlador(nomeControladorPlural);
+        console.info(`Controlador ${caminhoControlador}`);
+
+        // Visões
+        criarDiretorioSeNaoExiste('visoes', nomeControladorPlural);
+
+        const visaoSelecionarTudo = criarNovaVisao(nomeControladorPlural, 'selecionarTudo');
+        console.info(`Visão ${visaoSelecionarTudo}`);
+        const visaoSelecionarUm = criarNovaVisao(nomeControladorPlural, 'selecionarUm');
+        console.info(`Visão ${visaoSelecionarUm}`);
+        const visaoAdicionar = criarNovaVisao(nomeControladorPlural, 'adicionar');
+        console.info(`Visão ${visaoAdicionar}`);
+        const visaoAtualizar = criarNovaVisao(nomeControladorPlural, 'atualizar');
+        console.info(`Visão ${visaoAtualizar}`);
+        const visaoExcluir = criarNovaVisao(nomeControladorPlural, 'excluir');
+        console.info(`Visão ${visaoExcluir}`);
     }
 };
 

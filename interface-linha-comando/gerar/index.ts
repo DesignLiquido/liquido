@@ -6,7 +6,7 @@ import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sint
 import { Importador } from '@designliquido/delegua-node/fontes/importador';
 import { Declaracao } from '@designliquido/delegua/fontes/declaracoes';
 
-import { pluralizar } from '@designliquido/flexoes';
+import { TipoVisao } from './tipo-visao';
 
 /**
  * Obtém todos os modelos do diretório 'modelos' do projeto.
@@ -43,13 +43,14 @@ export function importarModelos(nomeModelo: string): Declaracao[] {
 }
 
 /**
- * Cria na raiz do projeto um diretório 'controladores', se já não existir.
+ * Cria na raiz do projeto um diretório passado por parâmetro, se já não existir.
+ * @param {string} partesDiretorio O diretório a ser verificado/criado.
  */
-export function criarDiretorioControladoresSeNaoExiste() {
-    const diretorioControladores = caminho.join(process.cwd(), 'controladores');
+export function criarDiretorioSeNaoExiste(...partesDiretorio: string[]) {
+    const caminhoDiretorio = caminho.join(process.cwd(), ...partesDiretorio);
 
-    if (!sistemaArquivos.existsSync(diretorioControladores)) {
-        sistemaArquivos.mkdirSync(diretorioControladores);
+    if (!sistemaArquivos.existsSync(caminhoDiretorio)) {
+        sistemaArquivos.mkdirSync(caminhoDiretorio);
     }
 }
 
@@ -64,14 +65,55 @@ export function criarDiretorioControladoresSeNaoExiste() {
  */
 export function criarNovoControlador(nome: string): string {
     const diretorioControladores = caminho.join(process.cwd(), 'controladores');
-    const nomeControladorPlural = pluralizar(nome).toLocaleLowerCase('pt');
 
     const conteudoControlador = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})`;
-    const caminhoControlador = caminho.join(diretorioControladores, nomeControladorPlural + '.delegua');
+    const caminhoControlador = caminho.join(diretorioControladores, nome + '.delegua');
     sistemaArquivos.writeFileSync(
         caminhoControlador, 
         conteudoControlador
     );
 
     return caminhoControlador;
+}
+
+/**
+ * Cria uma nova visão, de acordo com o nome do controlador e o tipo de visão desejado.
+ * @param {string} nomeControlador O nome do controlador.
+ * @param {TipoVisao} tipoVisao O tipo da visão.
+ * @returns O caminho completo onde a visão foi criada.
+ */
+export function criarNovaVisao(nomeControlador: string, tipoVisao: TipoVisao) {
+    let caminhoVisao: string;
+    let conteudoVisao: string;
+    const diretorioVisoes = caminho.join(process.cwd(), 'visoes', nomeControlador);
+
+    switch (tipoVisao) {
+        case 'selecionarTudo':
+            caminhoVisao = caminho.join(diretorioVisoes, 'inicial.lmht');
+            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            break;
+        case 'selecionarUm':
+            caminhoVisao = caminho.join(diretorioVisoes, 'detalhes.lmht');
+            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            break;
+        case 'adicionar':
+            caminhoVisao = caminho.join(diretorioVisoes, 'adicionar.lmht');
+            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            break;
+        case 'atualizar':
+            caminhoVisao = caminho.join(diretorioVisoes, 'atualizar.lmht');
+            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            break;
+        case 'excluir':
+            caminhoVisao = caminho.join(diretorioVisoes, 'excluir.lmht');
+            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            break;
+    }
+
+    sistemaArquivos.writeFileSync(
+        caminhoVisao, 
+        conteudoVisao
+    );
+
+    return caminhoVisao;
 }
