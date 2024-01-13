@@ -131,6 +131,6 @@ export class Resposta extends DeleguaClasse {
             null,
             false
         );
-        super('Resposta', null, metodos);
+        super(new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), null, metodos);
     }
 }
