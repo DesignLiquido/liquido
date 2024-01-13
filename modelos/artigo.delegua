@@ -1,0 +1,5 @@
+classe Artigo {
+    id: numero
+    titulo: texto
+    conteudo: texto
+}

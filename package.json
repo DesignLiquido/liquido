@@ -40,6 +40,7 @@
     },
     "dependencies": {
         "@designliquido/delegua-node": "^0.29.1",
+        "@designliquido/flexoes": "^0.0.0",
         "@designliquido/foles": "^0.6.1",
         "@designliquido/lincones-sqlite": "^0.0.2",
         "@designliquido/lmht-js": "^0.4.4",

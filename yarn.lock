@@ -325,6 +325,11 @@
     esprima "^4.0.1"
     lodash.clonedeep "^4.5.0"
 
+"@designliquido/flexoes@^0.0.0":
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/flexoes/-/flexoes-0.0.0.tgz#7f9b9cb60804db898023c45325de5dcfbb1fd98c"
+  integrity sha512-G0KGAj/GyFO3SPVvnAHlPl9PdEHuqPO0jm9VDCtZOlnV9wYKAj1NKlWvS4RDdOeLLhNH8cOBMccjIxWjwGFQuw==
+
 "@designliquido/foles@^0.6.1":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.6.1.tgz#70751fb63f0b1e53ab03a286ca97f4cc002ac765"

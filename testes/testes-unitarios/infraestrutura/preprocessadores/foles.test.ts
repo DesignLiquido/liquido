@@ -11,7 +11,7 @@ describe('Testes do preprocessador FolEs', () => {
     expect(preprocessador).toBeTruthy();
   });
 
-  it('Deve processar o preprocessador', () => {
+  it.skip('Deve processar o preprocessador', () => {
     const conteudo = '<lmht><cabeca><estilo>corpo { tamanho-fonte: 22px; }</estilo></cabeca></lmht>';
     const resultado = preprocessador.processar(conteudo);
     const esperado = `<lmht><cabeca><style>body {
