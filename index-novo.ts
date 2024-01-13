@@ -1,5 +1,5 @@
 import prompts from 'prompts';
-import { copiarExemploParaProjeto, criarDiretorioAplicacao } from './interface-linha-comando';
+import { copiarExemploParaProjeto, criarDiretorioAplicacao } from './interface-linha-comando/novo';
 
 const pontoDeEntradaNovo = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
