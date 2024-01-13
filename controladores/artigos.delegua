@@ -1,3 +1,0 @@
-liquido.rotaGet(funcao(requisicao, resposta) {
-    resposta.lmht({ "titulo": "Liquido" })
-})
