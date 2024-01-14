@@ -3,7 +3,8 @@ import prompts from 'prompts';
 import { Classe } from '@designliquido/delegua/fontes/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
 
-import { criarDiretorioSeNaoExiste, criarNovaVisao, criarNovoControlador, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { criarDiretorioSeNaoExiste, criarNovoControlador, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
 
 const pontoDeEntradaGerar = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
@@ -38,16 +39,17 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
 
         // Visões
         criarDiretorioSeNaoExiste('visoes', nomeControladorPlural);
+        const geradorVisoes = new GeradorVisoes();
 
-        const visaoSelecionarTudo = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarTudo');
+        const visaoSelecionarTudo = geradorVisoes.criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarTudo');
         console.info(`Visão ${visaoSelecionarTudo}`);
-        const visaoSelecionarUm = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarUm');
+        const visaoSelecionarUm = geradorVisoes.criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarUm');
         console.info(`Visão ${visaoSelecionarUm}`);
-        const visaoAdicionar = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'adicionar');
+        const visaoAdicionar = geradorVisoes.criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'adicionar');
         console.info(`Visão ${visaoAdicionar}`);
-        const visaoAtualizar = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'atualizar');
+        const visaoAtualizar = geradorVisoes.criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'atualizar');
         console.info(`Visão ${visaoAtualizar}`);
-        const visaoExcluir = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'excluir');
+        const visaoExcluir = geradorVisoes.criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'excluir');
         console.info(`Visão ${visaoExcluir}`);
     }
 };
