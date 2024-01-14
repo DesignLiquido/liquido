@@ -4,7 +4,7 @@ import * as caminho from 'path';
 import { Lexador } from '@designliquido/delegua/fontes/lexador';
 import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
 import { Importador } from '@designliquido/delegua-node/fontes/importador';
-import { Declaracao } from '@designliquido/delegua/fontes/declaracoes';
+import { Classe, Declaracao } from '@designliquido/delegua/fontes/declaracoes';
 
 import { TipoVisao } from './tipo-visao';
 
@@ -66,7 +66,11 @@ export function criarDiretorioSeNaoExiste(...partesDiretorio: string[]) {
 export function criarNovoControlador(nome: string): string {
     const diretorioControladores = caminho.join(process.cwd(), 'controladores');
 
-    const conteudoControlador = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})`;
+    const conteudoSelecionarTudo = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+    const conteudoAdicionar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+    const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+    const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+    const conteudoControlador = `${conteudoSelecionarTudo}${conteudoAdicionar}${conteudoAtualizar}${conteudoExcluir}`;
     const caminhoControlador = caminho.join(diretorioControladores, nome + '.delegua');
     sistemaArquivos.writeFileSync(
         caminhoControlador, 
@@ -82,33 +86,36 @@ export function criarNovoControlador(nome: string): string {
  * @param {TipoVisao} tipoVisao O tipo da visão.
  * @returns O caminho completo onde a visão foi criada.
  */
-export function criarNovaVisao(nomeControlador: string, tipoVisao: TipoVisao) {
+export function criarNovaVisao(nomeControlador: string, declaracaoModelo: Classe, tipoVisao: TipoVisao) {
     let caminhoVisao: string;
-    let conteudoVisao: string;
+    let corpo: string;
     const diretorioVisoes = caminho.join(process.cwd(), 'visoes', nomeControlador);
+    const cabecalhoComum = '    <cabeça><título>Teste</título></cabeça>\n';
 
     switch (tipoVisao) {
         case 'selecionarTudo':
             caminhoVisao = caminho.join(diretorioVisoes, 'inicial.lmht');
-            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            corpo = `    <corpo>${corpoInicial(declaracaoModelo)}</corpo>\n`;
             break;
         case 'selecionarUm':
             caminhoVisao = caminho.join(diretorioVisoes, 'detalhes.lmht');
-            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            corpo = '    <corpo>Teste</corpo>\n';
             break;
         case 'adicionar':
             caminhoVisao = caminho.join(diretorioVisoes, 'adicionar.lmht');
-            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            corpo = '    <corpo>Teste</corpo>\n';
             break;
         case 'atualizar':
             caminhoVisao = caminho.join(diretorioVisoes, 'atualizar.lmht');
-            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            corpo = '    <corpo>Teste</corpo>\n';
             break;
         case 'excluir':
             caminhoVisao = caminho.join(diretorioVisoes, 'excluir.lmht');
-            conteudoVisao = `<lmht>\n    <cabeça><título>Teste</título></cabeça>\n<corpo>Teste</corpo>\n</lmht>`;
+            corpo = '    <corpo>Teste</corpo>\n';
             break;
     }
+
+    const conteudoVisao: string = `<lmht>\n${cabecalhoComum}${corpo}</lmht>`;
 
     sistemaArquivos.writeFileSync(
         caminhoVisao, 
@@ -116,4 +123,15 @@ export function criarNovaVisao(nomeControlador: string, tipoVisao: TipoVisao) {
     );
 
     return caminhoVisao;
+}
+
+function corpoInicial(declaracaoModelo: Classe): string {
+    // Colunas de cabeçalho
+    const colunasTabela: string[] = [];
+    for (const propriedade of declaracaoModelo.propriedades) {
+        colunasTabela.push(`        <célula>${propriedade.nome.lexema}</célula>`)
+    }
+
+    const cabecaTabela = `<cabeça-tabela>${colunasTabela.reduce((acumulador, elemento) => acumulador + '\n            ' + elemento)}\n</cabeça-tabela>`;
+    return `<tabela>\n    ${cabecaTabela}\n</tabela>`;
 }

@@ -29,8 +29,8 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
 
     // Aqui apenas aceitamos declarações de classes. Pode ser mais de uma.
     for (const declaracao of declaracoes.filter((d) => d instanceof Classe)) {
-        const declaracaoClasse = <Classe>declaracao;
-        const nomeBaseModelo = declaracaoClasse.simbolo.lexema.toLocaleLowerCase('pt');
+        const declaracaoModelo = <Classe>declaracao;
+        const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
         const nomeControladorPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 
         const caminhoControlador = criarNovoControlador(nomeControladorPlural);
@@ -39,15 +39,15 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
         // Visões
         criarDiretorioSeNaoExiste('visoes', nomeControladorPlural);
 
-        const visaoSelecionarTudo = criarNovaVisao(nomeControladorPlural, 'selecionarTudo');
+        const visaoSelecionarTudo = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarTudo');
         console.info(`Visão ${visaoSelecionarTudo}`);
-        const visaoSelecionarUm = criarNovaVisao(nomeControladorPlural, 'selecionarUm');
+        const visaoSelecionarUm = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'selecionarUm');
         console.info(`Visão ${visaoSelecionarUm}`);
-        const visaoAdicionar = criarNovaVisao(nomeControladorPlural, 'adicionar');
+        const visaoAdicionar = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'adicionar');
         console.info(`Visão ${visaoAdicionar}`);
-        const visaoAtualizar = criarNovaVisao(nomeControladorPlural, 'atualizar');
+        const visaoAtualizar = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'atualizar');
         console.info(`Visão ${visaoAtualizar}`);
-        const visaoExcluir = criarNovaVisao(nomeControladorPlural, 'excluir');
+        const visaoExcluir = criarNovaVisao(nomeControladorPlural, declaracaoModelo, 'excluir');
         console.info(`Visão ${visaoExcluir}`);
     }
 };
