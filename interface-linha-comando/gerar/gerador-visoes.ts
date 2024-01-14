@@ -61,13 +61,13 @@ export class GeradorVisoes {
      */
     private corpoInicial(declaracaoModelo: Classe): string {
         // Colunas de cabeçalho
-        const colunasTabela: string[] = [];
+        const colunasCabecaTabela: string[] = [];
         for (const propriedade of declaracaoModelo.propriedades) {
-            colunasTabela.push(" ".repeat(this.indentacao * 5) + `<célula>${propriedade.nome.lexema}</célula>`);
+            colunasCabecaTabela.push(" ".repeat(this.indentacao * 5) + `<célula>${propriedade.nome.lexema}</célula>`);
         }
 
         const linhaCabecaTabela = " ".repeat(this.indentacao * 4) + '<linha>\n' +
-            colunasTabela.reduce(
+            colunasCabecaTabela.reduce(
                 (acumulador, elemento) => acumulador + '\n' + elemento
             ) +
             '\n' + " ".repeat(this.indentacao * 4) + '</linha>';
@@ -75,13 +75,22 @@ export class GeradorVisoes {
         const cabecaTabela = `${" ".repeat(this.indentacao * 3)}<cabeça-tabela>\n${linhaCabecaTabela}\n${" ".repeat(this.indentacao * 3)}</cabeça-tabela>`;
 
         // Colunas do corpo da tabela
+        const colunasCorpoTabela: string[] = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            colunasCorpoTabela.push(" ".repeat(this.indentacao * 5) + `<célula>{{${propriedade.nome.lexema}}}</célula>`);
+        }
+
         const linhaCorpoTabela = " ".repeat(this.indentacao * 4) + '<linha>\n' +
-            colunasTabela.reduce(
+            colunasCorpoTabela.reduce(
                 (acumulador, elemento) => acumulador + '\n' + elemento
             ) +
             '\n' + " ".repeat(this.indentacao * 4) + '</linha>';
 
-        const corpoTabela = `${" ".repeat(this.indentacao * 3)}<corpo-tabela>\n${linhaCorpoTabela}\n${" ".repeat(this.indentacao * 3)}</corpo-tabela>`;
+        const corpoTabela = `${" ".repeat(this.indentacao * 3)}<corpo-tabela>\n` +
+            `${" ".repeat(this.indentacao * 3)}{{#cada linhas}}\n` +
+            `${linhaCorpoTabela}\n` +
+            `${" ".repeat(this.indentacao * 3)}{{/cada}}\n` +
+            `${" ".repeat(this.indentacao * 3)}</corpo-tabela>`;
 
         return `${" ".repeat(this.indentacao * 2)}<tabela>\n${cabecaTabela}\n${corpoTabela}\n${" ".repeat(this.indentacao * 2)}</tabela>`;
     }

@@ -51,30 +51,3 @@ export function criarDiretorioSeNaoExiste(...partesDiretorio: string[]) {
         sistemaArquivos.mkdirSync(caminhoDiretorio);
     }
 }
-
-/**
- * Cria um arquivo `.delegua` no diretório 'controladores' com quatro rotas: 
- * - rotaGet (para selecionar 1 ou vários registros na base de dados)
- * - rotaPost (para gravar 1 registro na base de dados)
- * - rotaPut (para alterar 1 registro na base de dados)
- * - rotaDelete (para excluir 1 registro na base de dados)
- * @param {string} nome O nome do controlador.
- * @returns {string} O caminho completo onde o controlador foi criado.
- */
-export function criarNovoControlador(nome: string): string {
-    const diretorioControladores = caminho.join(process.cwd(), 'controladores');
-
-    const conteudoSelecionarTudo = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-    const conteudoAdicionar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-    const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-    const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-    const conteudoControlador = `${conteudoSelecionarTudo}${conteudoAdicionar}${conteudoAtualizar}${conteudoExcluir}`;
-    const caminhoControlador = caminho.join(diretorioControladores, nome + '.delegua');
-    sistemaArquivos.writeFileSync(
-        caminhoControlador, 
-        conteudoControlador
-    );
-
-    return caminhoControlador;
-}
-
