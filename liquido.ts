@@ -356,20 +356,20 @@ export class Liquido implements LiquidoInterface {
         const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
 
         let statusHttp: number = 200;
-        if (valor.campos.statusHttp) {
-            statusHttp = valor.campos.statusHttp;
+        if (valor.propriedades.statusHttp) {
+            statusHttp = valor.propriedades.statusHttp;
         }
 
         try {
-            if (valor.campos.lmht) {
-                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.campos.valores);
+            if (valor.propriedades.lmht) {
+                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.propriedades.valores);
                 return {
                     corpoRetorno: resultadoFormatacaoLmht,
                     statusHttp: statusHttp
                 };
-            } else if (valor.campos.mensagem) {
+            } else if (valor.propriedades.mensagem) {
                 return {
-                    corpoRetorno: valor.campos.mensagem,
+                    corpoRetorno: valor.propriedades.mensagem,
                     statusHttp: statusHttp
                 };
             }

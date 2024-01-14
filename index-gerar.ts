@@ -3,7 +3,9 @@ import prompts from 'prompts';
 import { Classe } from '@designliquido/delegua/fontes/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
 
-import { criarDiretorioSeNaoExiste, criarNovaVisao, criarNovoControlador, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { criarDiretorioSeNaoExiste, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
+import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
 
 const pontoDeEntradaGerar = async (argumentos: string[]) => {
     // argumentos[0] normalmente é o nome do executável, seja Node, Bun, etc.
@@ -25,29 +27,32 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
     }
 
     const declaracoes = importarModelos(nomeModelo);
-    criarDiretorioSeNaoExiste('controladores');
+    criarDiretorioSeNaoExiste('rotas');
+
+    const geradorVisoes = new GeradorVisoes();
+    const geradorRotas = new GeradorRotas();
 
     // Aqui apenas aceitamos declarações de classes. Pode ser mais de uma.
     for (const declaracao of declaracoes.filter((d) => d instanceof Classe)) {
-        const declaracaoClasse = <Classe>declaracao;
-        const nomeBaseModelo = declaracaoClasse.simbolo.lexema.toLocaleLowerCase('pt');
-        const nomeControladorPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
+        const declaracaoModelo = <Classe>declaracao;
+        const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
+        const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 
-        const caminhoControlador = criarNovoControlador(nomeControladorPlural);
+        const caminhoControlador = geradorRotas.criarNovasRotas(declaracaoModelo);
         console.info(`Controlador ${caminhoControlador}`);
 
         // Visões
-        criarDiretorioSeNaoExiste('visoes', nomeControladorPlural);
+        criarDiretorioSeNaoExiste('visoes', nomeModeloPlural);
 
-        const visaoSelecionarTudo = criarNovaVisao(nomeControladorPlural, 'selecionarTudo');
+        const visaoSelecionarTudo = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarTudo');
         console.info(`Visão ${visaoSelecionarTudo}`);
-        const visaoSelecionarUm = criarNovaVisao(nomeControladorPlural, 'selecionarUm');
+        const visaoSelecionarUm = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarUm');
         console.info(`Visão ${visaoSelecionarUm}`);
-        const visaoAdicionar = criarNovaVisao(nomeControladorPlural, 'adicionar');
+        const visaoAdicionar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'adicionar');
         console.info(`Visão ${visaoAdicionar}`);
-        const visaoAtualizar = criarNovaVisao(nomeControladorPlural, 'atualizar');
+        const visaoAtualizar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'atualizar');
         console.info(`Visão ${visaoAtualizar}`);
-        const visaoExcluir = criarNovaVisao(nomeControladorPlural, 'excluir');
+        const visaoExcluir = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'excluir');
         console.info(`Visão ${visaoExcluir}`);
     }
 };
