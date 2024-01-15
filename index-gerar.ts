@@ -38,8 +38,10 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
         const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
         const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 
-        const caminhoControlador = geradorRotas.criarNovasRotas(declaracaoModelo);
-        console.info(`Controlador ${caminhoControlador}`);
+        const caminhosRotas: string[] = geradorRotas.criarNovasRotas(declaracaoModelo);
+        for (const caminhoRota of caminhosRotas) {
+            console.info(`Rota ${caminhoRota}`);
+        }
 
         // Visões
         criarDiretorioSeNaoExiste('visoes', nomeModeloPlural);

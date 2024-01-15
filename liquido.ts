@@ -229,49 +229,46 @@ export class Liquido implements LiquidoInterface {
             .replace('inicial.delegua', '')
             .replace('.delegua', '')
             .replace(new RegExp(`\\${caminho.sep}`, 'g'), '/')
-            .replace(new RegExp(`/$`, 'g'), '');
+            .replace(new RegExp(`/$`, 'g'), '')
+            .replace(new RegExp(`\\[(.+)\\]`, 'g'), ':$1');
         return rotaResolvida;
     }
 
     async importarArquivosRotas(): Promise<void> {
         this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
 
-        try {
-            for (const arquivo of this.arquivosDelegua) {
-                const retornoImportador = this.importador.importar(arquivo);
+        for (const arquivo of this.arquivosDelegua) {
+            const retornoImportador = this.importador.importar(arquivo);
 
-                // Liquido espera declarações do tipo Expressao, contendo dentro
-                // um Construto do tipo Chamada.
-                for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
-                    const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-                    const entidadeChamada: AcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
-                    const objeto = entidadeChamada.objeto as Variavel;
-                    const metodo = entidadeChamada.simbolo;
-                    if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
-                        switch (metodo.lexema) {
-                            case 'rotaGet':
-                            case 'rotaPost':
-                            case 'rotaPut':
-                            case 'rotaDelete':
-                            case 'rotaPatch':
-                            case 'rotaOptions':
-                            case 'rotaCopy':
-                            case 'rotaHead':
-                            case 'rotaLock':
-                            case 'rotaUnlock':
-                            case 'rotaPurge':
-                            case 'rotaPropfind':
-                                await this.adicionarRota(metodo.lexema, this.resolverCaminhoRota(arquivo), expressao.argumentos);
-                                break;
-                            default:
-                                console.log(`Método ${metodo.lexema} não reconhecido.`);
-                                break;
-                        }
+            // Liquido espera declarações do tipo Expressao, contendo dentro
+            // um Construto do tipo Chamada.
+            for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
+                const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
+                const entidadeChamada: AcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
+                const objeto = entidadeChamada.objeto as Variavel;
+                const metodo = entidadeChamada.simbolo;
+                if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
+                    switch (metodo.lexema) {
+                        case 'rotaGet':
+                        case 'rotaPost':
+                        case 'rotaPut':
+                        case 'rotaDelete':
+                        case 'rotaPatch':
+                        case 'rotaOptions':
+                        case 'rotaCopy':
+                        case 'rotaHead':
+                        case 'rotaLock':
+                        case 'rotaUnlock':
+                        case 'rotaPurge':
+                        case 'rotaPropfind':
+                            await this.adicionarRota(metodo.lexema, this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                            break;
+                        default:
+                            console.log(`Método ${metodo.lexema} não reconhecido.`);
+                            break;
                     }
                 }
             }
-        } catch (erro) {
-            throw new Error(erro);
         }
     }
 

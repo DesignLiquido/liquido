@@ -21,27 +21,59 @@ export class GeradorRotas {
      *     - rotaGet (para selecionar 1 registro por id na base de dados)
      *     - rotaPut (para alterar 1 registro na base de dados)
      *     - rotaDelete (para excluir 1 registro na base de dados)
-     * @param {Classe} declaracaoModelo O nome do diretório das rotas: o nome do modelo no plural.
-     * @returns {string} O caminho completo onde os arquivos de rotas foram criados.
+     * @param {Classe} declaracaoModelo O descritor do modelo, com suas propriedades.
+     * @returns {string[]} Os caminhos completos onde os arquivos de rotas foram criados.
      */
-    criarNovasRotas(declaracaoModelo: Classe): string {
+    criarNovasRotas(declaracaoModelo: Classe): string[] {
         const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
         const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
         const diretorioRotas = caminho.join(process.cwd(), 'rotas', nomeModeloPlural);
 
+        criarDiretorioSeNaoExiste('rotas', nomeModeloPlural);
+
+        const rotasCriadas = [];
+        rotasCriadas.push(this.criarNovasRotasSemId(declaracaoModelo, diretorioRotas));
+        rotasCriadas.push(this.criarNovasRotasComId(declaracaoModelo, diretorioRotas));
+        return rotasCriadas;
+    }
+
+    /**
+     * Gera arquivo de rotas que não usam um id como sufixo.
+     * @param {Classe} declaracaoModelo O descritor do modelo, com suas propriedades.
+     * @param {string} diretorioRotas O diretório onde o arquivo de rotas deve ser salvo.
+     * @returns O caminho do arquivo de rotas no sistema de arquivos.
+     */
+    private criarNovasRotasSemId(declaracaoModelo: Classe, diretorioRotas: string): string {
         const conteudoSelecionarTudo = this.criarRotaSelecionarTudo(declaracaoModelo);
         const conteudoAdicionar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-        const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-        const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-        const conteudoControlador = `${conteudoSelecionarTudo}${conteudoAdicionar}${conteudoAtualizar}${conteudoExcluir}`;
+        const conteudoRotas = `${conteudoSelecionarTudo}${conteudoAdicionar}`;
 
-        criarDiretorioSeNaoExiste('rotas', nomeModeloPlural);
         const caminhoRotas = caminho.join(diretorioRotas, 'inicial.delegua');
         sistemaArquivos.writeFileSync(
             caminhoRotas, 
-            conteudoControlador
+            conteudoRotas
         );
 
+        return caminhoRotas;
+    }
+
+    /**
+     * Gera arquivo de rotas que usam id como sufixo.
+     * @param {Classe} declaracaoModelo O descritor do modelo, com suas propriedades.
+     * @param {string} diretorioRotas O diretório onde o arquivo de rotas deve ser salvo.
+     * @returns O caminho do arquivo de rotas no sistema de arquivos.
+     */
+    private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string {
+        const conteudoSelecionarUm = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.enviar(requisicao.params.id)\n})\n\n`;
+        const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoRotas = `${conteudoSelecionarUm}${conteudoAtualizar}${conteudoExcluir}`;
+
+        const caminhoRotas = caminho.join(diretorioRotas, '[id].delegua');
+        sistemaArquivos.writeFileSync(
+            caminhoRotas, 
+            conteudoRotas
+        );
         return caminhoRotas;
     }
 
