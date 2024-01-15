@@ -49,7 +49,7 @@ export class Resposta extends DeleguaClasse {
 
         const geradorExpressoes = new GeradorExpressoes();
         metodos['enviar'] = geradorExpressoes.gerarMetodo('enviar', 
-            geradorExpressoes.gerarDeclaracao(
+            geradorExpressoes.gerarConstrutoFuncao(
                 [geradorExpressoes.gerarParametro('mensagem', 'texto')],
                 [
                     geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
@@ -104,7 +104,66 @@ export class Resposta extends DeleguaClasse {
             null,
             false
         );
-        metodos['lmht'] = new DeleguaFuncao(
+
+        // O exemplo abaixo gera um método `lmht` utilizando o gerador de expressões.
+        // Seria o equivalente à seguinte implementação:
+
+        // classe Resposta {
+        //     visao: texto
+        //     valores: dicionário
+        // 
+        //     lmht(*visaoEValores) {
+        //         se visaoEValores.tamanho() > 1 {
+        //             isto.visao = visaoEValores[0]
+        //             isto.valores = visaoEValores[1]
+        //         } senão {
+        //             isto.valores = visaoEValores[0]
+        //         }
+        // 
+        //         retorna isto
+        //     }
+        // }
+
+        metodos['lmht'] = geradorExpressoes.gerarMetodo('lmht', 
+            geradorExpressoes.gerarConstrutoFuncao(
+                [geradorExpressoes.gerarParametro('visaoEValores', 'vetor', 'multiplo')],
+                [
+                    geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                        'lmht', 
+                        geradorExpressoes.gerarLiteral(true)
+                    ),
+                    geradorExpressoes.gerarDeclaracaoSe(
+                        geradorExpressoes.gerarConstrutoBinario(
+                            geradorExpressoes.gerarChamada(
+                                geradorExpressoes.gerarAcessoMetodoOuPropriedade(
+                                    geradorExpressoes.gerarReferenciaVariavel('visaoEValores'),
+                                    'tamanho'
+                                )
+                            ),
+                            geradorExpressoes.gerarOperadorComparacao('maior'),
+                            geradorExpressoes.gerarLiteral(1)
+                        ), 
+                        geradorExpressoes.gerarBlocoEscopo([ // Se
+                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                                'visao', 
+                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
+                            ),
+                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                                'valores', 
+                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 1)
+                            )
+                        ]),
+                        geradorExpressoes.gerarBlocoEscopo([ // Senão
+                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                                'valores', 
+                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
+                            ),
+                        ])
+                    ),
+                    geradorExpressoes.gerarRetornoDeFuncao('isto')
+                ])
+            );
+        /* metodos['lmht'] = new DeleguaFuncao(
             'lmht',
             new FuncaoConstruto(
                 -1,
@@ -143,7 +202,7 @@ export class Resposta extends DeleguaClasse {
             ),
             null,
             false
-        );
+        ); */
         super(
             new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), 
             null, 
