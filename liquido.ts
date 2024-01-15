@@ -337,7 +337,17 @@ export class Liquido implements LiquidoInterface {
 
         try {
             if (valor.propriedades.lmht) {
-                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(caminhoRota, valor.propriedades.valores);
+                let visao: string = caminhoRota;
+                // Verifica se foi definida uma preferência de visão.
+                // Se não foi, usa o sufixo da rota como visão correspondente.
+                // Por exemplo, `/rotas/inicial.delegua` tem como visão correspondente `/visoes/inicial.lmht`.
+                if (valor.propriedades.visao) {
+                    const partesRota = caminhoRota.split('/');
+                    partesRota.pop();
+                    visao = partesRota.join('/') + '/' + valor.propriedades.visao;
+                }
+
+                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(visao, valor.propriedades.valores);
                 return {
                     corpoRetorno: resultadoFormatacaoLmht,
                     statusHttp: statusHttp
