@@ -31,7 +31,7 @@ export class GeradorVisoes {
                 break;
             case 'selecionarUm':
                 caminhoVisao = caminho.join(diretorioVisoes, 'detalhes.lmht');
-                corpo = '    <corpo>Teste</corpo>\n';
+                corpo = `${" ".repeat(this.indentacao)}<corpo>\n${this.corpoDetalhes(declaracaoModelo)}\n${" ".repeat(this.indentacao)}</corpo>\n`;
                 break;
             case 'adicionar':
                 caminhoVisao = caminho.join(diretorioVisoes, 'adicionar.lmht');
@@ -93,5 +93,28 @@ export class GeradorVisoes {
             `${" ".repeat(this.indentacao * 3)}</corpo-tabela>`;
 
         return `${" ".repeat(this.indentacao * 2)}<tabela>\n${cabecaTabela}\n${corpoTabela}\n${" ".repeat(this.indentacao * 2)}</tabela>`;
+    }
+
+    /**
+     * Função que gera o corpo de `detalhes.lmht` de cada visão gerada por linha de comando.
+     * @param {Classe} declaracaoModelo A declaração do modelo de dados, com suas propriedades e definições.
+     * @returns {string} Um trecho em LMHT com a estrutura do corpo da página.
+     */
+    private corpoDetalhes(declaracaoModelo: Classe): string {
+        const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Detalhes de ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
+
+        const listaPropriedades: string[] = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<termo>${propriedade.nome.lexema}</termo>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<definição>{{${propriedade.nome.lexema}}}</definição>`);
+        }
+
+        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` + 
+            listaPropriedades.reduce(
+                (acumulador, elemento) => acumulador + '\n' + elemento
+            ) +
+            `\n${" ".repeat(this.indentacao * 2)}</lista-definições>\n`;
+
+        return `${titulo}${relacaoPropriedades}`;
     }
 }

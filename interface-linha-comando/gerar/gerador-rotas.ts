@@ -64,7 +64,7 @@ export class GeradorRotas {
      * @returns O caminho do arquivo de rotas no sistema de arquivos.
      */
     private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string {
-        const conteudoSelecionarUm = `liquido.rotaGet(funcao(requisicao, resposta) {\n    resposta.enviar(requisicao.params.id)\n})\n\n`;
+        const conteudoSelecionarUm = this.criarRotaSelecionarUm(declaracaoModelo);
         const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
         const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
         const conteudoRotas = `${conteudoSelecionarUm}${conteudoAtualizar}${conteudoExcluir}`;
@@ -92,6 +92,23 @@ export class GeradorRotas {
                 (acumulador, elemento) => acumulador + ', ' + elemento
             )}}\n` +
             `${" ".repeat(this.indentacao * 2)}]\n` +
+            `${" ".repeat(this.indentacao)}})\n` +
+            `})\n\n`;
+    }
+
+    private criarRotaSelecionarUm(declaracaoModelo: Classe) {
+        // Isso aqui não vai ficar assim. 
+        // É preciso montar as partes de dados antes.
+        const dadosTestes = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            dadosTestes.push(`"${propriedade.nome.lexema}": "Teste"`);
+        }
+
+        return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
+            `${" ".repeat(this.indentacao)}resposta.lmht({\n` +
+            `${" ".repeat(this.indentacao * 2)}${dadosTestes.reduce(
+                (acumulador, elemento) => acumulador + ', ' + elemento
+            )}\n` +
             `${" ".repeat(this.indentacao)}})\n` +
             `})\n\n`;
     }
