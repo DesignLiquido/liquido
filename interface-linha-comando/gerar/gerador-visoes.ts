@@ -105,8 +105,8 @@ export class GeradorVisoes {
 
         const listaPropriedades: string[] = [];
         for (const propriedade of declaracaoModelo.propriedades) {
-            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<termo>${propriedade.nome.lexema}</termo>`);
-            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<definição>{{${propriedade.nome.lexema}}}</definição>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<divisão>${propriedade.nome.lexema}</divisão>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<divisão>{{${propriedade.nome.lexema}}}</divisão>`);
         }
 
         const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` + 

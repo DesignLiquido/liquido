@@ -105,7 +105,7 @@ export class GeradorRotas {
         }
 
         return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
-            `${" ".repeat(this.indentacao)}resposta.lmht({\n` +
+            `${" ".repeat(this.indentacao)}resposta.lmht("detalhes", {\n` +
             `${" ".repeat(this.indentacao * 2)}${dadosTestes.reduce(
                 (acumulador, elemento) => acumulador + ', ' + elemento
             )}\n` +
