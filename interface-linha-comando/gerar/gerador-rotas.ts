@@ -3,7 +3,7 @@ import * as caminho from 'path';
 
 import { Classe } from '@designliquido/delegua/fontes/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
-import { criarDiretorioSeNaoExiste } from '.';
+import { criarDiretorioComIdSeNaoExiste, criarDiretorioSeNaoExiste } from '.';
 
 export class GeradorRotas {
     indentacao: number;
@@ -31,9 +31,9 @@ export class GeradorRotas {
 
         criarDiretorioSeNaoExiste('rotas', nomeModeloPlural);
 
-        const rotasCriadas = [];
+        let rotasCriadas = [];
         rotasCriadas.push(this.criarNovasRotasSemId(declaracaoModelo, diretorioRotas));
-        rotasCriadas.push(this.criarNovasRotasComId(declaracaoModelo, diretorioRotas));
+        rotasCriadas = rotasCriadas.concat(this.criarNovasRotasComId(declaracaoModelo, diretorioRotas));
         return rotasCriadas;
     }
 
@@ -63,18 +63,35 @@ export class GeradorRotas {
      * @param {string} diretorioRotas O diretório onde o arquivo de rotas deve ser salvo.
      * @returns O caminho do arquivo de rotas no sistema de arquivos.
      */
-    private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string {
+    private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string[] {
         const conteudoSelecionarUm = this.criarRotaSelecionarUm(declaracaoModelo);
+        const conteudoSelecionarParaEdicao = this.criarRotaEditar(declaracaoModelo);
         const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoSelecionarParaExclusao = this.criarRotaConfirmarExclusao(declaracaoModelo);
         const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-        const conteudoRotas = `${conteudoSelecionarUm}${conteudoAtualizar}${conteudoExcluir}`;
+        const conteudoRotas = `${conteudoSelecionarUm}${conteudoSelecionarParaEdicao}${conteudoAtualizar}${conteudoSelecionarParaExclusao}${conteudoExcluir}`;
 
-        const caminhoRotas = caminho.join(diretorioRotas, '[id].delegua');
+        const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
+
+        const caminhoRotasId = caminho.join(diretorioRotasComId, 'inicial.delegua');
         sistemaArquivos.writeFileSync(
-            caminhoRotas, 
+            caminhoRotasId, 
             conteudoRotas
         );
-        return caminhoRotas;
+
+        const caminhoRotaEditar = caminho.join(diretorioRotasComId, 'editar.delegua');
+        sistemaArquivos.writeFileSync(
+            caminhoRotaEditar, 
+            conteudoRotas
+        );
+
+        const caminhoRotaExcluir = caminho.join(diretorioRotasComId, 'excluir.delegua');
+        sistemaArquivos.writeFileSync(
+            caminhoRotaExcluir, 
+            conteudoRotas
+        );
+
+        return [caminhoRotasId, caminhoRotaEditar, caminhoRotaExcluir];
     }
 
     private criarRotaSelecionarTudo(declaracaoModelo: Classe) {
@@ -96,7 +113,7 @@ export class GeradorRotas {
             `})\n\n`;
     }
 
-    private criarRotaSelecionarUm(declaracaoModelo: Classe) {
+    private criarRotaSelecionarUm(declaracaoModelo: Classe): string {
         // Isso aqui não vai ficar assim. 
         // É preciso montar as partes de dados antes.
         const dadosTestes = [];
@@ -111,5 +128,39 @@ export class GeradorRotas {
             )}\n` +
             `${" ".repeat(this.indentacao)}})\n` +
             `})\n\n`;
+    }
+
+    private criarRotaEditar(declaracaoModelo: Classe): string {
+        // Isso aqui não vai ficar assim. 
+        // É preciso montar as partes de dados antes.
+        const dadosTestes = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            dadosTestes.push(`"${propriedade.nome.lexema}": "Teste"`);
+        }
+
+        return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
+        `${" ".repeat(this.indentacao)}resposta.lmht("editar", {\n` +
+        `${" ".repeat(this.indentacao * 2)}${dadosTestes.reduce(
+            (acumulador, elemento) => acumulador + ', ' + elemento
+        )}\n` +
+        `${" ".repeat(this.indentacao)}})\n` +
+        `})\n\n`;
+    }
+
+    private criarRotaConfirmarExclusao(declaracaoModelo: Classe): string {
+        // Isso aqui não vai ficar assim. 
+        // É preciso montar as partes de dados antes.
+        const dadosTestes = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            dadosTestes.push(`"${propriedade.nome.lexema}": "Teste"`);
+        }
+
+        return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
+        `${" ".repeat(this.indentacao)}resposta.lmht("confirmar-exclusao", {\n` +
+        `${" ".repeat(this.indentacao * 2)}${dadosTestes.reduce(
+            (acumulador, elemento) => acumulador + ', ' + elemento
+        )}\n` +
+        `${" ".repeat(this.indentacao)}})\n` +
+        `})\n\n`;
     }
 }

@@ -51,3 +51,18 @@ export function criarDiretorioSeNaoExiste(...partesDiretorio: string[]) {
         sistemaArquivos.mkdirSync(caminhoDiretorio);
     }
 }
+
+/**
+ * Cria na raiz do projeto um diretório passado por parâmetro, se já não existir, com `[id]` no final.
+ * Precisa ser separado porque o `caminho.join` aparentemente estraga o nome do diretório.
+ * @param {string} diretorioRotas O prefixo do diretório a ser verificado/criado.
+ */
+export function criarDiretorioComIdSeNaoExiste(diretorioRotas: string): string {
+    const caminhoDiretorio = diretorioRotas + `\\[id]`;
+
+    if (!sistemaArquivos.existsSync(caminhoDiretorio)) {
+        sistemaArquivos.mkdirSync(caminhoDiretorio);
+    }
+
+    return caminhoDiretorio;
+}
