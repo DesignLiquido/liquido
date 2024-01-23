@@ -119,29 +119,36 @@ export class Liquido implements LiquidoInterface {
 
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
                 const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
+                const objetoAlvo: AcessoMetodoOuPropriedade = expressao.objeto as AcessoMetodoOuPropriedade;
                 const nomePropriedade: string = expressao.nome.lexema;
                 const informacoesVariavel: VariavelInterface = expressao.valor;
 
-                if (expressao.objeto.simbolo.lexema === 'roteador') {
-                    this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
-                }
-
-                if (expressao.objeto.simbolo.lexema === 'autenticacao') {
-                    if (nomePropriedade === 'tecnologia') {
-                        switch (informacoesVariavel.valor) {
-                            case 'jwt':
-                                this.roteador.ativarDesativarPassport(true);
-                                break;
-                            default:
-                                console.error('Tecnologia de autenticação não suportada.');
+                switch (objetoAlvo.simbolo.lexema) {
+                    case 'roteador':
+                        this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
+                        break;
+                    case 'autenticacao':
+                        if (nomePropriedade === 'tecnologia') {
+                            switch (informacoesVariavel.valor) {
+                                case 'jwt':
+                                    this.roteador.ativarDesativarPassport(true);
+                                    break;
+                                default:
+                                    console.error('Tecnologia de autenticação não suportada.');
+                            }
                         }
-                    }
-                }
-
-                if (expressao.objeto.objeto.simbolo.lexema === 'dados') {
-                    if (expressao.objeto.simbolo.lexema === 'lincones') {
-                        this.provedorLincones.configurar(nomePropriedade, informacoesVariavel.valor);
-                    }
+                        break;
+                    case 'lincones': { 
+                            const objetoLinconesAlvo: AcessoMetodoOuPropriedade = objetoAlvo.objeto as AcessoMetodoOuPropriedade;
+                            switch (objetoLinconesAlvo.simbolo.lexema) {
+                                case 'dados':
+                                    this.provedorLincones.configurar(nomePropriedade, informacoesVariavel.valor);
+                                    break;
+                                // Casos futuros aqui.
+                            }
+                        }
+                        
+                        break;
                 }
             }
         } catch (error) {
