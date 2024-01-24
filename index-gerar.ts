@@ -52,8 +52,8 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
         console.info(`Visão ${visaoSelecionarUm}`);
         const visaoAdicionar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'adicionar');
         console.info(`Visão ${visaoAdicionar}`);
-        const visaoAtualizar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'atualizar');
-        console.info(`Visão ${visaoAtualizar}`);
+        const visaoEditar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'editar');
+        console.info(`Visão ${visaoEditar}`);
         const visaoExcluir = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'excluir');
         console.info(`Visão ${visaoExcluir}`);
     }

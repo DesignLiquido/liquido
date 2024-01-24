@@ -30,8 +30,11 @@ export class FormatadorLmht {
      * @returns O resultado das duas conversões.
      */
     async formatar(caminhoRota: string, valores: any): Promise<any> {
-        let visaoCorrespondente: string = caminho.join(this.diretorioBase, 'visoes', caminhoRota, '.lmht');
-        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRota);
+        // Remove parâmetros da rota. 
+        // Ainda não sei se é uma boa ideia fazer desse jeito.
+        const caminhoRotaSemParametros = caminhoRota.replace(/:[\w]+\//i, "");
+        let visaoCorrespondente: string = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros, '.lmht');
+        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros);
         if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
             // É diretório
             if (visaoCorrespondente.endsWith(caminho.sep + '.lmht')) {
