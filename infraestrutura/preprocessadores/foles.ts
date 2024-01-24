@@ -8,10 +8,12 @@ export class PreprocessadorFolEs {
 
   constructor() {
     this.leitorLmht = new XMLParser({
-      ignoreAttributes: false
+      ignoreAttributes: false,
+      preserveOrder: true
     });
     this.construtorLmht = new XMLBuilder({
-      ignoreAttributes: false
+      ignoreAttributes: false,
+      preserveOrder: true
     });
     this.foles = new FolEs(false);
   }

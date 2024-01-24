@@ -37,9 +37,9 @@ export class GeradorVisoes {
                 caminhoVisao = caminho.join(diretorioVisoes, 'adicionar.lmht');
                 corpo = '    <corpo>Teste</corpo>\n';
                 break;
-            case 'atualizar':
-                caminhoVisao = caminho.join(diretorioVisoes, 'atualizar.lmht');
-                corpo = '    <corpo>Teste</corpo>\n';
+            case 'editar':
+                caminhoVisao = caminho.join(diretorioVisoes, 'editar.lmht');
+                corpo = `${" ".repeat(this.indentacao)}<corpo>\n${this.corpoEditar(declaracaoModelo)}\n${" ".repeat(this.indentacao)}</corpo>\n`;
                 break;
             case 'excluir':
                 caminhoVisao = caminho.join(diretorioVisoes, 'excluir.lmht');
@@ -116,5 +116,24 @@ export class GeradorVisoes {
             `\n${" ".repeat(this.indentacao * 2)}</lista-definições>\n`;
 
         return `${titulo}${relacaoPropriedades}`;
+    }
+
+    private corpoEditar(declaracaoModelo: Classe): string {
+        const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Detalhes de ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
+
+        const listaPropriedades: string[] = [];
+        for (const propriedade of declaracaoModelo.propriedades) {
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<etiqueta para="${propriedade.nome.lexema}">${propriedade.nome.lexema}</etiqueta>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<campo tipo="texto" id="{{${propriedade.nome.lexema}}}"></campo>`);
+        }
+
+        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<campos>\n` + 
+            listaPropriedades.reduce(
+                (acumulador, elemento) => acumulador + '\n' + elemento
+            ) +
+            `\n${" ".repeat(this.indentacao * 2)}</campos>\n`;
+
+        const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="">\n${relacaoPropriedades}</formulário>\n`;
+        return `${titulo}${formulario}`;
     }
 }

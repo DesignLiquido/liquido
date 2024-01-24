@@ -1,5 +1,5 @@
 export type TipoVisao = 'selecionarTudo' | 
     'selecionarUm' |
     'adicionar' |
-    'atualizar' |
+    'editar' |
     'excluir';

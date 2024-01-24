@@ -69,26 +69,25 @@ export class GeradorRotas {
         const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
         const conteudoSelecionarParaExclusao = this.criarRotaConfirmarExclusao(declaracaoModelo);
         const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
-        const conteudoRotas = `${conteudoSelecionarUm}${conteudoSelecionarParaEdicao}${conteudoAtualizar}${conteudoSelecionarParaExclusao}${conteudoExcluir}`;
 
         const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
 
         const caminhoRotasId = caminho.join(diretorioRotasComId, 'inicial.delegua');
         sistemaArquivos.writeFileSync(
             caminhoRotasId, 
-            conteudoRotas
+            `${conteudoSelecionarUm}`
         );
 
         const caminhoRotaEditar = caminho.join(diretorioRotasComId, 'editar.delegua');
         sistemaArquivos.writeFileSync(
             caminhoRotaEditar, 
-            conteudoRotas
+            `${conteudoSelecionarParaEdicao}${conteudoAtualizar}`
         );
 
         const caminhoRotaExcluir = caminho.join(diretorioRotasComId, 'excluir.delegua');
         sistemaArquivos.writeFileSync(
             caminhoRotaExcluir, 
-            conteudoRotas
+            `${conteudoSelecionarParaExclusao}${conteudoExcluir}`
         );
 
         return [caminhoRotasId, caminhoRotaEditar, caminhoRotaExcluir];
