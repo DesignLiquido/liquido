@@ -66,9 +66,9 @@ export class GeradorRotas {
     private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string[] {
         const conteudoSelecionarUm = this.criarRotaSelecionarUm(declaracaoModelo);
         const conteudoSelecionarParaEdicao = this.criarRotaEditar(declaracaoModelo);
-        const conteudoAtualizar = `liquido.rotaPut(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoAtualizar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
         const conteudoSelecionarParaExclusao = this.criarRotaConfirmarExclusao(declaracaoModelo);
-        const conteudoExcluir = `liquido.rotaDelete(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoExcluir = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
 
         const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
 
@@ -155,7 +155,7 @@ export class GeradorRotas {
         }
 
         return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
-        `${" ".repeat(this.indentacao)}resposta.lmht("confirmar-exclusao", {\n` +
+        `${" ".repeat(this.indentacao)}resposta.lmht("excluir", {\n` +
         `${" ".repeat(this.indentacao * 2)}${dadosTestes.reduce(
             (acumulador, elemento) => acumulador + ', ' + elemento
         )}\n` +
