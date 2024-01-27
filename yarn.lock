@@ -304,21 +304,21 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/delegua-node@^0.30.4":
-  version "0.30.4"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.30.4.tgz#4e996ad955c929ffd80dbc856702ec038b373f8c"
-  integrity sha512-DLUhZtgckCC8oHTMj/2SLz5D2+GCF6KdKBp5p6xEjYK0FjdCql74WBjghKliRKMRc/SY9xZbFMLrXZdRJwMwAg==
+"@designliquido/delegua-node@^0.30.5":
+  version "0.30.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.30.5.tgz#022a9671661c96b40875d34a3a7a323ddd3e808b"
+  integrity sha512-nAhdQ1PfH/lv4GiTZVfMIBqIImH9wzmy0AaC4BdVlkS5yTNSxzdBpI1rXYEBMFO7fFTmyp57LvoglkvkLIwCow==
   dependencies:
-    "@designliquido/delegua" "0.30.4"
+    "@designliquido/delegua" "0.30.5"
     chalk "4.1.2"
     commander "^9.4.1"
     json-colorizer "^2.2.2"
     lodash.clonedeep "^4.5.0"
 
-"@designliquido/delegua@0.30.4":
-  version "0.30.4"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.30.4.tgz#a89f93e1f2911d017c7bae1bcd9c5c889d163b0d"
-  integrity sha512-6NbbiXoELSHgTehFYBveZCF6LcqAO5xMcMlLy7Sc45rOlKDhBmtMO0MZY7/K6AgTZDQ9w0FYUk3hwCj1eCs6Zg==
+"@designliquido/delegua@0.30.5":
+  version "0.30.5"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.30.5.tgz#abf032f542c3aee15cdf21a95fe23bb55628ce1d"
+  integrity sha512-wEcRrwL2+lPWJtNmUkgdtxpPPcmFHpf2CUewV/toDxDRVdxmaGyydcyK9laOegfLTi0QZ+5/EYyArjZ+XLMz6w==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
