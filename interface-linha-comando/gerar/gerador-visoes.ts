@@ -140,7 +140,7 @@ export class GeradorVisoes {
         const listaPropriedades: string[] = [];
         for (const propriedade of declaracaoModelo.propriedades) {
             listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<etiqueta para="${propriedade.nome.lexema}">${propriedade.nome.lexema}</etiqueta>`);
-            listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<campo tipo="texto" id="${propriedade.nome.lexema}" value={{${propriedade.nome.lexema}}}></campo>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<campo tipo="texto" id="${propriedade.nome.lexema}" valor="{{${propriedade.nome.lexema}}}" />`);
         }
 
         return listaPropriedades.reduce(
@@ -162,7 +162,7 @@ export class GeradorVisoes {
 
         const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}">\n` + 
             `${relacaoPropriedades}` +
-            `\n\n${" ".repeat(this.indentacao * 3)}<campo tipo="enviar">Adicionar</campo>\n` +
+            `\n\n${" ".repeat(this.indentacao * 3)}<campo tipo="enviar" valor="Adicionar" />\n` +
             `${" ".repeat(this.indentacao * 2)}</formulário>\n`;
         return `${titulo}${formulario}`;
     }
@@ -176,9 +176,9 @@ export class GeradorVisoes {
         const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Editar ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
 
         const relacaoPropriedades = `${" ".repeat(this.indentacao * 3)}<campos>\n` + 
-            `${" ".repeat(this.indentacao * 4)}<campo tipo="escondido" id="id"></campo>\n` +
+            `${" ".repeat(this.indentacao * 4)}<campo tipo="escondido" id="id" valor="{{id}}" />\n` +
             this.geracaoComumCamposFormulario(declaracaoModelo) +
-            `\n\n${" ".repeat(this.indentacao * 4)}<campo tipo="enviar">Atualizar</campo>\n` +
+            `\n\n${" ".repeat(this.indentacao * 4)}<campo tipo="enviar" valor="Atualizar" />\n` +
             `\n${" ".repeat(this.indentacao * 3)}</campos>\n`;
 
         const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/editar">\n`+ 
@@ -201,8 +201,8 @@ export class GeradorVisoes {
             `\n${" ".repeat(this.indentacao * 2)}</lista-definições>\n`;
 
         const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/excluir">\n`+
-            `${" ".repeat(this.indentacao * 3)}<campo tipo="escondido" id="id" value={{id}}></campo>\n` +
-            `${" ".repeat(this.indentacao * 3)}<campo tipo="enviar">Confirmar Exclusão</campo>\n` +
+            `${" ".repeat(this.indentacao * 3)}<campo tipo="escondido" id="id" valor={{id}} />\n` +
+            `${" ".repeat(this.indentacao * 3)}<campo tipo="enviar" valor="Confirmar Exclusão" />\n` +
             `${" ".repeat(this.indentacao * 2)}</formulário>\n`;
 
         return `${titulo}${mensagemConfirmacaoExclusao}${relacaoPropriedades}${formulario}`;

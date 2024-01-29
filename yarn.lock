@@ -348,13 +348,13 @@
     sqlite "4.1.2"
     sqlite3 "^5.1.4"
 
-"@designliquido/lmht-js@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.6.tgz#1749bdcf3fac9a138f7fa3dd00c2808e49c96e3c"
-  integrity sha512-qySduEh70ByJx4JXMSlmAKQ71gcP17cJz7FeFbpELZQYeNqwqWTyFSJDAncXO253o5z69jPxoTiTD49dr29m8w==
+"@designliquido/lmht-js@^0.4.8":
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/@designliquido/lmht-js/-/lmht-js-0.4.8.tgz#4718c81c0b286574f69dac4d399a47e19e8e05fb"
+  integrity sha512-VvbAe9+TXSqV9+NJQB/WknOqkC5Rm2HlEddCrJVFnbKItv1XNRVG2Tz85zrrNVoSCCEKEZ7aHiioJkoKVAYfpw==
   dependencies:
     jsdom "^21.1.1"
-    xslt-processor "^2.1.3"
+    xslt-processor "^2.2.0"
 
 "@eslint/eslintrc@^1.3.3":
   version "1.3.3"
@@ -6309,10 +6309,10 @@ xregexp@2.0.0:
   resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-2.0.0.tgz#52a63e56ca0b84a7f3a5f3d61872f126ad7a5943"
   integrity sha512-xl/50/Cf32VsGq/1R8jJE5ajH1yMCQkpmoS10QbFZWl2Oor4H0Me64Pu2yxvsRWK3m6soJbmGfzSR7BYmDcWAA==
 
-xslt-processor@^2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/xslt-processor/-/xslt-processor-2.1.3.tgz#2380190f4ae383cc1f22173690ebc051d3f2e022"
-  integrity sha512-WiYeocbC/Y7SmRO7FAHUCx7mmGstd82CKiuWiJG3lYQYTbSHl/e1PVCuVuCVSY4ZHlGRkey48rgvCEEdAtlrjQ==
+xslt-processor@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/xslt-processor/-/xslt-processor-2.2.0.tgz#ce4a91fcb3863c80b2b5c57854e8bc1d0a3a37bc"
+  integrity sha512-gmBVzwqWpVr72H/b71AK2LhNQARsj3RxPX8tQRXsLPJ0dagVmu6JmFzhsTm6kK0wuDJ5NLQQ2V1GzRKlK6zMfA==
   dependencies:
     he "^1.2.0"
 
