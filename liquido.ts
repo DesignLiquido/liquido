@@ -331,7 +331,7 @@ export class Liquido implements LiquidoInterface {
     private async logicaComumResultadoInterpretador(
         caminhoRota: string,
         retornoInterpretador: RetornoInterpretador
-    ): Promise<{ corpoRetorno: any; statusHttp: number }> {
+    ): Promise<{ corpoRetorno?: any; statusHttp?: number, redirecionamento?: string }> {
         // O resultado que interessa é sempre o último.
         // Ele vem como string, e precisa ser desserializado para ser usado.
 
@@ -341,9 +341,14 @@ export class Liquido implements LiquidoInterface {
         if (valor.propriedades.statusHttp) {
             statusHttp = valor.propriedades.statusHttp;
         }
-
-        try {
-            if (valor.propriedades.lmht) {
+        
+        if (valor.propriedades.destino) {
+            // Redirecionamento
+            return { redirecionamento: valor.propriedades.destino };
+        }
+        
+        if (valor.propriedades.lmht) {
+            try {
                 let visao: string = caminhoRota;
                 // Verifica se foi definida uma preferência de visão.
                 // Se não foi, usa o sufixo da rota como visão correspondente.
@@ -359,14 +364,16 @@ export class Liquido implements LiquidoInterface {
                     corpoRetorno: resultadoFormatacaoLmht,
                     statusHttp: statusHttp
                 };
-            } else if (valor.propriedades.mensagem) {
-                return {
-                    corpoRetorno: valor.propriedades.mensagem,
-                    statusHttp: statusHttp
-                };
+            } catch (erro: any) {
+                console.log(`Erro ao processar LMHT: ${erro}`);
             }
-        } catch (erro: any) {
-            console.log(`Erro ao processar LMHT: ${erro}`);
+        }
+        
+        if (valor.propriedades.mensagem) {
+            return {
+                corpoRetorno: valor.propriedades.mensagem,
+                statusHttp: statusHttp
+            };
         }
     }
 
@@ -387,7 +394,11 @@ export class Liquido implements LiquidoInterface {
 
             const retornoInterpretador = await this.chamarInterpretador(`funcaoRota${metodoRoteador}`);
             const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
-            res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
+            if (corpoEStatus.redirecionamento) {
+                res.redirect(corpoEStatus.redirecionamento);
+            } else {
+                res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
+            }
         });
     }
 }

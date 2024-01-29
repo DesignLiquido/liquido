@@ -1,5 +1,5 @@
 import { Simbolo } from '@designliquido/delegua/fontes/lexador';
-import { DefinirValor, FuncaoConstruto, Isto, Literal, Variavel } from '@designliquido/delegua/fontes/construtos';
+import { DefinirValor, FuncaoConstruto, Isto, Variavel } from '@designliquido/delegua/fontes/construtos';
 import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
@@ -15,6 +15,10 @@ export class Resposta extends DeleguaClasse {
     constructor() {
         const metodos = {};
         const propriedades = [
+            new PropriedadeClasse(
+                new Simbolo('IDENTIFICADOR', 'destino', null, -1, -1),
+                'texto'
+            ),
             new PropriedadeClasse(
                 new Simbolo('IDENTIFICADOR', 'mensagem', null, -1, -1),
                 'texto'
@@ -163,46 +167,20 @@ export class Resposta extends DeleguaClasse {
                     geradorExpressoes.gerarRetornoDeFuncao('isto')
                 ])
             );
-        /* metodos['lmht'] = new DeleguaFuncao(
-            'lmht',
-            new FuncaoConstruto(
-                -1,
-                -1,
+
+        metodos['redirecionar'] = geradorExpressoes.gerarMetodo('redirecionar', 
+            geradorExpressoes.gerarConstrutoFuncao(
+                [geradorExpressoes.gerarParametro('destino', 'texto')],
                 [
-                    {
-                        abrangencia: 'padrao',
-                        tipo: 'numero',
-                        nome: new Simbolo('IDENTIFICADOR', 'valores', null, -1, -1)
-                    } as ParametroInterface
-                ],
-                [
-                    new Expressao(
-                        new DefinirValor(
-                            -1,
-                            -1,
-                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
-                            new Simbolo('IDENTIFICADOR', 'valores', null, -1, -1),
-                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'valores', null, -1, -1))
-                        )
+                    geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                        'destino', 
+                        geradorExpressoes.gerarReferenciaVariavel('destino')
                     ),
-                    new Expressao(
-                        new DefinirValor(
-                            -1,
-                            -1,
-                            new Isto(-1, -1, new Simbolo('ISTO', 'isto', null, -1, -1)),
-                            new Simbolo('IDENTIFICADOR', 'lmht', null, -1, -1),
-                            new Literal(-1, -1, true)
-                        )
-                    ),
-                    new Retorna(
-                        new Simbolo('IDENTIFICADOR', 'qualquerCoisa', null, -1, -1),
-                        new Variavel(-1, new Simbolo('IDENTIFICADOR', 'isto', null, -1, -1))
-                    )
+                    geradorExpressoes.gerarRetornoDeFuncao('isto')
                 ]
-            ),
-            null,
-            false
-        ); */
+            )
+        );
+        
         super(
             new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), 
             null, 

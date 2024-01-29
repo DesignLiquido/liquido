@@ -45,7 +45,8 @@ export class GeradorRotas {
      */
     private criarNovasRotasSemId(declaracaoModelo: Classe, diretorioRotas: string): string {
         const conteudoSelecionarTudo = this.criarRotaSelecionarTudo(declaracaoModelo);
-        const conteudoAdicionar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const nomeModeloPlural = pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt')).toLocaleLowerCase('pt');
+        const conteudoAdicionar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.redirecionar("/${nomeModeloPlural}")\n})\n\n`;
         const conteudoRotas = `${conteudoSelecionarTudo}${conteudoAdicionar}`;
 
         const caminhoRotas = caminho.join(diretorioRotas, 'inicial.delegua');
@@ -64,11 +65,12 @@ export class GeradorRotas {
      * @returns O caminho do arquivo de rotas no sistema de arquivos.
      */
     private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string[] {
+        const nomeModeloPlural = pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt')).toLocaleLowerCase('pt');
         const conteudoSelecionarUm = this.criarRotaSelecionarUm(declaracaoModelo);
         const conteudoSelecionarParaEdicao = this.criarRotaEditar(declaracaoModelo);
-        const conteudoAtualizar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoAtualizar = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.redirecionar("/${nomeModeloPlural}")\n})\n\n`;
         const conteudoSelecionarParaExclusao = this.criarRotaConfirmarExclusao(declaracaoModelo);
-        const conteudoExcluir = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.lmht({ "titulo": "Liquido" })\n})\n\n`;
+        const conteudoExcluir = `liquido.rotaPost(funcao(requisicao, resposta) {\n    resposta.redirecionar("/${nomeModeloPlural}")\n})\n\n`;
 
         const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
 
