@@ -12,8 +12,8 @@ import {
 } from '@designliquido/delegua/fontes/construtos';
 import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
 import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
-import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
-import { RetornoInterpretador } from '@designliquido/delegua/fontes/interpretador';
+import { RetornoInterpretador, VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+
 import {
     Lexador,
     Simbolo
