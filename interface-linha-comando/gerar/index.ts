@@ -1,10 +1,10 @@
 import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 
-import { Lexador } from '@designliquido/delegua/fontes/lexador';
-import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
-import { Importador } from '@designliquido/delegua-node/fontes/importador';
-import { Declaracao } from '@designliquido/delegua/fontes/declaracoes';
+import { Lexador } from '@designliquido/delegua/lexador';
+import { AvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico';
+import { Importador } from '@designliquido/delegua-node/importador';
+import { Declaracao } from '@designliquido/delegua/declaracoes';
 
 /**
  * Obtém todos os modelos do diretório 'modelos' do projeto.

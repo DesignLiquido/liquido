@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import jwt from 'jwt-simple';
 import morgan from 'morgan';
 
-import { VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+import { VariavelInterface } from '@designliquido/delegua/interfaces';
 
 import users from '../../usuarios';
 import autenticacao from '../utilidades/autenticacao';

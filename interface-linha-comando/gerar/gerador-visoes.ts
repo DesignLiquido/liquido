@@ -1,7 +1,7 @@
 import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 
-import { Classe } from '@designliquido/delegua/fontes/declaracoes';
+import { Classe } from '@designliquido/delegua/declaracoes';
 
 import { TipoVisao } from './tipo-visao';
 import { pluralizar } from '@designliquido/flexoes';

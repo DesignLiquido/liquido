@@ -1,4 +1,4 @@
-import { DeleguaModulo } from '@designliquido/delegua/fontes/estruturas';
+import { DeleguaModulo } from '@designliquido/delegua/estruturas';
 
 export interface ProvedorInterface {
     configurar(nome: string, valor: string): void;

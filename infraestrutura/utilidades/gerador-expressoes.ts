@@ -1,8 +1,8 @@
-import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
-import { DefinirValor, FuncaoConstruto, Isto, Construto, Variavel, Binario, Literal, Chamada, AcessoMetodoOuPropriedade, AcessoIndiceVariavel } from '@designliquido/delegua/fontes/construtos';
-import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/fontes/interfaces';
-import { Simbolo } from '@designliquido/delegua/fontes/lexador';
-import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegua/fontes/declaracoes';
+import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { DefinirValor, FuncaoConstruto, Isto, Construto, Variavel, Binario, Literal, Chamada, AcessoMetodoOuPropriedade, AcessoIndiceVariavel } from '@designliquido/delegua/construtos';
+import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { Simbolo } from '@designliquido/delegua/lexador';
+import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegua/declaracoes';
 
 /**
  * O gerador de expressões é uma classe facilitadora para a criação de

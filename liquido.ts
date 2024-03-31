@@ -1,7 +1,7 @@
 import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
-import { AvaliadorSintatico } from '@designliquido/delegua/fontes/avaliador-sintatico';
+import { AvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico';
 import {
     AcessoMetodoOuPropriedade,
     Chamada,
@@ -9,19 +9,20 @@ import {
     DefinirValor,
     FuncaoConstruto,
     Variavel
-} from '@designliquido/delegua/fontes/construtos';
-import { Expressao } from '@designliquido/delegua/fontes/declaracoes';
-import { DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
-import { RetornoInterpretador, VariavelInterface } from '@designliquido/delegua/fontes/interfaces';
+} from '@designliquido/delegua/construtos';
+import { Expressao } from '@designliquido/delegua/declaracoes';
+import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { InterpretadorInterface, RetornoInterpretador, VariavelInterface } from '@designliquido/delegua/interfaces';
 
 import {
     Lexador,
     Simbolo
-} from '@designliquido/delegua/fontes/lexador';
+} from '@designliquido/delegua/lexador';
 
-import { Importador } from '@designliquido/delegua-node/fontes/importador';
-import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
+import { Importador } from '@designliquido/delegua-node/importador';
+import { Interpretador } from '@designliquido/delegua-node/interpretador';
 import { FolEs } from '@designliquido/foles';
+
 import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
@@ -33,7 +34,7 @@ import { LiquidoInterface, RetornoMiddleware } from './interfaces';
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador;
-    interpretador: Interpretador;
+    interpretador: InterpretadorInterface;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
@@ -80,7 +81,7 @@ export class Liquido implements LiquidoInterface {
 
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
-            this.interpretador.pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
+            (this.interpretador as any).pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
         }
 
         const arquivosEstilos = this.descobrirEstilos();

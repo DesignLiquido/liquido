@@ -1,5 +1,5 @@
 import { LinconesSQLite } from '@designliquido/lincones-sqlite';
-import { DeleguaModulo, FuncaoPadrao } from '@designliquido/delegua/fontes/estruturas';
+import { DeleguaModulo, FuncaoPadrao } from '@designliquido/delegua/estruturas';
 
 import { ProvedorInterface } from "../../interfaces/provedor-interface";
 

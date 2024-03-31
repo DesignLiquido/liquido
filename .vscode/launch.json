@@ -5,6 +5,9 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+            // Por usar o nodemon, a linkagem tradicional, feita em outros pacotes para
+            // depuração, não funciona bem aqui. 
+            // Pode ter alguma relação com como o nodemon trabalha.
 			"name": "Liquido",
 			"type": "node",
 			"request": "launch",

@@ -1,14 +1,14 @@
-import { RetornoInterpretador } from '@designliquido/delegua/fontes/interfaces/retornos';
-import { Importador } from '@designliquido/delegua-node/fontes/importador';
-import { Construto, FuncaoConstruto } from '@designliquido/delegua/fontes/construtos';
-import { Interpretador } from '@designliquido/delegua-node/fontes/interpretador';
+import { RetornoInterpretador } from '@designliquido/delegua/interfaces/retornos';
+import { Importador } from '@designliquido/delegua-node/importador';
+import { Construto, FuncaoConstruto } from '@designliquido/delegua/construtos';
+import { InterpretadorInterface } from '@designliquido/delegua/interfaces';
 
 import { Roteador } from '../infraestrutura/roteador';
 import { RetornoMiddleware } from './retorno-middleware';
 
 export interface LiquidoInterface {
     importador: Importador;
-    interpretador: Interpretador;
+    interpretador: InterpretadorInterface;
     roteador: Roteador;
     arquivosDelegua: string[];
     rotasDelegua: string[];

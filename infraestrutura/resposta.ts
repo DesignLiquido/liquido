@@ -1,8 +1,8 @@
-import { Simbolo } from '@designliquido/delegua/fontes/lexador';
-import { DefinirValor, FuncaoConstruto, Isto, Variavel } from '@designliquido/delegua/fontes/construtos';
-import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/fontes/declaracoes';
-import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/fontes/estruturas';
-import { ParametroInterface } from '@designliquido/delegua/fontes/interfaces';
+import { Simbolo } from '@designliquido/delegua/lexador';
+import { DefinirValor, FuncaoConstruto, Isto, Variavel } from '@designliquido/delegua/construtos';
+import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/declaracoes';
+import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { ParametroInterface } from '@designliquido/delegua/interfaces';
 
 import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 

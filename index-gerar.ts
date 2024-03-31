@@ -1,6 +1,6 @@
 import prompts from 'prompts';
 
-import { Classe } from '@designliquido/delegua/fontes/declaracoes';
+import { Classe } from '@designliquido/delegua/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
 
 import { criarDiretorioSeNaoExiste, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
