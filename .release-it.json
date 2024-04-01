@@ -10,6 +10,6 @@
     },
     "hooks": {
         "before:init": ["yarn empacotar"],
-        "after:bump": "copyfiles -V ./package.json ./dist"
+        "after:bump": "yarn copyfiles -V ./package.json ./dist"
     }
 }
