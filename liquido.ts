@@ -11,7 +11,7 @@ import {
     Variavel
 } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
-import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { InterpretadorInterface, RetornoInterpretador, VariavelInterface } from '@designliquido/delegua/interfaces';
 
 import {
@@ -338,29 +338,34 @@ export class Liquido implements LiquidoInterface {
 
         const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
 
+        // Pelas novas regras de tipagem de Delégua, o valor do último retorno possui
+        // informações sobre tipo, imutabilidade, etc.
+        // Aqui só queremos o valor desse último retorno (que tem uma propriedade também chamada 'valor').
+        const objetoResposta: ObjetoDeleguaClasse = valor.valor;
+
         let statusHttp: number = 200;
-        if (valor.propriedades.statusHttp) {
-            statusHttp = valor.propriedades.statusHttp;
+        if (objetoResposta.propriedades.statusHttp) {
+            statusHttp = objetoResposta.propriedades.statusHttp;
         }
         
-        if (valor.propriedades.destino) {
+        if (objetoResposta.propriedades.destino) {
             // Redirecionamento
-            return { redirecionamento: valor.propriedades.destino };
+            return { redirecionamento: objetoResposta.propriedades.destino };
         }
         
-        if (valor.propriedades.lmht) {
+        if (objetoResposta.propriedades.lmht) {
             try {
                 let visao: string = caminhoRota;
                 // Verifica se foi definida uma preferência de visão.
                 // Se não foi, usa o sufixo da rota como visão correspondente.
                 // Por exemplo, `/rotas/inicial.delegua` tem como visão correspondente `/visoes/inicial.lmht`.
-                if (valor.propriedades.visao) {
+                if (objetoResposta.propriedades.visao) {
                     const partesRota = caminhoRota.split('/');
                     partesRota.pop();
-                    visao = partesRota.join('/') + '/' + valor.propriedades.visao;
+                    visao = partesRota.join('/') + '/' + objetoResposta.propriedades.visao;
                 }
 
-                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(visao, valor.propriedades.valores);
+                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(visao, objetoResposta.propriedades.valores);
                 return {
                     corpoRetorno: resultadoFormatacaoLmht,
                     statusHttp: statusHttp
@@ -370,9 +375,9 @@ export class Liquido implements LiquidoInterface {
             }
         }
         
-        if (valor.propriedades.mensagem) {
+        if (objetoResposta.propriedades.mensagem) {
             return {
-                corpoRetorno: valor.propriedades.mensagem,
+                corpoRetorno: objetoResposta.propriedades.mensagem,
                 statusHttp: statusHttp
             };
         }

@@ -504,31 +504,31 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/birl@0.0.0":
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/birl/-/birl-0.0.0.tgz#02fd0ea865d61bb6fbd013cfe38e5f4c6bc46c85"
-  integrity sha512-7ndilzFrzWDjzZeSleU8Qvt/15WY05eeUE8pSPqdSDtRCRqOpGIqxc73nANrr3BKG9Mpl9WVno+t7qvKr3Wn2g==
+"@designliquido/birl@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@designliquido/birl/-/birl-0.0.1.tgz#64d8073b07ae449201c154ff8b47949e4ab27c40"
+  integrity sha512-40Gk9lNvwnp90T+5tHW7DVWdIjbUMPxtiarRYXgPOEcL/idpb/zzXkKsOv+wneOIlGCewJMJa4nFk+a0eZD1rg==
   dependencies:
-    "@designliquido/delegua" "^0.33.6"
+    "@designliquido/delegua" "^0.33.12"
 
-"@designliquido/delegua-node@^0.33.12":
-  version "0.33.12"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.33.12.tgz#ffd7c0aa06c6a44690e95c985110ad245668e3b9"
-  integrity sha512-z8/MilsKlx3nQb5hGEEidf5Hz1oGD2tg62ClaQd924jZ5gdn9NYKcIXin4Mvpw+QFMm1NPU4av+aUrkI9ZNT+g==
+"@designliquido/delegua-node@^0.33.14":
+  version "0.33.14"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.33.14.tgz#259fdf2b1ed4b6241aa86e036ba933df404ebe1d"
+  integrity sha512-HypUea8TO9JYw+jUOEQaOHacrkewpThiWl3meFeRwXHqjrYBdW7v3xDPEK9jSAP08uLhJdbPfKWCxne8dsrBOw==
   dependencies:
-    "@designliquido/birl" "0.0.0"
-    "@designliquido/delegua" "0.33.12"
+    "@designliquido/birl" "0.0.1"
+    "@designliquido/delegua" "0.33.14"
     "@designliquido/portugol-studio" "^0.0.2"
-    "@designliquido/potigol" "^0.0.2"
+    "@designliquido/potigol" "^0.0.3"
     "@designliquido/visualg" "^0.0.4"
     chalk "4.1.2"
     commander "^9.4.1"
     json-colorizer "^2.2.2"
 
-"@designliquido/delegua@0.33.12", "@designliquido/delegua@^0.33.9":
-  version "0.33.12"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.33.12.tgz#207f3545d17aaafac104b433d45e9c34e7036d47"
-  integrity sha512-1+vk20FOZBwvjD+ellkbsGW7TdzY3PehF2fIfh3CWaNRSJ5WwzozKXvLhCTXZUdqeme0+U+i2uUQa4PGv4ptlQ==
+"@designliquido/delegua@0.33.14", "@designliquido/delegua@^0.33.13":
+  version "0.33.14"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.33.14.tgz#fe3cc411ca35c3034a3190f7eb7e1f1eb2558dba"
+  integrity sha512-D962aaGGn1Cxyd/d3xy3XLEIclHDeDXDC0RiRqPdPASO1HuFthfVVJvUaN295R2GzVWxkVlPst7OMLTZO1FAyQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -539,6 +539,16 @@
   version "0.33.11"
   resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.33.11.tgz#4a5eed6d65e9209984a1bbf12a174452309981b2"
   integrity sha512-kCFAjaevxWuzQMl1qwE9tz4ftw3iUSIuDLQ68pgASzFGwM6HgyXyw+9EsAD+PImxfoDxco9ewik5jHidrObySQ==
+  dependencies:
+    antlr4ts "^0.5.0-alpha.4"
+    browser-process-hrtime "^1.0.0"
+    esprima "^4.0.1"
+    lodash.clonedeep "^4.5.0"
+
+"@designliquido/delegua@^0.33.12":
+  version "0.33.13"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-0.33.13.tgz#963ae910fe3f46c89a78c6b7065937eb3bb6c8c4"
+  integrity sha512-V1MTdUyUr0zFw0cgA3d97hll0Wl+UStpIk0oMwCuZYTXlGoLj4mklPgdtyx/V5W28dyYxduIwyJ8iCiJt7/jRg==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -583,12 +593,12 @@
   dependencies:
     "@designliquido/delegua" "^0.33.6"
 
-"@designliquido/potigol@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@designliquido/potigol/-/potigol-0.0.2.tgz#4d5de53ec8c102f73a1a2bef04f9757707e8fd46"
-  integrity sha512-VaM9XkJKT8rsRQQhPc8o59JdV2DeLdmtsdbzfwlDhdzSc7PFBsCbcmsjz/pzS2o7kSN9hhAUJU1VbVyUbrOj2A==
+"@designliquido/potigol@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@designliquido/potigol/-/potigol-0.0.3.tgz#b5e5b68568afb92ec282d428e1f3c3035f44235e"
+  integrity sha512-drGum3ICa6MH/cucKAXAYP00IzmlkT3R3xeUfpMh0a2Vwab1R6T3siozOnIRDEBQaroc7SU4RSwdFoZ0Ab3vnQ==
   dependencies:
-    "@designliquido/delegua" "^0.33.9"
+    "@designliquido/delegua" "^0.33.13"
 
 "@designliquido/visualg@^0.0.4":
   version "0.0.4"
