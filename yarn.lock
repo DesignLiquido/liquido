@@ -504,19 +504,19 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/birl@0.0.1":
+"@designliquido/birl@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@designliquido/birl/-/birl-0.0.1.tgz#64d8073b07ae449201c154ff8b47949e4ab27c40"
   integrity sha512-40Gk9lNvwnp90T+5tHW7DVWdIjbUMPxtiarRYXgPOEcL/idpb/zzXkKsOv+wneOIlGCewJMJa4nFk+a0eZD1rg==
   dependencies:
     "@designliquido/delegua" "^0.33.12"
 
-"@designliquido/delegua-node@^0.33.14":
-  version "0.33.14"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.33.14.tgz#259fdf2b1ed4b6241aa86e036ba933df404ebe1d"
-  integrity sha512-HypUea8TO9JYw+jUOEQaOHacrkewpThiWl3meFeRwXHqjrYBdW7v3xDPEK9jSAP08uLhJdbPfKWCxne8dsrBOw==
+"@designliquido/delegua-node@^0.33.15":
+  version "0.33.15"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-0.33.15.tgz#28eca0ec7f38c76b631b665b8f57f1c082ce4a9d"
+  integrity sha512-XrJ813ZnyPRNT6Drvw94WCvaRNfUNfnQX7yztw9lwbRw7F9dmJwH0G9x8ln7sAeWyF0DC3C2iuASwjEcw8SX5w==
   dependencies:
-    "@designliquido/birl" "0.0.1"
+    "@designliquido/birl" "^0.0.1"
     "@designliquido/delegua" "0.33.14"
     "@designliquido/portugol-studio" "^0.0.2"
     "@designliquido/potigol" "^0.0.3"
