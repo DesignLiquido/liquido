@@ -1,9 +1,11 @@
 import { textSync } from 'figlet'
 import { Command } from 'commander'
 import {version} from './package.json'
+import {blue} from "chalk";
 
 const pontoDeEntrada = async () => {
-    console.log(textSync("Delegua"))
+    console.log(blue(textSync('Liquido', { horizontalLayout: 'full' }) + '\n'))
+
     const analisadorArgumentos = new Command();
 
     analisadorArgumentos

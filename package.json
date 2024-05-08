@@ -45,6 +45,7 @@
         "@designliquido/lincones-sqlite": "^0.0.2",
         "@designliquido/lmht-js": "^0.4.9",
         "body-parser": "^1.20.2",
+        "chalk": "4.1.2",
         "commander": "^11.1.0",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
