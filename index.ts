@@ -7,9 +7,19 @@ import {
 } from "chalk";
 import yargs from 'yargs'
 import { Liquido } from './liquido';
-import { ComandoNovoInterface } from 'interfaces';
 import prompts from 'prompts';
-import { copiarExemploParaProjeto, criarDiretorioAplicacao } from './interface-linha-comando';
+import { 
+    copiarExemploParaProjeto, 
+    criarDiretorioAplicacao, 
+    criarDiretorioSeNaoExiste, 
+    importarModelos, 
+    obterTodosModelos 
+} from './interface-linha-comando';
+import { ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
+import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
+import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
+import { Classe } from '@designliquido/delegua/declaracoes';
+import { pluralizar } from '@designliquido/flexoes';
 
 class LiquidoCli {
     logo: string
@@ -77,7 +87,54 @@ class LiquidoCli {
         }
     }
 
-    comandoGerar() {}
+    async comandoGerar(
+        args: yargs.ArgumentsCamelCase<ComandoGerarInterface> 
+    ) {
+        let nomeModelo = args.modelo
+
+        if (nomeModelo === undefined || nomeModelo.length <= 0) {
+            const opcoesModelos = obterTodosModelos()
+
+            const respostaNomeModelo = await prompts({
+                type: 'select',
+                name: 'nomeModelo',
+                message: 'Qual o nome do modelo?',
+                choices: opcoesModelos
+            });
+            
+            nomeModelo = respostaNomeModelo.nomeModelo;
+        }
+
+        const declaracoes = importarModelos(nomeModelo);
+        criarDiretorioAplicacao('rotas');
+
+        const geradorVisoes = new GeradorVisoes();
+        const geradorRotas = new GeradorRotas();
+
+        for (const declaracao of declaracoes) {
+            const declaracaoModelo = <Classe>declaracao
+            const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
+            const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
+
+            const caminhosRotas: string[] = geradorRotas.criarNovasRotas(declaracaoModelo);
+            for (const caminhoRota of caminhosRotas) {
+                console.info(blue(`Rota ${caminhoRota}`));
+            }
+
+            criarDiretorioSeNaoExiste('visoes', nomeModeloPlural);
+
+            const visaoSelecionarTudo = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarTudo');
+            console.info(blue(`Visão ${visaoSelecionarTudo}`));
+            const visaoSelecionarUm = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarUm');
+            console.info(blue(`Visão ${visaoSelecionarUm}`));
+            const visaoAdicionar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'adicionar');
+            console.info(blue(`Visão ${visaoAdicionar}`));
+            const visaoEditar = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'editar');
+            console.info(blue(`Visão ${visaoEditar}`));
+            const visaoExcluir = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'excluir');
+            console.info(blue(`Visão ${visaoExcluir}`));
+        }
+    }
 
     opcoes() {
         return yargs
