@@ -1,22 +1,44 @@
 import { textSync } from 'figlet'
-import { Command } from 'commander'
 import {version} from './package.json'
 import {blue} from "chalk";
+import yargs from 'yargs'
 
-const pontoDeEntrada = async () => {
-    console.log(blue(textSync('Liquido', { horizontalLayout: 'full' }) + '\n'))
+class LiquidoCli {
+    logo: string
 
-    const analisadorArgumentos = new Command();
+    constructor() {
+        this.logo = textSync('Liquido', { horizontalLayout: 'full' })
+    }
 
-    analisadorArgumentos
+    mostrarLogo() {
+        console.log(blue(this.logo + '\n'))
+    }
+
+    comandoServidor() {
+        
+    }
+
+    comandoNovo() {}
+
+    comandoGerar() {}
+
+    opcoes() {
+        return yargs
+        .scriptName('liquido')
         .version(version)
-        .description("Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100% em português.")
-        .helpOption('-?, --ajuda', 'Exibe a ajuda para o comando.')
-        .command('servidor', 'Serve o diretório local como uma aplicação para a internet.', { isDefault: true })
-        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.')
-        .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".');
+        .usage('Uso: $0 <comando> [opções]')
+        .help('ajuda')
+        .alias('ajuda', '?')
+        .command('servidor', 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor)
+        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', {}, this.comandoNovo)
+        .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', {}, this.comandoGerar)
+        .argv
+    }
 
-    analisadorArgumentos.parse(process.argv);
+    async iniciar() {
+        this.mostrarLogo()
+        this.opcoes()
+    }
 }
 
-pontoDeEntrada();
+(async () => new LiquidoCli().iniciar())()

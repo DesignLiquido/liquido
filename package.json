@@ -46,7 +46,6 @@
         "@designliquido/lmht-js": "^0.4.9",
         "body-parser": "^1.20.2",
         "chalk": "4.1.2",
-        "commander": "^11.1.0",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
@@ -61,7 +60,8 @@
         "nodemon": "^3.1.0",
         "passport": "^0.7.0",
         "passport-jwt": "^4.0.1",
-        "prompts": "^2.4.2"
+        "prompts": "^2.4.2",
+        "yargs": "^17.7.2"
     },
     "devDependencies": {
         "@types/body-parser": "^1.19.5",
