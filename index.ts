@@ -21,7 +21,11 @@ import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
 import { Classe } from '@designliquido/delegua/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
 
-class LiquidoCli {
+
+/**
+ * Classe que representa o ponto de entrada da aplicação Liquido.
+ */
+class LiquidoPontoEntrada {
     logo: string
 
     constructor() {
@@ -143,7 +147,7 @@ class LiquidoCli {
         .usage('Uso: $0 <comando> [opções]')
         .help('ajuda')
         .alias('ajuda', '?')
-        .command('servidor', 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor)
+        .command(['*', 'servidor'], 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor)
         .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', {}, this.comandoNovo)
         .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', {}, this.comandoGerar)
         .argv
@@ -155,4 +159,4 @@ class LiquidoCli {
     }
 }
 
-(async () => new LiquidoCli().iniciar())()
+(async () => new LiquidoPontoEntrada().iniciar())()
