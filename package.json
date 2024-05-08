@@ -24,6 +24,9 @@
     "publishConfig": {
         "registry": "https://registry.npmjs.org/"
     },
+    "engines": {
+        "node": "^18.18.0 || >=20.0.0"
+    },
     "scripts": {
         "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/liquido ./bin/liquido.cmd ./dist && yarn copyfiles -V ./README.md ./dist",
         "publicar-npm": "npm publish --access public",
@@ -45,13 +48,14 @@
         "@designliquido/lincones-sqlite": "^0.0.2",
         "@designliquido/lmht-js": "^0.4.9",
         "body-parser": "^1.20.2",
-        "commander": "^11.1.0",
+        "chalk": "4.1.2",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
         "fast-glob": "^3.3.2",
         "fast-xml-parser": "^4.3.6",
+        "figlet": "^1.7.0",
         "handlebars": "^4.7.8",
         "helmet": "^7.1.0",
         "jwt-simple": "^0.5.6",
@@ -59,7 +63,8 @@
         "nodemon": "^3.1.0",
         "passport": "^0.7.0",
         "passport-jwt": "^4.0.1",
-        "prompts": "^2.4.2"
+        "prompts": "^2.4.2",
+        "yargs": "^17.7.2"
     },
     "devDependencies": {
         "@types/body-parser": "^1.19.5",
@@ -67,6 +72,7 @@
         "@types/cors": "^2.8.17",
         "@types/dotenv": "^8.2.0",
         "@types/express": "^4.17.21",
+        "@types/figlet": "^1.5.8",
         "@types/jest": "^29.5.12",
         "@types/jwt-simple": "^0.5.36",
         "@types/morgan": "^1.9.9",

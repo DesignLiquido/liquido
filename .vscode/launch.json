@@ -72,7 +72,7 @@
                 "${workspaceFolder}${pathSeparator}index.ts",
 				"novo"
             ],
-            "runtimeExecutable": "node",
+            "runtimeExecutable": "ts-node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
         {
