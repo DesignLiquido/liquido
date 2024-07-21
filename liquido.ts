@@ -333,10 +333,37 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
+    private logicaComumErrosInterpretacao(
+        retornoInterpretador: RetornoInterpretador
+    ): { corpoRetorno?: any; statusHttp?: number, redirecionamento?: string } {
+        let corpoRetorno = '';
+        for (const erro of retornoInterpretador.erros) {
+            if (erro.erroInterno) {
+                const erroInternoTipado: {
+                    message: string,
+                    stack: string
+                } = erro.erroInterno;
+                corpoRetorno += erroInternoTipado.message;
+                corpoRetorno += erroInternoTipado.stack;
+            } else {
+                corpoRetorno += `[Linha ${erro.linha}]: ${erro.mensagem}`;
+            }
+        }
+
+        return {
+            corpoRetorno: corpoRetorno,
+            statusHttp: 500
+        }
+    }
+
     private async logicaComumResultadoInterpretador(
         caminhoRota: string,
         retornoInterpretador: RetornoInterpretador
     ): Promise<{ corpoRetorno?: any; statusHttp?: number, redirecionamento?: string }> {
+        if (retornoInterpretador.erros.length > 0) {
+            return this.logicaComumErrosInterpretacao(retornoInterpretador);
+        }
+
         // O resultado que interessa é sempre o último.
         // Ele antigamente vinha como string, e precisava ser desserializado para ser usado.
         // Em versões mais recentes do interpretador, o retorno tem sido objetos inteiros.

@@ -4,6 +4,7 @@ import * as caminho from 'path';
 import Handlebars from 'handlebars';
 
 import { ConversorLmht } from '@designliquido/lmht-js';
+import { ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { PreprocessadorFolEs, PreprocessadorHandlebars, PreprocessadorLmhtParciais } from '../preprocessadores';
 
 export class FormatadorLmht {
@@ -29,30 +30,20 @@ export class FormatadorLmht {
      * @param valores Valores que devem ser usados na aplicação do Handlebars.
      * @returns O resultado das duas conversões.
      */
-    async formatar(caminhoRota: string, valores: any): Promise<any> {
-        // Remove parâmetros da rota. 
-        // Ainda não sei se é uma boa ideia fazer desse jeito.
-        const caminhoRotaSemParametros = caminhoRota.replace(/:[\w]+\//i, "");
-        let visaoCorrespondente: string = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros, '.lmht');
-        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros);
-        if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
-            // É diretório
-            if (visaoCorrespondente.endsWith(caminho.sep + '.lmht')) {
-                visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', caminho.sep + 'inicial.lmht');
+    async formatar(caminhoRota: string, valores: {[nome: string]: any}): Promise<any> {
+        const resolucaoVisao = this.resolverVisaoCorrespondente(caminhoRota);
+        if (!resolucaoVisao.visaoCorrespondente) {
+            let listaCaminhosTentados: string = 'Caminhos tentados: ';
+            for (const caminhoTentado of resolucaoVisao.caminhosTentados) {
+                listaCaminhosTentados += caminhoTentado + '; ';
             }
-        } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + '.lmht')) {
-            // É arquivo
-            visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', '.lmht');
-        } else {
-            // Caminho não existe
+
             return Promise.reject(
-                `Visão correspondente à rota ${caminhoRota} não existe. Caminhos tentados: ${diretorioOuArquivo}, ${
-                    diretorioOuArquivo + '.lmht'
-                }`
+                `Visão correspondente à rota ${caminhoRota} não existe. ${listaCaminhosTentados}`
             );
         }
 
-        const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(visaoCorrespondente);
+        const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(resolucaoVisao.visaoCorrespondente);
         const conteudoDoArquivo: string = arquivoBase.toString();
         let textoBase = conteudoDoArquivo;
 
@@ -79,13 +70,82 @@ export class FormatadorLmht {
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
             const template = Handlebars.compile(textoBase);
-            textoBase = template(valores);
+            const valoresResolvidos = this.resolverValores(valores);
+            textoBase = template(valoresResolvidos);
         }
 
         // Preprocessamento: FolEs
         textoBase = this.preprocessadorFolEs.processar(textoBase);
 
         return this.conversorLmht.converterPorTexto(textoBase);
+    }
+
+    private resolverVisaoCorrespondente(
+        caminhoRota: string
+    ): { visaoCorrespondente: string | undefined, caminhosTentados: string[] } {
+        const caminhoRotaParametrosResolvidos = caminhoRota.replace(/:([\w]+)(\/)?/i, `[$1]`);
+        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaParametrosResolvidos);
+        const retorno = {
+            visaoCorrespondente: '',
+            caminhosTentados: [
+                diretorioOuArquivo,
+                diretorioOuArquivo + '.lmht'
+            ]
+        }
+
+        let visaoCorrespondente: string;
+        if (caminhoRotaParametrosResolvidos.endsWith(']')) {
+            // Quando o caminho termina em um símbolo de parâmetro, significa que a visão correspondente
+            // é a de detalhes.
+            const caminhoRotaDiretorio = caminhoRota.replace(/:([\w]+)(\/)?/i, '');
+            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaDiretorio, 'detalhes.lmht');
+        } else {
+            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaParametrosResolvidos + '.lmht');
+        }
+        
+        if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
+            // É diretório
+            if (visaoCorrespondente.endsWith(caminho.sep + '.lmht')) {
+                visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', caminho.sep + 'inicial.lmht');
+            }
+        // } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + '.lmht')) {
+        } else if (!sistemaDeArquivos.existsSync(visaoCorrespondente)) {
+            // Caminho não existe
+            visaoCorrespondente = undefined;
+        }
+
+        retorno.visaoCorrespondente = visaoCorrespondente;
+        return retorno;
+    }
+
+    /**
+     * Resolve valores para o Handlebars, já que alguns objetos retornados pelo núcleo de
+     * Delégua não são exatamente dicionários.
+     * @param valores Os valores a serem enviados para o Handlebars.
+     * @returns Todos os valores normalizados como dicionários, ou ainda dicionários de dicionários.
+     */
+    private resolverValores(valores: {[nome: string]: any}) {
+        const valoresResolvidos = {};
+        for (const [nome, valor] of Object.entries(valores)) {
+            // eslint-disable-next-line no-prototype-builtins
+            let valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
+            if (valorResolvido.constructor.name === 'ObjetoDeleguaClasse') {
+                valorResolvido = this.obterPropriedadesDeObjetoComoDicionario(valorResolvido);
+            }
+
+            valoresResolvidos[nome] = valorResolvido;
+        }
+
+        return valoresResolvidos;
+    }
+
+    private obterPropriedadesDeObjetoComoDicionario(objeto: ObjetoDeleguaClasse) {
+        const dicionarioPropriedades = {};
+        for (const [nome, valor] of Object.entries(objeto.propriedades)) {
+            dicionarioPropriedades[nome] = valor;
+        }
+
+        return dicionarioPropriedades;
     }
 
     private formatarTextoBase(
