@@ -119,6 +119,10 @@ export class Liquido implements LiquidoInterface {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
 
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
+                if (declaracao.constructor.name === 'Comentario') {
+                    continue;
+                }
+
                 const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
                 const objetoAlvo: AcessoMetodoOuPropriedade = expressao.objeto as AcessoMetodoOuPropriedade;
                 const nomePropriedade: string = expressao.nome.lexema;
@@ -334,14 +338,10 @@ export class Liquido implements LiquidoInterface {
         retornoInterpretador: RetornoInterpretador
     ): Promise<{ corpoRetorno?: any; statusHttp?: number, redirecionamento?: string }> {
         // O resultado que interessa é sempre o último.
-        // Ele vem como string, e precisa ser desserializado para ser usado.
-
-        const { valor } = JSON.parse(retornoInterpretador.resultado.pop());
-
-        // Pelas novas regras de tipagem de Delégua, o valor do último retorno possui
-        // informações sobre tipo, imutabilidade, etc.
-        // Aqui só queremos o valor desse último retorno (que tem uma propriedade também chamada 'valor').
-        const objetoResposta: ObjetoDeleguaClasse = valor.valor;
+        // Ele antigamente vinha como string, e precisava ser desserializado para ser usado.
+        // Em versões mais recentes do interpretador, o retorno tem sido objetos inteiros.
+        // TODO: Mudar o tipo em Delégua para `resultado` trabalhar com qualquer tipo de objeto.
+        const objetoResposta: ObjetoDeleguaClasse = retornoInterpretador.resultado.pop() as any;
 
         let statusHttp: number = 200;
         if (objetoResposta.propriedades.statusHttp) {
