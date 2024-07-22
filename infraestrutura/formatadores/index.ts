@@ -108,7 +108,6 @@ export class FormatadorLmht {
             if (visaoCorrespondente.endsWith(caminho.sep + '.lmht')) {
                 visaoCorrespondente = visaoCorrespondente.replace(caminho.sep + '.lmht', caminho.sep + 'inicial.lmht');
             }
-        // } else if (sistemaDeArquivos.existsSync(diretorioOuArquivo + '.lmht')) {
         } else if (!sistemaDeArquivos.existsSync(visaoCorrespondente)) {
             // Caminho não existe
             visaoCorrespondente = undefined;
