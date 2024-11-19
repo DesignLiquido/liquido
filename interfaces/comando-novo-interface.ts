@@ -1,3 +1,3 @@
 export interface ComandoNovoInterface {
-    nome: string
+    nome: string;
 }

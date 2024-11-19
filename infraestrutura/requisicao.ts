@@ -1,6 +1,6 @@
 import { Simbolo } from '@designliquido/delegua/lexador';
-import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/declaracoes';
-import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { PropriedadeClasse } from '@designliquido/delegua/declaracoes';
+import { DeleguaClasse } from '@designliquido/delegua/estruturas';
 
 /**
  * A classe de Requisição envelopa todos os aspectos importantes do Express,

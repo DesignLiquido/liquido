@@ -11,7 +11,7 @@ import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegu
  */
 export class GeradorExpressoes {
 
-    gerarAcessoIndiceVariavel(variavel: string, indice: number): AcessoIndiceVariavel {
+    gerarAcessoIndiceVariavel(variavel: string, indice: number | string): AcessoIndiceVariavel {
         return new AcessoIndiceVariavel(
             -1, 
             new Variavel(

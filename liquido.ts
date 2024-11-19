@@ -27,7 +27,7 @@ import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
 import { MetodoRoteador, Roteador } from './infraestrutura/roteador';
-import { LiquidoInterface, RetornoMiddleware } from './interfaces';
+import { CorpoResposta, LiquidoInterface, RetornoMiddleware } from './interfaces';
 
 /**
  * O núcleo do framework.
@@ -359,7 +359,7 @@ export class Liquido implements LiquidoInterface {
     private async logicaComumResultadoInterpretador(
         caminhoRota: string,
         retornoInterpretador: RetornoInterpretador
-    ): Promise<{ corpoRetorno?: any; statusHttp?: number, redirecionamento?: string }> {
+    ): Promise<CorpoResposta> {
         if (retornoInterpretador.erros.length > 0) {
             return this.logicaComumErrosInterpretacao(retornoInterpretador);
         }
@@ -400,6 +400,16 @@ export class Liquido implements LiquidoInterface {
             } catch (erro: any) {
                 console.log(`Erro ao processar LMHT: ${erro}`);
             }
+        }
+
+        if (objetoResposta.propriedades.respostaJson) {
+            // TODO: Por que valor é sempre um array aqui?
+            const valor = objetoResposta.propriedades.respostaJson.hasOwnProperty('valor') ? 
+                objetoResposta.propriedades.respostaJson.valor[0] : objetoResposta.propriedades.respostaJson;
+            return {
+                corpoRetorno: valor,
+                statusHttp: statusHttp
+            };
         }
         
         if (objetoResposta.propriedades.mensagem) {

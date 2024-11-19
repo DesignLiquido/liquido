@@ -20,6 +20,10 @@ export class Resposta extends DeleguaClasse {
                 'texto'
             ),
             new PropriedadeClasse(
+                new Simbolo('IDENTIFICADOR', 'respostaJson', null, -1, -1),
+                'dicionário'
+            ),
+            new PropriedadeClasse(
                 new Simbolo('IDENTIFICADOR', 'mensagem', null, -1, -1),
                 'texto'
             ),
@@ -180,6 +184,17 @@ export class Resposta extends DeleguaClasse {
                 ]
             )
         );
+
+        metodos['json'] = geradorExpressoes.gerarMetodo('json', geradorExpressoes.gerarConstrutoFuncao(
+            [geradorExpressoes.gerarParametro('json', 'dicionário', 'multiplo')],
+            [
+                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                    'respostaJson', 
+                    geradorExpressoes.gerarReferenciaVariavel('json')
+                ),
+                geradorExpressoes.gerarRetornoDeFuncao('isto')
+            ]
+        ));
         
         super(
             new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), 
