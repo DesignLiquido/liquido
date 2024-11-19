@@ -1,0 +1,11 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.json([{
+        "id": 1,
+        "titulo": "teste 1",
+        "descricao": "descricao 1"
+    }])
+})
+
+liquido.rotaPost(funcao(requisicao, resposta) {
+    resposta.redirecionar("/")
+})

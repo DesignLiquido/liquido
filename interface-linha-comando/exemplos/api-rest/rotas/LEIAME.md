@@ -10,9 +10,21 @@ liquido.rotaGet(funcao(requisicao, resposta) {
 })
 ```
 
+No entanto, o normal de uma rota REST é servir JSON, XML, ou outros formatos que chamamos de serializáveis. No caso de JSON, usamos o seguinte:
+
+```js
+liquido.rotaGet(funcao(requisicao, resposta) {
+  resposta.json({
+    "id": 1,
+    "titulo": "Meu primeiro artigo",
+    "descricao": "Este é meu primeiro artigo."
+  }).status(200)
+})
+```
+
 Se executarmos Liquido em modo servidor e tentarmos acessar `http://localhost:3000` no nosso navegador, se tudo foi feito da maneira certa, teremos uma página com o texto "Olá mundo". 
 
-Seguindo os exemplos dados, se quisermos implementar `http://localhost:3000/blog`, temos duas boas opções:
+Seguindo os exemplos dados, se quisermos implementar `http://localhost:3000/artigos`, temos duas boas opções:
 
-- Criar dentro de `rotas` um diretório `blog`, e dentro desse diretório blog um arquivo `inicial.delegua`, com pelo menos uma configuração de rota dentro;
-- Criar dentro de `rotas` um arquivo `blog.delegua`, com pelo menos uma configuração de rota dentro.
+- Criar dentro de `rotas` um diretório `artigos`, e dentro desse diretório `artigos` um arquivo `inicial.delegua`, com pelo menos uma configuração de rota dentro;
+- Criar dentro de `rotas` um arquivo `artigos.delegua`, com pelo menos uma configuração de rota dentro.
