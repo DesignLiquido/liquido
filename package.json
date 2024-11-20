@@ -27,17 +27,20 @@
     "engines": {
         "node": "^18.18.0 || >=20.0.0"
     },
+    "bin": {
+        "liquido": "bin/liquido"
+    },
     "scripts": {
         "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/liquido ./bin/liquido.cmd ./dist && yarn copyfiles -V ./README.md ./dist",
         "publicar-npm": "npm publish --access public",
         "iniciar": "nodemon",
         "lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
-        "lint": "eslint . --ext .ts",
-        "prettier-format": "prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
-        "testes": "jest --coverage",
-        "testes:w": "jest --runInBand --watchAll",
-        "predev": "npm run swagger",
-        "prebuild": "npm run swagger",
+        "lint": "yarn eslint . --ext .ts",
+        "prettier-format": "yarn prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
+        "testes": "yarn jest --coverage",
+        "testes:w": "yarn jest --runInBand --watchAll",
+        "predev": "yarn swagger",
+        "prebuild": "yarn swagger",
         "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec\"",
         "swagger": "tsoa spec"
     },
