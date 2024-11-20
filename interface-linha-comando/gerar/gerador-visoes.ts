@@ -2,9 +2,9 @@ import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 
 import { Classe } from '@designliquido/delegua/declaracoes';
+import { pluralizar } from '@designliquido/flexoes';
 
 import { TipoVisao } from './tipo-visao';
-import { pluralizar } from '@designliquido/flexoes';
 
 export class GeradorVisoes {
     indentacao: number;

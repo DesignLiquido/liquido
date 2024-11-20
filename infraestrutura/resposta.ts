@@ -1,7 +1,7 @@
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { DefinirValor, FuncaoConstruto, Isto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/declaracoes';
-import { DeleguaClasse, DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/estruturas';
 import { ParametroInterface } from '@designliquido/delegua/interfaces';
 
 import { GeradorExpressoes } from './utilidades/gerador-expressoes';
@@ -11,7 +11,7 @@ import { GeradorExpressoes } from './utilidades/gerador-expressoes';
  * Cada método dessa classe (implementado numa estrutura declarativa) direciona
  * um aspecto da resposta a ser enviada para o Express.
  */
-export class Resposta extends DeleguaClasse {
+export class Resposta extends DescritorTipoClasse {
     constructor() {
         const metodos = {};
         const propriedades = [
