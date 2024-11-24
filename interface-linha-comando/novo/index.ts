@@ -1,4 +1,4 @@
-import { async as glob } from 'fast-glob'
+import { async as glob } from 'fast-glob';
 import sistemaArquivos from 'fs';
 import caminho from 'path';
 

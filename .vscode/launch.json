@@ -46,6 +46,20 @@
             "runtimeExecutable": "node",
             "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
         },
+        {
+            "name": "Liquido > ILC > Documentar Projeto",
+            "type": "node",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**", "node_modules/**"],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}${pathSeparator}index.ts",
+				"documentar"
+            ],
+            "runtimeExecutable": "node",
+            "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"]
+        },
 		{
             "name": "Liquido > ILC > Novo projeto",
             "type": "node",

@@ -429,6 +429,7 @@ export class Liquido implements LiquidoInterface {
      *                   função é executada.
      */
     async adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: Construto[]): Promise<void> {
+        // TODO: Melhorar isso para permitir N intermediários na execução da rota.
         const funcao = argumentos[0] as FuncaoConstruto;
         const metodoResolvido = MetodoRoteador[metodoRoteador.replace('rota', '')];
 

@@ -4,7 +4,7 @@ Este padrão de projeto implementa o que chamamos de API (_Application Programmi
 
 ## Não li e nem lerei
 
-Se você não tem paciência para ler o documento inteiro, colocamos em `rotas/inicial.delegua` um exemplo funcional de rota retornando JSON. Há um outro documento `LEIAME.md` dentro do diretório `rotas` que pode ajudar.
+Se você não tem paciência para ler o documento inteiro, colocamos em `rotas/inicial.delegua` um exemplo funcional de rotas trabalhando com JSON. Há um outro documento `LEIAME.md` dentro do diretório `rotas` que pode ajudar.
 
 Se tem, boa leitura.
 
@@ -16,13 +16,13 @@ Se tem, boa leitura.
 
 **REST** é um dos vários protocolos da Internet. Em REST, uma aplicação expõe uma série de recursos. Cada recurso é acessível através de um conjunto de endereços e métodos. 
 
-Cada endereço segue uma convenção que chamamos de URL (_Universal Resource Locator_, ou Localizador Universal de Recurso). _Sites_ ou sítios da Internet usualmente são acessíveis por um endereço que indica qual protocolo de transferência deve ser utilizando (HTTP e FTP são os mais populares, mas há muitos outros), seguido de `://` (dois-pontos e duas barras), um localizador DNS (_Domain Name Server_, ou Servidor de Nomes de Domínio) e um caminho. Por exemplo, `http://designliquido.com.br`. O protocolo é HTTP, e o endereço DNS da empresa que construiu Líquido é `designliquido.com.br` (`.com` quer dizer que é um sítio comercial, e `.br` quer dizer que fica no Brasil). 
+Cada endereço segue uma convenção que chamamos de URL (_Universal Resource Locator_, ou Localizador Universal de Recurso). _Sites_, ou sítios da internet, usualmente são acessíveis por um endereço que indica qual protocolo de transferência deve ser utilizando (HTTP e FTP são os mais populares, mas há muitos outros), seguido de `://` (dois-pontos e duas barras), um localizador DNS (_Domain Name Server_, ou Servidor de Nomes de Domínio) e um caminho. Por exemplo, `http://designliquido.com.br`. O protocolo é HTTP, e o endereço DNS da empresa que construiu Líquido é `designliquido.com.br` (`.com` quer dizer que é um sítio comercial, e `.br` quer dizer que fica no Brasil). 
 
 Ao acessar o sítio da Design Líquido no seu navegador de internet, o navegador assume um método (ou verbo) padrão. Por padrão, toda e qualquer requisição cujo método não esteja especificado usa o método `GET` (obter). Este método indica que queremos ler o conteúdo correspondente ao endereço. O servidor da Design Líquido irá receber esta requisição, montar uma página em HTML e devolver.
 
-Todo sítio da internet é, por definição, uma API REST, que normalmente nos devolve HTML como retorno, mas nada nos impediria de retornar qualquer coisa serializável. HTML, XML e JSON são exemplos de formatos serializáveis.
+Todo sítio da internet é, por definição, uma API REST, que normalmente nos devolve HTML como retorno, mas nada nos impediria de retornar qualquer outra coisa serializável. HTML, XML e JSON são exemplos de formatos serializáveis.
 
-APIs REST se tornaram muito populares com a criação de _smartphones_. Antes dos _smartphones_, um outro padrão de APIs dominava a internet, chamado SOAP. SOAP se parece muito com REST, mas suas APIs trabalhavam apenas com um método (`POST`) e suas respostas são bastante longas e verbosas, o que oneravam sobremaneira o processamento em um _smartphone_, bem mais lento e limitado que o _smartphone_ mais barato hoje. Surgiu a necessidade de não apenas simplificar as APIs, como também deixar as respostas menores.
+APIs REST se tornaram muito populares com a criação de _smartphones_. Antes dos _smartphones_, um outro padrão de APIs dominava a internet, chamado SOAP. SOAP se parece muito com REST, mas suas APIs trabalhavam apenas com um método (`POST`) e suas respostas são bastante longas e verbosas, o que oneravam sobremaneira e desnecessariamente o processamento em um _smartphone_ da época, bem mais lento e limitado que o _smartphone_ mais barato hoje. Surgiu a necessidade de não apenas simplificar as APIs, como também deixar as respostas menores.
 
 # Serialização
 
@@ -118,6 +118,58 @@ O método `.json()` do objeto `resposta` serializa um dicionário em Delégua pa
 Para usar, basta passar qualquer dicionário, seja literal ou variável, como argumento de `resposta.json()`:
 
 ```js
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.json([{
+        "id": 1,
+        "titulo": "teste 1",
+        "descricao": "descricao 1"
+    }])
+})
+```
+
+## Auto-documentação
+
+Para projetos REST, Liquido possui capacidades de auto-documentação, ou seja, gerar uma série de documentos que explicam como a API REST que você está escrevendo irá funcionar.
+
+Uma boa parte dos elementos são depreendidos pelo método de rota usado, o tipo de retorno usado para a resposta, e assim por diante. Outros podem ser adicionados por decoradores.
+
+Do exemplo anterior:
+
+```js
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.json([{
+        "id": 1,
+        "titulo": "teste 1",
+        "descricao": "descricao 1"
+    }])
+})
+```
+
+- Sabemos a rota pela posição do arquivo controlador na estrutura de diretórios;
+- Sabemos que a rota responde pelo método `GET`;
+- Sabemos que o tipo da resposta é feito por `resposta.json()`, portanto, um conteúdo JSON.
+
+Nosso modelo de auto-documentação é o [OpenAPI 3.1.0](https://swagger.io/specification/). A geração dessa documentação pode ser feita de duas maneiras:
+
+- Na inicialização do servidor;
+- Por linha de comando.
+
+### Decoradores para auto-documentação
+
+Os decoradores suportados atualmente estão como no exemplo abaixo:
+
+```js
+@rest.documentacao(
+    sumario = "Um exemplo de rota GET.", 
+    descricao = "Uma descrição mais detalhada sobre como a rota GET funciona.", 
+    idOperacao = "lerArtigos",
+    etiquetas = ["artigos"]
+)
+@rest.resposta(
+    codigo = 200, 
+    descricao = "Devolvido com sucesso", 
+    formatos = ["application/json", "application/xml"]
+)
 liquido.rotaGet(funcao(requisicao, resposta) {
     resposta.json([{
         "id": 1,
