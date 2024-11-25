@@ -1,0 +1,1 @@
+export type MetodoHttpOpenApi = 'get' | 'post' | 'put' | 'delete' | 'patch';

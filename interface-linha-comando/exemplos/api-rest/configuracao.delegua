@@ -1,3 +1,8 @@
+// Configuração da aplicação em si.
+liquido.arquetipo = 'rest'
+liquido.nomeAplicacao = 'Minha aplicação'
+liquido.aplicacaoVersao = '0.0.0'
+
 // Configuração de arquivos estáticos
 liquido.roteador.diretorioEstatico = 'publico'
 
