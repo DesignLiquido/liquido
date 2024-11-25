@@ -1,5 +1,5 @@
 import { PreprocessadorLmhtParciais } from '../../../../infraestrutura/preprocessadores/lmht-parciais';
-import { VerificaXml } from '../../../ajudadores/verifica-xml';
+import { verificarXml } from '../../../ajudadores/verificar-xml';
 
 describe('Preprocessador de parciais em LMHT', () => {
     let preProcessador: PreprocessadorLmhtParciais;
@@ -14,7 +14,7 @@ describe('Preprocessador de parciais em LMHT', () => {
         if (resultado instanceof Error) {
             throw resultado;
         }
-        expect(VerificaXml(resultado.xmlContent as string)).toBeTruthy();
+        expect(verificarXml(resultado.xmlContent as string)).toBeTruthy();
     });
 
     it('Deve retornar um Error por não encontrar a tag <corpo> </corpo>', () => {

@@ -1,21 +1,15 @@
-import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { parseString, Builder } from 'xml2js';
 
 import * as fs from 'fs';
 import path from 'path';
 
 export class PreprocessadorLmhtParciais {
-    private readonly leitorLmht: XMLParser;
-    private readonly construtorLmht: XMLBuilder;
+    private readonly construtorLmht: Builder;
     private readonly _diretorioParcial = 'visoes/parciais';
     private readonly _diretorioRaizCaminho = process.cwd();
-    private readonly opcoesLeitorLmht = {
-        ignoreAttributes: false,
-        attributeNamePrefix: ''
-    };
 
     constructor() {
-        this.leitorLmht = new XMLParser(this.opcoesLeitorLmht);
-        this.construtorLmht = new XMLBuilder({});
+        this.construtorLmht = new Builder({});
     }
 
     get diretorioParcial(): string {
@@ -23,7 +17,10 @@ export class PreprocessadorLmhtParciais {
     }
 
     public processarParciais(texto: string) {
-        const objetoVisao = this.leitorLmht.parse(texto);
+        let objetoVisao;
+        parseString(texto, (_, resultado) => {
+            objetoVisao = resultado;
+        });
 
         const corpo = objetoVisao.lmht?.corpo;
 
@@ -52,7 +49,7 @@ export class PreprocessadorLmhtParciais {
                     return conteudo;
                 }
 
-                const xmlContent = this.construtorLmht.build(conteudo);
+                const xmlContent = this.construtorLmht.buildObject(conteudo);
 
                 return { xmlContent, conteudo };
             }

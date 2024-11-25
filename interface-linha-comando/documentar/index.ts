@@ -38,6 +38,8 @@ function obterEstruturasDeAltoNivelDeControlador(caminhoControlador: string) {
  */
 function lerControlador(declaracoes: Declaracao[]) {
     for (const declaracao of declaracoes) {
+        // Os decoradores contêm a documentação adicional para uma rota.
+        const decoradores = declaracao.decoradores;
         // Aqui normalmente teremos uma expressão com uma chamada dentro.
         const chamada = (declaracao as Expressao).expressao as Chamada;
         // Tipicamente, a entidade chamada é uma variável com o nome reservado `liquido`.
@@ -45,7 +47,7 @@ function lerControlador(declaracoes: Declaracao[]) {
         // A execução e middlewares ficam em argumentos.
         const entidadeChamada = chamada.entidadeChamada as AcessoMetodoOuPropriedade;
         const argumentos = chamada.argumentos;
-        console.log(argumentos, entidadeChamada.objeto, entidadeChamada.simbolo);
+        console.log(decoradores, argumentos, entidadeChamada.objeto, entidadeChamada.simbolo);
     }
 }
 
