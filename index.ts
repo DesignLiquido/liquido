@@ -16,7 +16,7 @@ import {
     copiarExemploParaProjeto, 
     criarDiretorioAplicacao, 
     criarDiretorioSeNaoExiste, 
-    encontrarControladores,
+    documentar,
     importarModelos, 
     obterTodosModelos 
 } from './interface-linha-comando';
@@ -39,7 +39,8 @@ class LiquidoPontoEntrada {
     }
     
     async comandoDocumentar() {
-        await encontrarControladores();
+        // await encontrarControladores();
+        await documentar();
     }
 
     async comandoGerar(
@@ -141,8 +142,8 @@ class LiquidoPontoEntrada {
     }
 
     comandoServidor() {
-        const liquido = new Liquido(process.cwd())
-        liquido.iniciar()
+        const liquido = new Liquido(process.cwd());
+        liquido.iniciar();
     }
 
     opcoes() {

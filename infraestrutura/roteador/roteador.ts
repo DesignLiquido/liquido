@@ -5,6 +5,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import jwt from 'jwt-simple';
 import morgan from 'morgan';
+import redoc from 'redoc-express';
 
 import { VariavelInterface } from '@designliquido/delegua/interfaces';
 
@@ -13,6 +14,7 @@ import autenticacao from '../utilidades/autenticacao';
 
 import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 import { MetodoRoteador } from './metodo-roteador';
+import { AutoDocumentador } from '../auto-documentacao/auto-documentador';
 
 /**
  * O roteador é a classe que monta todas as rotas em que a aplicação irá trabalhar.
@@ -20,6 +22,7 @@ import { MetodoRoteador } from './metodo-roteador';
  */
 export class Roteador {
     aplicacao: express.Express;
+    autoDocumentador: AutoDocumentador;
     porta: number;
     mapaRotas: {[metodo: string]: (caminho: string, execucao: (req: Request, res: Response) => void) => void};
 
@@ -35,6 +38,7 @@ export class Roteador {
     constructor() {
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+        this.autoDocumentador = new AutoDocumentador();
         
         this.mapaRotas = {};
         this.mapaRotas[MetodoRoteador.Get] = this.rotaGet.bind(this);
@@ -49,6 +53,42 @@ export class Roteador {
         this.mapaRotas[MetodoRoteador.Unlock] = this.rotaUnlock.bind(this);
         this.mapaRotas[MetodoRoteador.Purge] = this.rotaPurge.bind(this);
         this.mapaRotas[MetodoRoteador.Propfind] = this.rotaPropfind.bind(this);
+
+        // Rota reservada para servir o JSON de auto-documentação.
+        this.aplicacao.get('/docs/openapi.json', async (req, res) => {
+            const documentoOpenApi = await this.autoDocumentador.documentar();
+            res.send(documentoOpenApi).status(200);
+        });
+  
+        // Rota reservada para servir a documentação automática.
+        this.aplicacao.get(
+            '/docs',
+            redoc({
+                title: 'API Docs',
+                specUrl: '/docs/openapi.json',
+                redocOptions: {
+                    theme: {
+                        colors: {
+                            primary: {
+                            main: '#6EC5AB'
+                            }
+                        },
+                        typography: {
+                            fontFamily: `"museo-sans", 'Helvetica Neue', Helvetica, Arial, sans-serif`,
+                            fontSize: '15px',
+                            lineHeight: '1.5',
+                            code: {
+                            code: '#87E8C7',
+                            backgroundColor: '#4D4D4E'
+                            }
+                        },
+                        menu: {
+                            backgroundColor: '#ffffff'
+                        }
+                    }
+                }
+            })
+        );
     }
 
     configurarArquivosEstaticos(diretorio: string = 'publico'): void {
@@ -193,7 +233,7 @@ export class Roteador {
         this.aplicacao.propfind(caminho, execucao);
     }
 
-    adicionandoRotaToken() {
+    adicionarRotaToken() {
         this.aplicacao.post('/token', (req: Request, res: Response) => {
             if (req.body.email && req.body.senha) {
                 const { email, senha } = req.body;
@@ -226,7 +266,7 @@ export class Roteador {
                 } else {
                     res.sendStatus(401);
                 }
-            } catch (error) {
+            } catch (erro) {
                 res.sendStatus(401);
             }
         } else {
@@ -236,7 +276,7 @@ export class Roteador {
 
     iniciar() {
         if (this.passport === true) {
-            this.adicionandoRotaToken();
+            this.adicionarRotaToken();
         }
 
         this.aplicacao.listen(this.porta, () => {

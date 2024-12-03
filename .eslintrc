@@ -9,6 +9,7 @@
 		"prettier"
 	],
 	"rules": {
+		"no-case-declarations": "off",
 		"no-prototype-builtins": "off",
 		"prettier/prettier": "off",
         "@typescript-eslint/no-explicit-any": 0,

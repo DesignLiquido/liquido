@@ -1,4 +1,4 @@
-export interface ResponseContentOpenApi {
+export interface ConteudoRespostaOpenApi {
     type?: string
     items?: any[]
     schema?: any;

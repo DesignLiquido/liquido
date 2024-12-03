@@ -37,7 +37,7 @@ describe('Testes do roteador', () => {
   });
 
   it('deve chamar o método post para adicionandoRotaToken', () => {
-    roteador.adicionandoRotaToken();
+    roteador.adicionarRotaToken();
     expect(roteador.aplicacao.post).toHaveBeenCalled();
   });
 
