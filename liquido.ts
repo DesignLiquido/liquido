@@ -27,7 +27,8 @@ import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
 import { MetodoRoteador, Roteador } from './infraestrutura/roteador';
-import { CorpoResposta, LiquidoInterface, RetornoMiddleware } from './interfaces';
+import { CorpoResposta, LiquidoInterface, RetornoConfiguracaoInterface } from './interfaces';
+import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
 
 /**
  * O núcleo do framework.
@@ -117,6 +118,7 @@ export class Liquido implements LiquidoInterface {
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
+            new CentroConfiguracoes(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
             for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
                 if (declaracao.constructor.name === 'Comentario') {
@@ -162,26 +164,30 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
-     * Retorna o caminho do arquivo de configuração se existir, senão retorna `null`.
+     * Retorna o caminho do arquivo de configuração se existir.
      * @param {string} caminhoTotal O caminho para o diretório a ser pesquisado.
-     * @returns Um objeto com duas propriedades: caminho e valor.
+     * @returns Um objeto com duas propriedades: `caminho` e `valor`. Se o caminho foi 
+     *          encontrado, `valor` será `true`, e `caminho` terá o caminho completo
+     *          do arquivo de configuração. Caso contrário, `valor` será `false`, e 
+     *          `caminho` será nulo.
      */
-    resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoMiddleware {
+    resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoConfiguracaoInterface {
         const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
-        const ListaDeItems = sistemaDeArquivos.readdirSync(diretorioBase);
+        const listaDeArquivos = sistemaDeArquivos.readdirSync(diretorioBase);
 
-        for (const item of ListaDeItems) {
-            if (item === 'configuracao.delegua') {
+        for (const arquivo of listaDeArquivos) {
+            if (arquivo === 'configuracao.delegua') {
                 return {
-                    caminho: caminho.join(diretorioBase, item),
+                    caminho: caminho.join(diretorioBase, arquivo),
                     valor: true
-                } as RetornoMiddleware;
+                } as RetornoConfiguracaoInterface;
             }
         }
+
         return {
             caminho: null,
             valor: false
-        } as RetornoMiddleware;
+        } as RetornoConfiguracaoInterface;
     }
 
     /**
@@ -189,11 +195,11 @@ export class Liquido implements LiquidoInterface {
      * @param diretorio O diretório a ser pesquisado.
      */
     descobrirRotas(diretorio: string): void {
-        const listaDeItems = sistemaDeArquivos.readdirSync(diretorio);
+        const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
         const diretorioDescobertos = [];
 
-        listaDeItems.forEach((diretorioOuArquivo) => {
+        listaDeRotas.forEach((diretorioOuArquivo) => {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
             if (caminhoAbsoluto.endsWith('.delegua')) {
                 this.arquivosDelegua.push(caminhoAbsoluto);
@@ -210,13 +216,13 @@ export class Liquido implements LiquidoInterface {
         });
     }
 
-    descobrirEstilos(): any[] {
+    descobrirEstilos(): string[] {
         try {
-            const listaDeItems = sistemaDeArquivos.readdirSync('./estilos');
+            const listaDeEstilos = sistemaDeArquivos.readdirSync('./estilos');
 
             const arquivosDescobertos = [];
 
-            listaDeItems.forEach((diretorioOuArquivo) => {
+            listaDeEstilos.forEach((diretorioOuArquivo) => {
                 const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
                 if (caminhoAbsoluto.endsWith('.foles')) {
                     arquivosDescobertos.push(caminhoAbsoluto);
@@ -225,7 +231,7 @@ export class Liquido implements LiquidoInterface {
 
             return arquivosDescobertos;
         } catch (erro: any) {
-            console.log(`Pulando descoberta de estilos. Causa: ${erro}`);
+            console.error(`Pulando descoberta de estilos. Causa: ${erro}.`);
             return [];
         }
     }
@@ -276,7 +282,7 @@ export class Liquido implements LiquidoInterface {
                             await this.adicionarRota(metodo.lexema, this.resolverCaminhoRota(arquivo), expressao.argumentos);
                             break;
                         default:
-                            console.log(`Método ${metodo.lexema} não reconhecido.`);
+                            console.error(`Método ${metodo.lexema} não reconhecido.`);
                             break;
                     }
                 }
@@ -398,7 +404,7 @@ export class Liquido implements LiquidoInterface {
                     statusHttp: statusHttp
                 };
             } catch (erro: any) {
-                console.log(`Erro ao processar LMHT: ${erro}`);
+                console.error(`Erro ao processar LMHT: ${erro}.`);
             }
         }
 

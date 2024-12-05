@@ -77,7 +77,6 @@ export class AutoDocumentador {
     
         const controladores = [];
         for (const caminhoArquivo of arquivos) {
-            // console.log(caminhoArquivo);
             const estruturas = this.obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
             const rotaEControlador = this.lerControlador(caminhoArquivo, estruturas);
             controladores.push(rotaEControlador);

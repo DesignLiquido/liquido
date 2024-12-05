@@ -1,7 +1,7 @@
 import * as caminho from 'path';
 
 import { Liquido } from '../../liquido';
-import { RetornoMiddleware } from '../../interfaces';
+import { RetornoConfiguracaoInterface } from '../../interfaces';
 
 describe('Liquido', () => {
     let liquido: Liquido;
@@ -34,7 +34,7 @@ describe('Liquido', () => {
     });
 
     it('Testando resolveArquivoConfiguracaoMiddleware()', () => {
-        const retorno: RetornoMiddleware = liquido.resolverArquivoConfiguracao(
+        const retorno: RetornoConfiguracaoInterface = liquido.resolverArquivoConfiguracao(
             caminho.join(__dirname, 'exemplos')
         );
 
