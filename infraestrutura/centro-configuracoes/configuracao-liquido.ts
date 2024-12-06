@@ -15,4 +15,10 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
         this.dados = new ConfiguracaoDados();
         this.roteador = new ConfiguracaoRoteador();
     }
+
+    configurar(componentes: {[key: string]: any}) {
+        this.aplicacao.configurar(componentes);
+        this.dados.configurar(componentes);
+        this.roteador.configurar(componentes);
+    }
 }

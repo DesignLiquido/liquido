@@ -7,15 +7,21 @@ import { RotaOpenApi } from './rota-open-api';
 import { MetodoHttpOpenApi } from './metodo-http-open-api';
 import { RespostaOpenApi } from './resposta-open-api';
 import { DocumentoOpenApi } from './documento-open-api';
+import { AutoDocumentadorInterface } from '../../interfaces/auto-documentador-interface';
 
 /**
  * O auto documentador lê o projeto e gera uma especificação OpenAPI
  * baseada no que foi implementado a nível de rotas.
  */
-export class AutoDocumentador {
+export class AutoDocumentador implements AutoDocumentadorInterface {
     diretorioRotas: string;
     decoradoresValidos: {[key: string]: {[key: string]: string}};
     erros: Error[];
+    nomeAplicacao: string = "Teste Liquido";
+    versao: string = "0.0.1";
+    descricao: string = "Este é um teste em Liquido";
+    nomeLicenca: string = "MIT";
+    urlLicensa: string = "https://github.com/DesignLiquido/liquido/LICENSE";
 
     constructor() {
         this.erros = [];
@@ -210,12 +216,12 @@ export class AutoDocumentador {
             openapi: '3.0.0',
             servers: [],
             info: {
-                "description": "Teste",
-                "version": "1.0.0",
-                "title": "Teste Liquido",
+                "description": this.descricao,
+                "version": this.versao,
+                "title": this.nomeAplicacao,
                 "license": {
-                    "name": "MIT",
-                    "url": "https://github.com/DesignLiquido/liquido/LICENSE"
+                    "name": this.nomeLicenca,
+                    "url": this.urlLicensa
                 }
             },
             paths: {}

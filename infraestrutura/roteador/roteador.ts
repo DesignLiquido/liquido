@@ -7,20 +7,19 @@ import jwt from 'jwt-simple';
 import morgan from 'morgan';
 import redoc from 'redoc-express';
 
-import { VariavelInterface } from '@designliquido/delegua/interfaces';
-
 import users from '../../usuarios';
 import autenticacao from '../utilidades/autenticacao';
 
 import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 import { MetodoRoteador } from './metodo-roteador';
 import { AutoDocumentador } from '../auto-documentacao/auto-documentador';
+import { RoteadorInterface } from '../../interfaces/roteador-interface';
 
 /**
  * O roteador é a classe que monta todas as rotas em que a aplicação irá trabalhar.
  * Instrumenta o Express para trabalhar interpretando Delégua.
  */
-export class Roteador {
+export class Roteador implements RoteadorInterface {
     aplicacao: express.Express;
     autoDocumentador: AutoDocumentador;
     porta: number;
@@ -35,10 +34,11 @@ export class Roteador {
     cors = false;
     passport = false;
 
-    constructor() {
+    constructor(autoDocumentador: AutoDocumentador) {
         this.aplicacao = express();
         this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
-        this.autoDocumentador = new AutoDocumentador();
+
+        this.autoDocumentador = autoDocumentador;
         
         this.mapaRotas = {};
         this.mapaRotas[MetodoRoteador.Get] = this.rotaGet.bind(this);
@@ -93,38 +93,6 @@ export class Roteador {
 
     configurarArquivosEstaticos(diretorio: string = 'publico'): void {
         this.aplicacao.use(express.static(diretorio, { redirect: true }));
-    }
-
-    ativarMiddleware(nomePropriedade: string, informacoesVariavel: VariavelInterface) {
-        switch (nomePropriedade) {
-            case 'cors':
-                this.ativarDesativarCors(informacoesVariavel.valor);
-                break;
-            case 'cookieParser':
-                this.ativarDesativarCookieParser(informacoesVariavel.valor);
-                break;
-            case 'bodyParser':
-                this.ativarDesativarBodyParser(informacoesVariavel.valor);
-                break;
-            case 'json':
-                this.ativarDesativarExpressJson(informacoesVariavel.valor);
-                break;
-            case 'passport':
-                this.ativarDesativarPassport(informacoesVariavel.valor);
-                break;
-            case 'morgan':
-                this.ativarDesativarMorgan(informacoesVariavel.valor);
-                break;
-            case 'helmet':
-                this.ativarDesativarHelmet(informacoesVariavel.valor);
-                break;
-            case 'diretorioEstatico':
-                this.configurarArquivosEstaticos(informacoesVariavel.valor);
-                break;
-            default:
-                console.log(`Método ${nomePropriedade} não reconhecido.`);
-                break;
-        }
     }
 
     iniciarMiddlewares() {
@@ -266,7 +234,7 @@ export class Roteador {
                 } else {
                     res.sendStatus(401);
                 }
-            } catch (erro) {
+            } catch (erro: any) {
                 res.sendStatus(401);
             }
         } else {

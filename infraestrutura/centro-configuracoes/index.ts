@@ -1,9 +1,14 @@
 import { AcessoMetodoOuPropriedade, DefinirValor } from "@designliquido/delegua/construtos";
 import { Declaracao, Expressao } from "@designliquido/delegua/declaracoes";
 import { VariavelInterface } from "@designliquido/delegua/interfaces";
+
 import { ConfiguracaoLiquido } from "./configuracao-liquido";
 import { AspectoConfiguracaoInterface } from "./aspecto-configuracao-interface";
 
+/**
+ * O centro de configurações. Desdobra o arquivo de configuração e monta
+ * os objetos de configuração de Liquido.
+ */
 export class CentroConfiguracoes {
     liquido: ConfiguracaoLiquido;
 
@@ -21,7 +26,6 @@ export class CentroConfiguracoes {
             entradasConfiguracao.push(entradaConfiguracao);
         }
 
-        // console.log(entradasConfiguracao);
         for (const entradaConfiguracao of entradasConfiguracao) {
             const caminhoConfiguracao = entradaConfiguracao[0];
             const valorConfiguracao = entradaConfiguracao[1];
@@ -29,7 +33,8 @@ export class CentroConfiguracoes {
                 .definirValor(this[caminhoConfiguracao[0]], caminhoConfiguracao, valorConfiguracao);
         }
 
-        console.log(this);
+        // TODO: Hablitar em modo verboso.
+        // console.log(this);
     }
 
     protected desdobrarConfiguracao(expressaoDefinirValor: DefinirValor) {

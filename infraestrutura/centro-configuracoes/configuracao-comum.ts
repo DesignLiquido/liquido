@@ -2,6 +2,8 @@ import { AspectoConfiguracaoInterface } from "./aspecto-configuracao-interface";
 import { ErroConfiguracao } from "./erro-configuracao";
 
 export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface {
+    abstract configurar(componentes: {[key: string]: any}): void;
+
     definirValor(instancia: AspectoConfiguracaoInterface, caminho: string[], valor: any): void {
         caminho.shift();
         if (caminho.length === 1) {

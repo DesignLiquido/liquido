@@ -1,3 +1,4 @@
+import { AutoDocumentador } from '../../../infraestrutura/auto-documentacao/auto-documentador';
 import { Roteador } from '../../../infraestrutura/roteador';
 
 jest.mock('express', () => {
@@ -24,7 +25,7 @@ describe('Testes do roteador', () => {
   let roteador: Roteador;
 
   beforeEach(() => {
-    roteador = new Roteador();
+    roteador = new Roteador(new AutoDocumentador());
   });
 
   it('Deve criar um roteador', () => {
@@ -39,90 +40,6 @@ describe('Testes do roteador', () => {
   it('deve chamar o método post para adicionandoRotaToken', () => {
     roteador.adicionarRotaToken();
     expect(roteador.aplicacao.post).toHaveBeenCalled();
-  });
-
-  it('deve chamar o método ativarMiddleware cors', () => {
-    roteador.ativarMiddleware('cors', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.cors).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware helmet', () => {
-    roteador.ativarMiddleware('helmet', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.helmet).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware morgan', () => {
-    roteador.ativarMiddleware('morgan', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.morgan).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware expressJson', () => {
-    roteador.ativarMiddleware('json', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.expressJson).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware bodyParser', () => {
-    roteador.ativarMiddleware('bodyParser', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.bodyParser).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware cookieParser', () => {
-    roteador.ativarMiddleware('cookieParser', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.cookieParser).toBeTruthy();
-  });
-
-  it('deve chamar o método ativarMiddleware passport', () => {
-    roteador.ativarMiddleware('passport', {
-      valor: true,
-      tipo: 'lógico',
-      imutavel: true
-    });
-    expect(roteador.passport).toBeTruthy();
-  });
-
-  //FIXME -     TypeError: express_1.default.static is not a function
-  it.skip('deve char o método ativarMiddleware configurarArquivosEstaticos', () => {
-    const spy = jest.spyOn(roteador, 'configurarArquivosEstaticos');
-    roteador.ativarMiddleware('diretorioEstatico', {
-      valor: 'teste',
-      tipo: 'texto',
-      imutavel: true
-    });
-    expect(spy).toHaveBeenCalled();
-  });
-
-  it('deve chamar default no método ativarMiddleware', () => {
-    const spy = jest.spyOn(roteador, 'ativarMiddleware');
-    roteador.ativarMiddleware('teste', {
-      valor: 'teste',
-      tipo: 'texto',
-      imutavel: true
-    });
-    expect(spy).toHaveBeenCalled();
   });
 
   it('deve chamar o metodo iniciarMiddlewares', () => {

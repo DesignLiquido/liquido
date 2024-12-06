@@ -8,4 +8,8 @@ export class ConfiguracaoDados extends ConfiguracaoComum {
         super();
         this.lincones = new ConfiguracaoLincones();
     }
+
+    configurar(componentes: {[key: string]: any}) {
+        this.lincones.configurar(componentes);
+    }
 }

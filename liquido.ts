@@ -6,13 +6,12 @@ import {
     AcessoMetodoOuPropriedade,
     Chamada,
     Construto,
-    DefinirValor,
     FuncaoConstruto,
     Variavel
 } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
-import { InterpretadorInterface, RetornoInterpretador, VariavelInterface } from '@designliquido/delegua/interfaces';
+import { InterpretadorInterface, RetornoInterpretador } from '@designliquido/delegua/interfaces';
 
 import {
     Lexador,
@@ -29,6 +28,8 @@ import { ProvedorLincones } from './infraestrutura/provedores';
 import { MetodoRoteador, Roteador } from './infraestrutura/roteador';
 import { CorpoResposta, LiquidoInterface, RetornoConfiguracaoInterface } from './interfaces';
 import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
+import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configuracoes/aspecto-configuracao-interface';
+import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
 
 /**
  * O núcleo do framework.
@@ -40,6 +41,8 @@ export class Liquido implements LiquidoInterface {
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
     foles: FolEs;
+    centroConfiguracoes: CentroConfiguracoes;
+    autoDocumentador: AutoDocumentador;
 
     arquivosDelegua: string[];
     rotasDelegua: string[];
@@ -69,7 +72,8 @@ export class Liquido implements LiquidoInterface {
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
         this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
-        this.roteador = new Roteador();
+        this.autoDocumentador = new AutoDocumentador();
+        this.roteador = new Roteador(this.autoDocumentador);
         this.provedorLincones = new ProvedorLincones();
         this.foles = new FolEs(false);
     }
@@ -85,23 +89,7 @@ export class Liquido implements LiquidoInterface {
             (this.interpretador as any).pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
         }
 
-        const arquivosEstilos = this.descobrirEstilos();
-
-        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
-            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
-        }
-
-        for (const arquivo of arquivosEstilos) {
-            const teste = this.foles.converterParaCss(arquivo);
-            const arquivoDestino = caminho.join(process.cwd(), `./${this.diretorioEstatico}/css`, arquivo.replace('estilos', '').replace('.foles', '.css'));
-            sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
-                if (erro) {
-                    return console.log(erro);
-                }
-
-                console.log(`Salvo: ${arquivoDestino}`);
-            });
-        }
+        this.escreverEstilos();
     }
 
     /**
@@ -113,54 +101,30 @@ export class Liquido implements LiquidoInterface {
 
         if (caminhoConfigArquivo.valor === false) {
             console.info("Arquivo 'configuracao.delegua' não encontrado.");
-            return null;
+            return;
         }
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
-            new CentroConfiguracoes(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+            this.centroConfiguracoes = new CentroConfiguracoes(retornoImportador.retornoAvaliadorSintatico.declaracoes);
 
-            for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
-                if (declaracao.constructor.name === 'Comentario') {
-                    continue;
-                }
-
-                const expressao: DefinirValor = (declaracao as Expressao).expressao as DefinirValor;
-                const objetoAlvo: AcessoMetodoOuPropriedade = expressao.objeto as AcessoMetodoOuPropriedade;
-                const nomePropriedade: string = expressao.nome.lexema;
-                const informacoesVariavel: VariavelInterface = expressao.valor;
-
-                switch (objetoAlvo.simbolo.lexema) {
-                    case 'roteador':
-                        this.roteador.ativarMiddleware(nomePropriedade, informacoesVariavel);
+            for (const [chave, configuracao] of Object.entries(this.centroConfiguracoes)) {
+                switch (chave) {
+                    case 'liquido':
+                        const configuracaoTipada = (configuracao as AspectoConfiguracaoInterface);
+                        configuracaoTipada.configurar({
+                            autoDocumentador: this.autoDocumentador,
+                            roteador: this.roteador,
+                            provedorLincones: this.provedorLincones
+                        });
                         break;
-                    case 'autenticacao':
-                        if (nomePropriedade === 'tecnologia') {
-                            switch (informacoesVariavel.valor) {
-                                case 'jwt':
-                                    this.roteador.ativarDesativarPassport(true);
-                                    break;
-                                default:
-                                    console.error('Tecnologia de autenticação não suportada.');
-                            }
-                        }
-                        break;
-                    case 'lincones': { 
-                            const objetoLinconesAlvo: AcessoMetodoOuPropriedade = objetoAlvo.objeto as AcessoMetodoOuPropriedade;
-                            switch (objetoLinconesAlvo.simbolo.lexema) {
-                                case 'dados':
-                                    this.provedorLincones.configurar(nomePropriedade, informacoesVariavel.valor);
-                                    break;
-                                // Casos futuros aqui.
-                            }
-                        }
-                        
-                        break;
+                    default:
+                        throw new Error(`Chave de configuração desconhecida: ${chave}`);
                 }
             }
         } catch (error) {
             console.error(error);
-        }
+        } 
     }
 
     /**
@@ -233,6 +197,26 @@ export class Liquido implements LiquidoInterface {
         } catch (erro: any) {
             console.error(`Pulando descoberta de estilos. Causa: ${erro}.`);
             return [];
+        }
+    }
+
+    escreverEstilos() {
+        const arquivosEstilos = this.descobrirEstilos();
+
+        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
+            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
+        }
+
+        for (const arquivo of arquivosEstilos) {
+            const teste = this.foles.converterParaCss(arquivo);
+            const arquivoDestino = caminho.join(process.cwd(), `./${this.diretorioEstatico}/css`, arquivo.replace('estilos', '').replace('.foles', '.css'));
+            sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
+                if (erro) {
+                    return console.log(erro);
+                }
+
+                console.log(`Salvo: ${arquivoDestino}`);
+            });
         }
     }
 

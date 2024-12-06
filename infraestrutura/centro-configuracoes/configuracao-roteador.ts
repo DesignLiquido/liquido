@@ -1,7 +1,8 @@
+import { RoteadorInterface } from "../../interfaces/roteador-interface";
 import { ConfiguracaoComum } from "./configuracao-comum";
 
 export class ConfiguracaoRoteador extends ConfiguracaoComum {
-    diretorioEstatico?: string = undefined;
+    diretorioEstatico: string = 'publico';
     cors: boolean = false;
     bodyParser: boolean = true;
     morgan: boolean = false;
@@ -13,5 +14,19 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
     constructor(valoresIniciais?: Partial<ConfiguracaoRoteador>) {
         super();
         Object.assign(this, valoresIniciais);
+    }
+
+    configurar(componentes: {[key: string]: any}) {
+        const roteador = componentes['roteador'] as RoteadorInterface;
+        roteador.ativarDesativarBodyParser(this.bodyParser);
+        roteador.ativarDesativarCors(this.cors);
+        roteador.ativarDesativarCookieParser(this.cookieParser);
+        roteador.ativarDesativarExpressJson(this.json);
+        roteador.ativarDesativarHelmet(this.helmet);
+        roteador.ativarDesativarMorgan(this.morgan);
+        roteador.ativarDesativarPassport(this.passport);
+        if (this.diretorioEstatico) {
+            roteador.configurarArquivosEstaticos(this.diretorioEstatico);
+        }
     }
 }
