@@ -1,5 +1,5 @@
 import { FolEs } from '@designliquido/foles';
-import { parseString, Builder } from 'xml2js';
+import { parseStringPromise, Builder } from 'xml2js';
 
 
 export class PreprocessadorFolEs {
@@ -11,13 +11,17 @@ export class PreprocessadorFolEs {
         this.foles = new FolEs(false);
     }
 
-    processar(conteudoLmht: string): string {
-        let objetoVisao;
-        parseString(conteudoLmht, (_, resultado) => {
-            objetoVisao = resultado;
-        });
-
-        const cabeca = objetoVisao.lmht?.cabeca || objetoVisao.lmht?.cabeça;
+    async processar(conteudoLmht: string): Promise<string> {
+        let objetoVisao: any;
+        let cabeca: any[];
+        try {
+            objetoVisao = await parseStringPromise(conteudoLmht /*, options */);
+            cabeca = objetoVisao.lmht?.cabeca || objetoVisao.lmht?.cabeça;
+        } catch (erro: any) {
+            // TODO: Tratar melhor este erro.
+            return Promise.reject(`Conteúdo LMHT com problema de conteúdo: ${erro}`);
+        }
+        
         if (cabeca) {
             // Procurar por estruturas de estilo.
             const estilos = [];

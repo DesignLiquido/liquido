@@ -75,7 +75,7 @@ export class FormatadorLmht {
         }
 
         // Preprocessamento: FolEs
-        textoBase = this.preprocessadorFolEs.processar(textoBase);
+        textoBase = await this.preprocessadorFolEs.processar(textoBase);
 
         return this.conversorLmht.converterPorTexto(textoBase);
     }
