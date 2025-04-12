@@ -1,5 +1,16 @@
 import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
-import { DefinirValor, FuncaoConstruto, Isto, Construto, Variavel, Binario, Literal, Chamada, AcessoMetodoOuPropriedade, AcessoIndiceVariavel } from '@designliquido/delegua/construtos';
+import {
+    DefinirValor,
+    FuncaoConstruto,
+    Isto,
+    Construto,
+    Variavel,
+    Binario,
+    Literal,
+    Chamada,
+    AcessoMetodoOuPropriedade,
+    AcessoIndiceVariavel
+} from '@designliquido/delegua/construtos';
 import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegua/declaracoes';
@@ -7,25 +18,21 @@ import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegu
 /**
  * O gerador de expressões é uma classe facilitadora para a criação de
  * objetos que normalmente são criados pelo Avaliador Sintático de
- * Delégua. 
+ * Delégua.
  */
 export class GeradorExpressoes {
-
     gerarAcessoIndiceVariavel(variavel: string, indice: number | string): AcessoIndiceVariavel {
         return new AcessoIndiceVariavel(
-            -1, 
-            new Variavel(
-                -1, 
-                new Simbolo('IDENTIFICADOR', variavel, null, -1, -1)
-            ), 
-            new Literal(-1, -1, indice), 
+            -1,
+            new Variavel(-1, new Simbolo('IDENTIFICADOR', variavel, null, -1, -1)),
+            new Literal(-1, -1, indice),
             new Simbolo('COLCHETE_DIREITO', ']', null, -1, -1)
         );
     }
 
     gerarAcessoMetodoOuPropriedade(objeto: Variavel, metodoOuPropriedade: string): AcessoMetodoOuPropriedade {
         return new AcessoMetodoOuPropriedade(
-            -1, 
+            -1,
             objeto,
             new Simbolo('IDENTIFICADOR', metodoOuPropriedade, null, -1, -1)
         );
@@ -34,9 +41,9 @@ export class GeradorExpressoes {
     gerarBlocoEscopo(declaracoes: Declaracao[]): Bloco {
         return new Bloco(-1, -1, declaracoes);
     }
-    
+
     gerarChamada(entidadeChamada: AcessoMetodoOuPropriedade, argumentos: any[] = []): Chamada {
-        return new Chamada(-1, entidadeChamada, null, argumentos);
+        return new Chamada(-1, entidadeChamada, argumentos);
     }
 
     gerarConstrutoBinario(ladoEsquerdo: Construto, operador: SimboloInterface, ladoDireito: Construto) {
@@ -59,7 +66,9 @@ export class GeradorExpressoes {
         return new DeleguaFuncao(nomeMetodo, declaracao, null, false);
     }
 
-    gerarOperadorComparacao(tipo: 'maior' | 'menor' | 'maiorOuIgual' | 'menorOuIgual' | 'igual' | 'diferente'): SimboloInterface {
+    gerarOperadorComparacao(
+        tipo: 'maior' | 'menor' | 'maiorOuIgual' | 'menorOuIgual' | 'igual' | 'diferente'
+    ): SimboloInterface {
         switch (tipo) {
             case 'maior':
                 return new Simbolo('MAIOR', '>', null, -1, -1);
@@ -79,18 +88,18 @@ export class GeradorExpressoes {
     gerarParametro(nome: string, tipo: string, abrangencia: 'padrao' | 'multiplo' = 'padrao'): ParametroInterface {
         return {
             abrangencia: abrangencia,
-            tipo: tipo,
+            tipoDado: tipo,
             nome: new Simbolo('IDENTIFICADOR', nome, null, -1, -1)
         } as ParametroInterface;
     }
 
     gerarReferenciaVariavel(nomeVariavel: string) {
-        return new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeVariavel, null, -1, -1))
+        return new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeVariavel, null, -1, -1));
     }
 
     /**
-     * Gera uma atribuição de valor em uma propriedade de classe. 
-     * Por exemplo, `isto.a = 1` seria algo como 
+     * Gera uma atribuição de valor em uma propriedade de classe.
+     * Por exemplo, `isto.a = 1` seria algo como
      * `gerarAtribuicaoValorEmPropriedadeClasse('a', 1)`.
      */
     gerarAtribuicaoValorEmPropriedadeClasse(nomePropriedade: string, valor: Construto): Expressao {
@@ -109,6 +118,6 @@ export class GeradorExpressoes {
         return new Retorna(
             new Simbolo('IDENTIFICADOR', 'qualquerCoisa', null, -1, -1),
             new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeVariavel, null, -1, -1))
-        ) 
+        );
     }
 }

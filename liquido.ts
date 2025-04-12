@@ -1,25 +1,16 @@
 import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
-import { AvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico';
-import {
-    AcessoMetodoOuPropriedade,
-    Chamada,
-    Construto,
-    FuncaoConstruto,
-    Variavel
-} from '@designliquido/delegua/construtos';
+import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
+import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
 import { InterpretadorInterface, RetornoInterpretador } from '@designliquido/delegua/interfaces';
 
-import {
-    Lexador,
-    Simbolo
-} from '@designliquido/delegua/lexador';
+import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
-import { Interpretador } from '@designliquido/delegua-node/interpretador';
+import { InterpretadorComImportacao } from '@designliquido/delegua-node/interpretador';
 import { FolEs } from '@designliquido/foles';
 
 import { Resposta } from './infraestrutura';
@@ -36,6 +27,7 @@ import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-docume
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador;
+    avaliadorSintatico: AvaliadorSintaticoComImportacao;
     interpretador: InterpretadorInterface;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
@@ -62,16 +54,15 @@ export class Liquido implements LiquidoInterface {
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
 
-        this.importador = new Importador(
-            new Lexador(),
-            new AvaliadorSintatico() as any,
-            this.arquivosAbertos,
-            this.conteudoArquivosAbertos,
-            false
-        );
+        this.importador = new Importador(new Lexador(), this.arquivosAbertos, this.conteudoArquivosAbertos, false);
+
+        this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(this.importador);
+        this.avaliadorSintatico.tiposDeFerramentasExternas = {
+            liquido: { liquido: 'módulo', requisicao: 'módulo', resposta: 'módulo' }
+        };
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
-        this.interpretador = new Interpretador(this.importador, process.cwd(), false, console.log);
+        this.interpretador = new InterpretadorComImportacao(this.importador, process.cwd(), false, console.log);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
         this.provedorLincones = new ProvedorLincones();
@@ -86,7 +77,10 @@ export class Liquido implements LiquidoInterface {
 
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
-            (this.interpretador as any).pilhaEscoposExecucao.definirVariavel('lincones', await this.provedorLincones.resolver());
+            (this.interpretador as any).pilhaEscoposExecucao.definirVariavel(
+                'lincones',
+                await this.provedorLincones.resolver()
+            );
         }
 
         this.escreverEstilos();
@@ -106,12 +100,16 @@ export class Liquido implements LiquidoInterface {
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
-            this.centroConfiguracoes = new CentroConfiguracoes(retornoImportador.retornoAvaliadorSintatico.declaracoes);
+            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
+                retornoImportador.retornoLexador,
+                retornoImportador.hashArquivo
+            );
+            this.centroConfiguracoes = new CentroConfiguracoes(retornoAvaliadorSintatico.declaracoes);
 
             for (const [chave, configuracao] of Object.entries(this.centroConfiguracoes)) {
                 switch (chave) {
                     case 'liquido':
-                        const configuracaoTipada = (configuracao as AspectoConfiguracaoInterface);
+                        const configuracaoTipada = configuracao as AspectoConfiguracaoInterface;
                         configuracaoTipada.configurar({
                             autoDocumentador: this.autoDocumentador,
                             roteador: this.roteador,
@@ -124,15 +122,15 @@ export class Liquido implements LiquidoInterface {
             }
         } catch (error) {
             console.error(error);
-        } 
+        }
     }
 
     /**
      * Retorna o caminho do arquivo de configuração se existir.
      * @param {string} caminhoTotal O caminho para o diretório a ser pesquisado.
-     * @returns Um objeto com duas propriedades: `caminho` e `valor`. Se o caminho foi 
+     * @returns Um objeto com duas propriedades: `caminho` e `valor`. Se o caminho foi
      *          encontrado, `valor` será `true`, e `caminho` terá o caminho completo
-     *          do arquivo de configuração. Caso contrário, `valor` será `false`, e 
+     *          do arquivo de configuração. Caso contrário, `valor` será `false`, e
      *          `caminho` será nulo.
      */
     resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoConfiguracaoInterface {
@@ -141,17 +139,11 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of listaDeArquivos) {
             if (arquivo === 'configuracao.delegua') {
-                return {
-                    caminho: caminho.join(diretorioBase, arquivo),
-                    valor: true
-                } as RetornoConfiguracaoInterface;
+                return { caminho: caminho.join(diretorioBase, arquivo), valor: true } as RetornoConfiguracaoInterface;
             }
         }
 
-        return {
-            caminho: null,
-            valor: false
-        } as RetornoConfiguracaoInterface;
+        return { caminho: null, valor: false } as RetornoConfiguracaoInterface;
     }
 
     /**
@@ -209,7 +201,11 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
-            const arquivoDestino = caminho.join(process.cwd(), `./${this.diretorioEstatico}/css`, arquivo.replace('estilos', '').replace('.foles', '.css'));
+            const arquivoDestino = caminho.join(
+                process.cwd(),
+                `./${this.diretorioEstatico}/css`,
+                arquivo.replace('estilos', '').replace('.foles', '.css')
+            );
             sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
                 if (erro) {
                     return console.log(erro);
@@ -241,16 +237,20 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of this.arquivosDelegua) {
             const retornoImportador = this.importador.importar(arquivo);
+            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
+                retornoImportador.retornoLexador,
+                retornoImportador.hashArquivo
+            );
 
             // Liquido espera declarações do tipo Expressao, contendo dentro
             // um Construto do tipo Chamada.
-            for (const declaracao of retornoImportador.retornoAvaliadorSintatico.declaracoes) {
+            for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
                 const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
-                const entidadeChamada: AcessoMetodoOuPropriedade = expressao.entidadeChamada as AcessoMetodoOuPropriedade;
+                const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
                 const objeto = entidadeChamada.objeto as Variavel;
-                const metodo = entidadeChamada.simbolo;
+
                 if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
-                    switch (metodo.lexema) {
+                    switch (entidadeChamada.nomeMetodo) {
                         case 'rotaGet':
                         case 'rotaPost':
                         case 'rotaPut':
@@ -263,10 +263,14 @@ export class Liquido implements LiquidoInterface {
                         case 'rotaUnlock':
                         case 'rotaPurge':
                         case 'rotaPropfind':
-                            await this.adicionarRota(metodo.lexema, this.resolverCaminhoRota(arquivo), expressao.argumentos);
+                            await this.adicionarRota(
+                                entidadeChamada.nomeMetodo,
+                                this.resolverCaminhoRota(arquivo),
+                                expressao.argumentos
+                            );
                             break;
                         default:
-                            console.error(`Método ${metodo.lexema} não reconhecido.`);
+                            console.error(`Método ${entidadeChamada.nomeMetodo} não reconhecido.`);
                             break;
                     }
                 }
@@ -283,6 +287,9 @@ export class Liquido implements LiquidoInterface {
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
     async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
+        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('liquido', 'módulo');
+        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('requisicao', 'módulo');
+        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('resposta', 'módulo');
         this.interpretador.pilhaEscoposExecucao.definirVariavel('requisicao', requisicao);
         const classeResposta = new Resposta();
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
@@ -305,15 +312,10 @@ export class Liquido implements LiquidoInterface {
             return await this.interpretador.interpretar(
                 [
                     new Expressao(
-                        new Chamada(
-                            -1,
-                            new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)),
-                            new Simbolo('PARENTESE_DIREITO', '', null, -1, -1),
-                            [
-                                new Variavel(-1, new Simbolo('IDENTIFICADOR', 'requisicao', null, -1, -1)),
-                                new Variavel(-1, new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1))
-                            ]
-                        )
+                        new Chamada(-1, new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)), [
+                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'requisicao', null, -1, -1)),
+                            new Variavel(-1, new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1))
+                        ])
                     )
                 ],
                 true
@@ -323,16 +325,15 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private logicaComumErrosInterpretacao(
-        retornoInterpretador: RetornoInterpretador
-    ): { corpoRetorno?: any; statusHttp?: number, redirecionamento?: string } {
+    private logicaComumErrosInterpretacao(retornoInterpretador: RetornoInterpretador): {
+        corpoRetorno?: any;
+        statusHttp?: number;
+        redirecionamento?: string;
+    } {
         let corpoRetorno = '';
         for (const erro of retornoInterpretador.erros) {
             if (erro.erroInterno) {
-                const erroInternoTipado: {
-                    message: string,
-                    stack: string
-                } = erro.erroInterno;
+                const erroInternoTipado: { message: string; stack: string } = erro.erroInterno;
                 corpoRetorno += erroInternoTipado.message;
                 corpoRetorno += erroInternoTipado.stack;
             } else {
@@ -340,10 +341,7 @@ export class Liquido implements LiquidoInterface {
             }
         }
 
-        return {
-            corpoRetorno: corpoRetorno,
-            statusHttp: 500
-        }
+        return { corpoRetorno: corpoRetorno, statusHttp: 500 };
     }
 
     private async logicaComumResultadoInterpretador(
@@ -364,12 +362,12 @@ export class Liquido implements LiquidoInterface {
         if (objetoResposta.propriedades.statusHttp) {
             statusHttp = objetoResposta.propriedades.statusHttp;
         }
-        
+
         if (objetoResposta.propriedades.destino) {
             // Redirecionamento
             return { redirecionamento: objetoResposta.propriedades.destino };
         }
-        
+
         if (objetoResposta.propriedades.lmht) {
             try {
                 let visao: string = caminhoRota;
@@ -382,11 +380,11 @@ export class Liquido implements LiquidoInterface {
                     visao = partesRota.join('/') + '/' + objetoResposta.propriedades.visao;
                 }
 
-                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(visao, objetoResposta.propriedades.valores);
-                return {
-                    corpoRetorno: resultadoFormatacaoLmht,
-                    statusHttp: statusHttp
-                };
+                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(
+                    visao,
+                    objetoResposta.propriedades.valores
+                );
+                return { corpoRetorno: resultadoFormatacaoLmht, statusHttp: statusHttp };
             } catch (erro: any) {
                 console.error(`Erro ao processar LMHT: ${erro}.`);
             }
@@ -394,19 +392,14 @@ export class Liquido implements LiquidoInterface {
 
         if (objetoResposta.propriedades.respostaJson) {
             // TODO: Por que valor é sempre um array aqui?
-            const valor = objetoResposta.propriedades.respostaJson.hasOwnProperty('valor') ? 
-                objetoResposta.propriedades.respostaJson.valor[0] : objetoResposta.propriedades.respostaJson;
-            return {
-                corpoRetorno: valor,
-                statusHttp: statusHttp
-            };
+            const valor = objetoResposta.propriedades.respostaJson.hasOwnProperty('valor')
+                ? objetoResposta.propriedades.respostaJson.valor[0]
+                : objetoResposta.propriedades.respostaJson;
+            return { corpoRetorno: valor, statusHttp: statusHttp };
         }
-        
+
         if (objetoResposta.propriedades.mensagem) {
-            return {
-                corpoRetorno: objetoResposta.propriedades.mensagem,
-                statusHttp: statusHttp
-            };
+            return { corpoRetorno: objetoResposta.propriedades.mensagem, statusHttp: statusHttp };
         }
     }
 

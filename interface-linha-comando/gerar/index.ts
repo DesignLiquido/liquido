@@ -5,6 +5,7 @@ import { Lexador } from '@designliquido/delegua/lexador';
 import { AvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico';
 import { Importador } from '@designliquido/delegua-node/importador';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
+import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
 
 /**
  * Obtém todos os modelos do diretório 'modelos' do projeto.
@@ -32,11 +33,12 @@ export function obterTodosModelos(): { title: string, value: string }[] {
 export function importarModelos(nomeModelo: string): Declaracao[] {
     const diretorioModelos = caminho.join(process.cwd(), 'modelos');
     const lexador = new Lexador(false);
-    const avaliadorSintatico = new AvaliadorSintatico(false);
-    const importador = new Importador(lexador, avaliadorSintatico, {}, {}, false);
+    const importador = new Importador(lexador, {}, {}, false);
+    const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
     const resultadoImportacao = importador.importar(caminho.join(diretorioModelos, nomeModelo + '.delegua'));
-    const declaracoes = resultadoImportacao.retornoAvaliadorSintatico.declaracoes;
+    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoImportacao.retornoLexador, resultadoImportacao.hashArquivo);
+    const declaracoes = retornoAvaliadorSintatico.declaracoes;
     return declaracoes;
 }
 

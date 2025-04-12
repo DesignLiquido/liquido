@@ -16,10 +16,11 @@ export class PreprocessadorFolEs {
         let cabeca: any[];
         try {
             objetoVisao = await parseStringPromise(conteudoLmht /*, options */);
+            if (!objetoVisao) return '';
             cabeca = objetoVisao.lmht?.cabeca || objetoVisao.lmht?.cabeça;
         } catch (erro: any) {
             // TODO: Tratar melhor este erro.
-            return Promise.reject(`Conteúdo LMHT com problema de conteúdo: ${erro}`);
+            return Promise.reject(`LMHT com problema de conteúdo: ${erro}`);
         }
         
         if (cabeca) {

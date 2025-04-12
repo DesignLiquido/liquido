@@ -1,7 +1,20 @@
 import caminho from 'path';
 import { async as glob } from 'fast-glob';
-import { Lexador, AvaliadorSintatico, ErroAvaliadorSintatico, Declaracao, Expressao, Chamada, AcessoMetodoOuPropriedade, Decorador, Literal, Vetor, Construto } from '@designliquido/delegua';
+
+import {
+    Lexador,
+    ErroAvaliadorSintatico,
+    Declaracao,
+    Expressao,
+    Chamada,
+    AcessoMetodoOuPropriedade,
+    Decorador,
+    Literal,
+    Vetor,
+    Construto
+} from '@designliquido/delegua';
 import { Importador } from '@designliquido/delegua-node/importador';
+import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
 
 import { RotaOpenApi } from './rota-open-api';
 import { MetodoHttpOpenApi } from './metodo-http-open-api';
@@ -15,19 +28,17 @@ import { AutoDocumentadorInterface } from '../../interfaces/auto-documentador-in
  */
 export class AutoDocumentador implements AutoDocumentadorInterface {
     diretorioRotas: string;
-    decoradoresValidos: {[key: string]: {[key: string]: string}};
+    decoradoresValidos: { [key: string]: { [key: string]: string } };
     erros: Error[];
-    nomeAplicacao: string = "Teste Liquido";
-    versao: string = "0.0.1";
-    descricao: string = "Este é um teste em Liquido";
-    nomeLicenca: string = "MIT";
-    urlLicensa: string = "https://github.com/DesignLiquido/liquido/LICENSE";
+    nomeAplicacao: string = 'Teste Liquido';
+    versao: string = '0.0.1';
+    descricao: string = 'Este é um teste em Liquido';
+    nomeLicenca: string = 'MIT';
+    urlLicensa: string = 'https://github.com/DesignLiquido/liquido/LICENSE';
 
     constructor() {
         this.erros = [];
-        this.diretorioRotas = caminho
-            .join(process.cwd(), 'rotas/rest')
-            .replace(/\\/gi, '/');
+        this.diretorioRotas = caminho.join(process.cwd(), 'rotas/rest').replace(/\\/gi, '/');
 
         this.decoradoresValidos = {
             '@rest.documentacao': {
@@ -46,7 +57,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
                 descrição: 'description',
                 formatos: 'content'
             }
-        }
+        };
     }
 
     // TODO: Pensar em como fazer isso considerando importações de outros arquivos.
@@ -54,40 +65,35 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         const arquivosAbertos = {};
         const conteudoArquivosAbertos = {};
 
-        const importador = new Importador(
-            new Lexador(),
-                new AvaliadorSintatico(),
-                arquivosAbertos,
-                conteudoArquivosAbertos,
-                false
-        );
+        const importador = new Importador(new Lexador(), arquivosAbertos, conteudoArquivosAbertos, false);
+
+        const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
         const retornoImportador = importador.importar(caminhoControlador);
-        if (retornoImportador.retornoAvaliadorSintatico.erros.length > 0) {
-            this.erros.push(new Error(
-                `O controlador em ${caminhoControlador} possui erros: ${retornoImportador.retornoAvaliadorSintatico.erros.map((erro: ErroAvaliadorSintatico) => ' - ' + erro.message + '\n')}`
-            ));
+        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoImportador.retornoLexador, retornoImportador.hashArquivo);
+        if (retornoAvaliadorSintatico.erros.length > 0) {
+            this.erros.push(
+                new Error(
+                    `O controlador em ${caminhoControlador} possui erros: ${retornoAvaliadorSintatico.erros.map((erro: ErroAvaliadorSintatico) => ' - ' + erro.message + '\n')}`
+                )
+            );
             return [];
         }
 
-        return retornoImportador.retornoAvaliadorSintatico.declaracoes;
+        return retornoAvaliadorSintatico.declaracoes;
     }
 
     protected async encontrarControladores() {
         const formatoGlob = (this.diretorioRotas + '/**/*.delegua').replace(/\\/gi, '/');
-        const arquivos = await glob([formatoGlob], {
-            dot: true,
-            absolute: false,
-            stats: false,
-        });
-    
+        const arquivos = await glob([formatoGlob], { dot: true, absolute: false, stats: false });
+
         const controladores = [];
         for (const caminhoArquivo of arquivos) {
             const estruturas = this.obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
             const rotaEControlador = this.lerControlador(caminhoArquivo, estruturas);
             controladores.push(rotaEControlador);
         }
-    
+
         return controladores;
     }
 
@@ -100,7 +106,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
                 for (const valor of (construtoValor as Vetor).valores) {
                     valoresResolvidos.push(this.resolverConstrutoValorDecorador(valor));
                 }
-                
+
                 return valoresResolvidos;
         }
     }
@@ -114,7 +120,6 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         return decoradorResolvido;
     }
 
-    
     protected resolverDecoradorDocumentacao(atributos: Record<string, any>): RotaOpenApi {
         const retorno: RotaOpenApi = {};
         const decoradoresValidosDocumentacao = this.decoradoresValidos['@rest.documentacao'];
@@ -166,9 +171,12 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
      * @param declaracoes As declarações implementadas no arquivo controlador.
      * @returns O descritivo do controlador, ou seja, as rotas e seus respectivos métodos.
      */
-    protected lerControlador(caminhoControlador: string, declaracoes: Declaracao[]): [string, {[key in MetodoHttpOpenApi]?: RotaOpenApi}] {
+    protected lerControlador(
+        caminhoControlador: string,
+        declaracoes: Declaracao[]
+    ): [string, { [key in MetodoHttpOpenApi]?: RotaOpenApi }] {
         this.erros = [];
-        const descritivoControlador: {[key in MetodoHttpOpenApi]?: RotaOpenApi} = {};
+        const descritivoControlador: { [key in MetodoHttpOpenApi]?: RotaOpenApi } = {};
         const rotaRelativa = caminhoControlador
             .replace(this.diretorioRotas, '')
             .replace('inicial.delegua', '')
@@ -182,7 +190,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
             // Aqui normalmente teremos uma expressão com uma chamada dentro.
             const chamada = (declaracao as Expressao).expressao as Chamada;
             // Tipicamente, a entidade chamada é uma variável com o nome reservado `liquido`.
-            // o método é um Símbolo. 
+            // o método é um Símbolo.
             // A execução e middlewares ficam em argumentos.
             const entidadeChamada = chamada.entidadeChamada as AcessoMetodoOuPropriedade;
             // const argumentos = chamada.argumentos;
@@ -209,20 +217,17 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
         return [rotaRelativa, descritivoControlador];
     }
-    
+
     async documentar() {
         const rotasEControladores = await this.encontrarControladores();
         const documento: DocumentoOpenApi = {
             openapi: '3.0.0',
             servers: [],
             info: {
-                "description": this.descricao,
-                "version": this.versao,
-                "title": this.nomeAplicacao,
-                "license": {
-                    "name": this.nomeLicenca,
-                    "url": this.urlLicensa
-                }
+                description: this.descricao,
+                version: this.versao,
+                title: this.nomeAplicacao,
+                license: { name: this.nomeLicenca, url: this.urlLicensa }
             },
             paths: {}
         };

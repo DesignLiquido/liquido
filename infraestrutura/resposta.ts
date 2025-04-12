@@ -89,7 +89,7 @@ export class Resposta extends DescritorTipoClasse {
                 [
                     {
                         abrangencia: 'padrao',
-                        tipo: 'numero',
+                        tipoDado: 'número',
                         nome: new Simbolo('IDENTIFICADOR', 'statusHttp', null, -1, -1)
                     } as ParametroInterface
                 ],
