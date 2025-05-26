@@ -36,7 +36,7 @@ export function importarModelos(nomeModelo: string): Declaracao[] {
     const importador = new Importador(lexador, {}, {}, false);
     const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
-    const resultadoImportacao = importador.importar(caminho.join(diretorioModelos, nomeModelo + '.delegua'));
+    const resultadoImportacao = importador.importar(caminho.join(diretorioModelos, nomeModelo + '.delegua'), -1);
     const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoImportacao.retornoLexador, resultadoImportacao.hashArquivo);
     const declaracoes = retornoAvaliadorSintatico.declaracoes;
     return declaracoes;

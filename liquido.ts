@@ -4,7 +4,7 @@ import * as caminho from 'path';
 import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
 import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
-import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
+import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorInterface, RetornoInterpretador } from '@designliquido/delegua/interfaces';
 
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
@@ -99,7 +99,7 @@ export class Liquido implements LiquidoInterface {
         }
 
         try {
-            const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho);
+            const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho, -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo
@@ -236,7 +236,7 @@ export class Liquido implements LiquidoInterface {
         this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
 
         for (const arquivo of this.arquivosDelegua) {
-            const retornoImportador = this.importador.importar(arquivo);
+            const retornoImportador = this.importador.importar(arquivo, -1);
             const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo

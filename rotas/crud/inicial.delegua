@@ -1,0 +1,3 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+  resposta.enviar("Projeto CRUD. Use a rota de clientes para testar.").status(200)
+})

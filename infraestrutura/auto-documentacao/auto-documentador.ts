@@ -69,7 +69,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
         const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
-        const retornoImportador = importador.importar(caminhoControlador);
+        const retornoImportador = importador.importar(caminhoControlador, -1);
         const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoImportador.retornoLexador, retornoImportador.hashArquivo);
         if (retornoAvaliadorSintatico.erros.length > 0) {
             this.erros.push(

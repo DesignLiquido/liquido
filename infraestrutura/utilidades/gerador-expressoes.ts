@@ -1,4 +1,4 @@
-import { DeleguaFuncao } from '@designliquido/delegua/estruturas';
+import { DeleguaFuncao } from '@designliquido/delegua/interpretador/estruturas';
 import {
     DefinirValor,
     FuncaoConstruto,

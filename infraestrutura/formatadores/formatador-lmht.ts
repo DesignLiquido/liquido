@@ -4,7 +4,7 @@ import * as caminho from 'path';
 import Handlebars from 'handlebars';
 
 import { ConversorLmht } from '@designliquido/lmht-js';
-import { ObjetoDeleguaClasse } from '@designliquido/delegua/estruturas';
+import { ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { PreprocessadorFolEs, PreprocessadorHandlebars, PreprocessadorLmhtParciais } from '../preprocessadores';
 
 export class FormatadorLmht {
@@ -49,7 +49,7 @@ export class FormatadorLmht {
 
         if (valores) {
             // Preprocessamento: Parciais
-            const parciaisResolvidos: string[] = [];
+            const parciaisResolvidas: string[] = [];
             let parciais: string[] = [];
             if (this.verificarEstruturaParcial(textoBase)) {
                 parciais = this.devolverParciais(textoBase);
@@ -61,11 +61,11 @@ export class FormatadorLmht {
                     if (result instanceof Error) {
                         throw result;
                     }
-                    parciaisResolvidos.push(result.conteudo);
+                    parciaisResolvidas.push(result.conteudo);
                 });
             }
 
-            textoBase = this.formatarTextoBase(textoBase, parciais, parciaisResolvidos);
+            textoBase = this.formatarTextoBase(textoBase, parciais, parciaisResolvidas);
 
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
