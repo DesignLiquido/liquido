@@ -58,7 +58,12 @@ export class Liquido implements LiquidoInterface {
 
         this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(this.importador);
         this.avaliadorSintatico.tiposDeFerramentasExternas = {
-            liquido: { liquido: 'módulo', requisicao: 'módulo', resposta: 'módulo' }
+            liquido: { 
+                lincones: 'módulo',
+                liquido: 'módulo', 
+                requisicao: 'módulo', 
+                resposta: 'módulo'
+            }
         };
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
