@@ -21,6 +21,7 @@ import { CorpoResposta, LiquidoInterface, RetornoConfiguracaoInterface } from '.
 import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
 import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configuracoes/aspecto-configuracao-interface';
 import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
+import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
 
 /**
  * O núcleo do framework.
@@ -292,9 +293,9 @@ export class Liquido implements LiquidoInterface {
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
     async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
-        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('liquido', 'módulo');
-        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('requisicao', 'módulo');
-        this.avaliadorSintatico.pilhaEscopos.definirTipoVariavel('resposta', 'módulo');
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoVariavelOuConstante('liquido', 'módulo'));
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoVariavelOuConstante('requisicao', 'módulo'));
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoVariavelOuConstante('resposta', 'módulo'));
         this.interpretador.pilhaEscoposExecucao.definirVariavel('requisicao', requisicao);
         const classeResposta = new Resposta();
         this.interpretador.pilhaEscoposExecucao.definirVariavel(

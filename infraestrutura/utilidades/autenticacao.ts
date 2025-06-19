@@ -2,8 +2,8 @@ import passport from 'passport';
 import passportJWT from 'passport-jwt';
 import express from 'express';
 
-import users from '../../usuarios';
 import { devolverVariavelAmbiente } from './variaveis-ambiente';
+import users from '../../usuarios';
 
 const { Strategy, ExtractJwt } = passportJWT;
 
@@ -29,9 +29,11 @@ const autenticacao = (): TipoAutenticacao => {
         }
     });
     passport.use(estrategia);
+
     return {
         initialize: function () {
-            return passport.initialize();
+            const passportHandler = passport.initialize();
+            return passportHandler;
         },
         authenticate: function () {
             return passport.authenticate('jwt', { session: devolverVariavelAmbiente('session') as boolean });

@@ -202,7 +202,7 @@ export class Roteador implements RoteadorInterface {
     }
 
     adicionarRotaToken() {
-        this.aplicacao.post('/token', (req: Request, res: Response) => {
+        this.aplicacao.post('/token', (req: Request, res: any) => {
             if (req.body.email && req.body.senha) {
                 const { email, senha } = req.body;
                 const usuario = users.find((u) => {
