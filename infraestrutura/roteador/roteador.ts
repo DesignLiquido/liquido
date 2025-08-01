@@ -121,7 +121,11 @@ export class Roteador implements RoteadorInterface {
         }
 
         if (this.passport) {
-            this.aplicacao.use(autenticacao().initialize());
+            try {
+                this.aplicacao.use(autenticacao().initialize());
+            } catch (erro: any) {
+                console.error('Erro ao inicializar o Passport:', erro.message, 'Autenticação não será ativada.');
+            }
         }
     }
 
