@@ -1,6 +1,9 @@
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { PropriedadeClasse } from '@designliquido/delegua/declaracoes';
 import { DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
+import { Literal } from '@designliquido/delegua';
+
+import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
  * A classe de Requisição envelopa todos os aspectos importantes do Express,
@@ -12,6 +15,10 @@ export class Requisicao extends DescritorTipoClasse {
     constructor(requisicaoExpress: any) {
         const metodos = {};
         const propriedades = [
+            new PropriedadeClasse(
+                new Simbolo('IDENTIFICADOR', 'corpo', null, -1, -1),
+                'dicionário'
+            ),
             new PropriedadeClasse(
                 new Simbolo('IDENTIFICADOR', 'parametros', null, -1, -1),
                 'dicionário'
@@ -25,6 +32,16 @@ export class Requisicao extends DescritorTipoClasse {
                 'dicionário'
             ),
         ];
+
+        const geradorExpressoes = new GeradorExpressoes();
+        metodos['construtor'] = geradorExpressoes.gerarMetodo('construtor', 
+            geradorExpressoes.gerarConstrutoFuncao([], [
+                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('corpo', new Literal(-1, -1, requisicaoExpress.body)),
+                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametros', new Literal(-1, -1, requisicaoExpress.params)),
+                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametrosPesquisa', new Literal(-1, -1, requisicaoExpress.query)),
+                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametrosCaminho', new Literal(-1, -1, requisicaoExpress.path))
+            ])
+        );
 
         super(
             new Simbolo('IDENTIFICADOR', 'Requisicao', null, -1, -1), 

@@ -6,11 +6,12 @@ import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@de
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorInterface, RetornoInterpretador } from '@designliquido/delegua/interfaces';
-
+import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
 import { InterpretadorComImportacao } from '@designliquido/delegua-node/interpretador';
+
 import { FolEs } from '@designliquido/foles';
 
 import { Resposta } from './infraestrutura';
@@ -21,7 +22,7 @@ import { CorpoResposta, LiquidoInterface, RetornoConfiguracaoInterface } from '.
 import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
 import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configuracoes/aspecto-configuracao-interface';
 import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
-import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
+import { Requisicao } from './infraestrutura/requisicao';
 
 /**
  * O núcleo do framework.
@@ -296,7 +297,12 @@ export class Liquido implements LiquidoInterface {
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoVariavelOuConstante('liquido', 'módulo'));
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoVariavelOuConstante('requisicao', 'módulo'));
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoVariavelOuConstante('resposta', 'módulo'));
-        this.interpretador.pilhaEscoposExecucao.definirVariavel('requisicao', requisicao);
+        const classeRequisicao = new Requisicao(requisicao);
+        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+            'requisicao',
+            await classeRequisicao.chamar(this.interpretador as any, [])
+        );
+        
         const classeResposta = new Resposta();
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'resposta',

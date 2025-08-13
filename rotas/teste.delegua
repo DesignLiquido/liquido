@@ -1,0 +1,8 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+  resposta.enviar("Olá teste").status(200)
+})
+
+liquido.rotaPost(funcao(requisicao, resposta) {
+  var nome = requisicao.corpo.nome
+  resposta.enviar("Nome: ${nome}").status(201)
+})
