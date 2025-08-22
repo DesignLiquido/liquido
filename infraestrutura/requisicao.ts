@@ -33,17 +33,6 @@ export class Requisicao extends DescritorTipoClasse {
             ),
         ];
 
-        // TODO: Provavelmente isso não é aqui. Remover mais futuramente se for o caso.
-        /* const geradorExpressoes = new GeradorExpressoes();
-        metodos['construtor'] = geradorExpressoes.gerarMetodo('construtor', 
-            geradorExpressoes.gerarConstrutoFuncao([], [
-                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('corpo', new Literal(-1, -1, requisicaoExpress.body)),
-                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametros', new Literal(-1, -1, requisicaoExpress.params)),
-                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametrosPesquisa', new Literal(-1, -1, requisicaoExpress.query)),
-                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse('parametrosCaminho', new Literal(-1, -1, requisicaoExpress.path))
-            ])
-        ); */
-
         super(
             new Simbolo('IDENTIFICADOR', 'Requisicao', null, -1, -1), 
             null, 

@@ -113,6 +113,15 @@ export class Liquido implements LiquidoInterface {
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo
             );
+
+            if (retornoAvaliadorSintatico.erros.length > 0) {
+                let mensagemCompleta = "";
+                for (const erro of retornoAvaliadorSintatico.erros) {
+                    mensagemCompleta += `[Linha ${erro.linha}] Erro no arquivo de configuração: ${erro.message}\n`;
+                }
+                throw new Error(mensagemCompleta);
+            }
+
             this.centroConfiguracoes = new CentroConfiguracoes(retornoAvaliadorSintatico.declaracoes);
 
             for (const [chave, configuracao] of Object.entries(this.centroConfiguracoes)) {
@@ -251,8 +260,15 @@ export class Liquido implements LiquidoInterface {
                 retornoImportador.hashArquivo
             );
 
-            // Liquido espera declarações do tipo Expressao, contendo dentro
-            // um Construto do tipo Chamada.
+            if (retornoAvaliadorSintatico.erros.length > 0) {
+                for (const erro of retornoAvaliadorSintatico.erros) {
+                    console.error(`[Linha ${erro.linha}] Erro na rota ${arquivo}: ${erro.message}`);
+                }
+                continue;
+            }
+
+            // Liquido espera declarações do tipo `Expressao`, contendo dentro
+            // um construto do tipo `Chamada`.
             for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
                 const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
                 const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
