@@ -5,12 +5,12 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
 import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { InterpretadorInterface, RetornoInterpretador } from '@designliquido/delegua/interfaces';
+import { InterpretadorInterface, RetornoInterpretador, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
-import { InterpretadorComImportacao } from '@designliquido/delegua-node/interpretador';
+// import { InterpretadorComImportacao } from '@designliquido/delegua-node/interpretador';
 
 import { FolEs } from '@designliquido/foles';
 
@@ -23,6 +23,7 @@ import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
 import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configuracoes/aspecto-configuracao-interface';
 import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
 import { Requisicao } from './infraestrutura/requisicao';
+import { InterpretadorLiquido } from './infraestrutura/interpretador-liquido';
 
 /**
  * O núcleo do framework.
@@ -69,7 +70,8 @@ export class Liquido implements LiquidoInterface {
         };
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
-        this.interpretador = new InterpretadorComImportacao(this.importador, process.cwd(), false, console.log);
+        // this.interpretador = new InterpretadorComImportacao(this.importador, process.cwd(), false, console.log);
+        this.interpretador = new InterpretadorLiquido(this.importador, process.cwd(), false, console.log);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
         this.provedorLincones = new ProvedorLincones();
@@ -297,16 +299,23 @@ export class Liquido implements LiquidoInterface {
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoVariavelOuConstante('liquido', 'módulo'));
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoVariavelOuConstante('requisicao', 'módulo'));
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoVariavelOuConstante('resposta', 'módulo'));
-        const classeRequisicao = new Requisicao(requisicao);
+        const descritorClasseRequisicao = new Requisicao(requisicao);
+        await descritorClasseRequisicao.chamar(this.interpretador as any, []);
+        const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
+        instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, requisicao.body);
+        instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, requisicao.params);
+        instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, requisicao.query);
+        instanciaRequisicao.definir({ lexema: 'parametrosCaminho' } as SimboloInterface, requisicao.path);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'requisicao',
-            await classeRequisicao.chamar(this.interpretador as any, [])
+            instanciaRequisicao
         );
         
-        const classeResposta = new Resposta();
+        const descritorClasseResposta = new Resposta();
+        await descritorClasseResposta.chamar(this.interpretador as any, []);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'resposta',
-            await classeResposta.chamar(this.interpretador as any, [])
+            new ObjetoDeleguaClasse(descritorClasseResposta)
         );
 
         const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);
