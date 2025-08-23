@@ -23,41 +23,41 @@ export class PreprocessadorLmhtParciais {
         });
 
         const corpos = objetoVisao.lmht?.corpo;
+        if (!corpos || corpos.length === 0) {
+            return new Error('Não foi encontrada uma estrutura de corpo para a parcial.');
+        }
 
-        if (corpos.length > 0) {
-            const corpo = corpos[0];
-            const parciais = corpo.parcial;
-            if (parciais.length > 0) {
-                const parcial = parciais[0];
-                if (!parcial.$.nome) {
-                    return new Error('Na estrutura parcial, o atributo \'nome\' não foi informado.');
-                }
-
-                parcial.nomeResolvido = `${parcial.$.nome}.lmht`;
-
-                if (!this.buscarDiretorioOuArquivo(this.diretorioParcial)) {
-                    return new Error(`O diretório '${this.diretorioParcial}' não foi encontrado.`);
-                }
-
-                if (!this.buscarDiretorioOuArquivo(this.diretorioParcial, parcial.nomeResolvido)) {
-                    return new Error(`O arquivo '${parcial.nomeResolvido}' não foi encontrado.`);
-                }
-
-                const caminho = path.join(this._diretorioRaizCaminho, this.diretorioParcial, parcial.nomeResolvido);
-                const conteudo = this.obterConteudoDoArquivoParcial(caminho);
-
-                if (conteudo instanceof Error) {
-                    return conteudo;
-                }
-
-                const xmlContent = this.construtorLmht.buildObject(conteudo);
-
-                return { xmlContent, conteudo };
-            }
+        const corpo = corpos[0];
+        const parciais = corpo.parcial;
+        if (!parciais || parciais.length === 0) {
             return new Error('Não foi encontrada uma estrutura parcial.');
         }
 
-        return new Error('Não foi encontrada uma estrutura corpo.');
+        const parcial = parciais[0];
+        if (!parcial.$.nome) {
+            return new Error('Na estrutura parcial, o atributo \'nome\' não foi informado.');
+        }
+
+        parcial.nomeResolvido = `${parcial.$.nome}.lmht`;
+
+        if (!this.buscarDiretorioOuArquivo(this.diretorioParcial)) {
+            return new Error(`O diretório '${this.diretorioParcial}' não foi encontrado.`);
+        }
+
+        if (!this.buscarDiretorioOuArquivo(this.diretorioParcial, parcial.nomeResolvido)) {
+            return new Error(`O arquivo '${parcial.nomeResolvido}' não foi encontrado.`);
+        }
+
+        const caminho = path.join(this._diretorioRaizCaminho, this.diretorioParcial, parcial.nomeResolvido);
+        const conteudo = this.obterConteudoDoArquivoParcial(caminho);
+
+        if (conteudo instanceof Error) {
+            return conteudo;
+        }
+
+        const xmlContent = this.construtorLmht.buildObject(conteudo);
+
+        return { xmlContent, conteudo };  
     }
 
     private obterConteudoDoArquivoParcial(caminho: string): string | Error {

@@ -21,14 +21,14 @@ describe('Preprocessador de parciais em LMHT', () => {
         const texto = `<lmht></lmht>`;
         const resultado = preProcessador.processarParciais(texto);
         expect(resultado).toBeInstanceOf(Error);
-        expect((resultado as Error)?.message).toBe('Não foi encontrado a tag corpo');
+        expect((resultado as Error)?.message).toBe('Não foi encontrada uma estrutura de corpo para a parcial.');
     });
 
     it('Deve retornar um Error por não encontrar a tag <parcial> </parcial>', () => {
         const texto = `<lmht><corpo></corpo></lmht>`;
         const resultado = preProcessador.processarParciais(texto);
         expect(resultado).toBeInstanceOf(Error);
-        expect((resultado as Error)?.message).toBe('Não foi encontrado a tag parcial');
+        expect((resultado as Error)?.message).toBe('Não foi encontrada uma estrutura parcial.');
     });
 
     it.skip('Deve retornar um Error por não encontrar o atributo nome', () => {

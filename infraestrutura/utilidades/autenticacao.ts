@@ -36,7 +36,7 @@ const autenticacao = (): TipoAutenticacao => {
             return passportHandler;
         },
         authenticate: function () {
-            return passport.authenticate('jwt', { session: devolverVariavelAmbiente('session') as boolean });
+            return passport.authenticate('jwt', { session: devolverVariavelAmbiente('sessao') as boolean });
         }
     };
 };

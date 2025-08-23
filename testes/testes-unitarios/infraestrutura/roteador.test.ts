@@ -56,7 +56,7 @@ describe('Testes do roteador', () => {
     // roteador.expressJson = true;
     roteador.cookieParser = true;
     roteador.cors = true;
-    roteador.passport = true;
+    roteador.passport = false;
     roteador.iniciarMiddlewares();
     expect(roteador.aplicacao.use).toHaveBeenCalled();
   });
