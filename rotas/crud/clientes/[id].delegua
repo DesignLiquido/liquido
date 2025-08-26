@@ -1,3 +1,12 @@
 liquido.rotaGet(funcao(requisicao, resposta) {
   resposta.enviar("Teste com ID. ${requisicao.parametros.id}").status(200)
 })
+
+liquido.rotaDelete(funcao(requisicao, resposta) {
+  resposta.enviar("Teste de exclusão com ID. ${requisicao.parametros.id}").status(200)
+})
+
+liquido.rotaPut(funcao(requisicao, resposta) {
+  escreva("Corpo: ${requisicao.corpo}")
+  resposta.enviar("Teste com ID. ${requisicao.parametros.id}").status(200)
+})

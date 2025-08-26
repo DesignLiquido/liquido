@@ -5,3 +5,8 @@ liquido.rotaGet(funcao(requisicao, resposta) {
     var teste = lincones.executar("SELECIONAR * DE clientes")
     resposta.lmht({"linhas": teste.linhasRetornadas}).status(200)
 })
+
+liquido.rotaPost(funcao(requisicao, resposta) {
+    var corpo = requisicao.corpo
+    resposta.enviar("Corpo: ${corpo}").status(201)
+})
