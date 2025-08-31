@@ -2,7 +2,6 @@ import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 
 import { Lexador } from '@designliquido/delegua/lexador';
-import { AvaliadorSintatico } from '@designliquido/delegua/avaliador-sintatico';
 import { Importador } from '@designliquido/delegua-node/importador';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
 import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';

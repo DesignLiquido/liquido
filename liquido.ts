@@ -10,7 +10,6 @@ import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
-// import { InterpretadorComImportacao } from '@designliquido/delegua-node/interpretador';
 
 import { FolEs } from '@designliquido/foles';
 
@@ -70,7 +69,6 @@ export class Liquido implements LiquidoInterface {
         };
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
-        // this.interpretador = new InterpretadorComImportacao(this.importador, process.cwd(), false, console.log);
         this.interpretador = new InterpretadorLiquido(this.importador, process.cwd(), false, console.log);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
@@ -316,7 +314,7 @@ export class Liquido implements LiquidoInterface {
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoVariavelOuConstante('requisicao', 'módulo'));
         this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoVariavelOuConstante('resposta', 'módulo'));
         const descritorClasseRequisicao = new Requisicao(requisicao);
-        await descritorClasseRequisicao.chamar(this.interpretador as any, []);
+        await descritorClasseRequisicao.chamar(this.interpretador, []);
         const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
         instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, requisicao.body);
         instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, requisicao.params);
@@ -328,7 +326,7 @@ export class Liquido implements LiquidoInterface {
         );
         
         const descritorClasseResposta = new Resposta();
-        await descritorClasseResposta.chamar(this.interpretador as any, []);
+        await descritorClasseResposta.chamar(this.interpretador, []);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'resposta',
             new ObjetoDeleguaClasse(descritorClasseResposta)

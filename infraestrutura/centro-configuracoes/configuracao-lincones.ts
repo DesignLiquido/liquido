@@ -1,4 +1,4 @@
-import { ProvedorInterface } from "interfaces/provedor-interface";
+import { ProvedorInterface } from "../../interfaces/provedor-interface";
 import { ConfiguracaoComum } from "./configuracao-comum";
 
 export class ConfiguracaoLincones extends ConfiguracaoComum {

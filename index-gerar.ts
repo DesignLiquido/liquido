@@ -44,6 +44,7 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
         }
 
         // Visões
+        criarDiretorioSeNaoExiste('visoes');
         criarDiretorioSeNaoExiste('visoes', nomeModeloPlural);
 
         const visaoSelecionarTudo = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarTudo');

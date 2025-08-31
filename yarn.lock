@@ -326,10 +326,10 @@
     commander "^14.0.0"
     vlq "^2.0.4"
 
-"@designliquido/lincones-sqlite@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@designliquido/lincones-sqlite/-/lincones-sqlite-0.2.0.tgz#292c01f3c2c6a41f7e27d13fd23b7933e0cc436c"
-  integrity sha512-eLmUDQdz8sPY0Er/VEoSP8t6WIbxKiv+OKn5Ks/N5ul9GfLeCy/51CBWxLuyMJo8GnZkWc+ArHuuaWMp3bYNHA==
+"@designliquido/lincones-sqlite@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/lincones-sqlite/-/lincones-sqlite-0.2.2.tgz#6e8664c5a155b5b289529ae3ce0f130ce97ba237"
+  integrity sha512-lPxwXfpAGe61sYK+qMr8VkRHmLWsPNQTZOyJNUekUYIIJYYsY8sdG8Xp3VyDQxNXxyj4IL0opy9dfcxEY3Yk1w==
   dependencies:
     "@types/sqlite3" "^5.1.0"
     sqlite "^5.1.1"
