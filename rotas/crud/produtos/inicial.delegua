@@ -1,0 +1,3 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+  resposta.enviar("Teste com parâmetros de pesquisa. ${requisicao.parametrosPesquisa}").status(200)
+})

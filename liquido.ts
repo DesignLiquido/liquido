@@ -5,7 +5,7 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
 import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { InterpretadorInterface, RetornoInterpretador, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { InterpretadorInterface, RetornoInterpretador, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
@@ -391,7 +391,11 @@ export class Liquido implements LiquidoInterface {
         // Ele antigamente vinha como string, e precisava ser desserializado para ser usado.
         // Em versões mais recentes do interpretador, o retorno tem sido objetos inteiros.
         // TODO: Mudar o tipo em Delégua para `resultado` trabalhar com qualquer tipo de objeto.
-        const objetoResposta: ObjetoDeleguaClasse = retornoInterpretador.resultado.pop() as any;
+        const representacaoObjeto = retornoInterpretador.resultado.pop() as any;
+        const informacoesObjeto: VariavelInterface | any = JSON.parse(representacaoObjeto);
+        const objetoResposta: ObjetoDeleguaClasse = informacoesObjeto.hasOwnProperty('valor') ? 
+            informacoesObjeto.valor : 
+            informacoesObjeto;
 
         let statusHttp: number = 200;
         if (objetoResposta.propriedades.statusHttp) {

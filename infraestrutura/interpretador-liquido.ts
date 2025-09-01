@@ -1,16 +1,15 @@
 import { InterpretadorComImportacao } from "@designliquido/delegua-node/interpretador";
-/* import { DeleguaModulo, MetodoPrimitiva, ObjetoDeleguaClasse, ReferenciaMontao } from "@designliquido/delegua/interpretador/estruturas";
-import { ErroEmTempoDeExecucao } from "@designliquido/delegua/excecoes";
-import { AcessoMetodoOuPropriedade } from "@designliquido/delegua/construtos";
-import { VariavelInterface } from "@designliquido/delegua/interfaces";
+import { DeleguaFuncao, ObjetoDeleguaClasse, ObjetoPadrao, ReferenciaMontao } from "@designliquido/delegua/interpretador/estruturas";
 
-import primitivasDicionario from '@designliquido/delegua/bibliotecas/primitivas-dicionario';
+/* import primitivasDicionario from '@designliquido/delegua/bibliotecas/primitivas-dicionario';
 import primitivasNumero from '@designliquido/delegua/bibliotecas/primitivas-numero';
 import primitivasTexto from '@designliquido/delegua/bibliotecas/primitivas-texto';
-import primitivasVetor from '@designliquido/delegua/bibliotecas/primitivas-vetor';
+import primitivasVetor from '@designliquido/delegua/bibliotecas/primitivas-vetor'; */
+
+import tipoDeDadosPrimitivos from '@designliquido/delegua/tipos-de-dados/primitivos';
 import tipoDeDadosDelegua from "@designliquido/delegua/tipos-de-dados/delegua";
 
-import { inferirTipoVariavel } from "./inferenciador-liquido"; */
+import { RetornoQuebra } from "@designliquido/delegua/quebras";
 
 /**
  * A única função deste interpretador é resolver bugs que precisam ser repassados
@@ -19,4 +18,83 @@ import { inferirTipoVariavel } from "./inferenciador-liquido"; */
 export class InterpretadorLiquido extends InterpretadorComImportacao {
     // Quando for necessário, implementar `overrides` aqui que serão repassados
     // ao núcleo posteriormente.
+    override paraTexto(objeto: any): string {
+        if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
+        if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
+            return objeto ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto.valor instanceof ObjetoPadrao) return objeto.valor.paraTexto();
+        if (
+            objeto instanceof ObjetoDeleguaClasse ||
+            objeto instanceof DeleguaFuncao ||
+            typeof objeto.paraTexto === 'function'
+        )
+            return objeto.paraTexto();
+
+        if (objeto instanceof RetornoQuebra) {
+            if (typeof objeto.valor === 'boolean') return objeto.valor ? 'verdadeiro' : 'falso';
+        }
+
+        if (objeto instanceof Date) {
+            const formato = Intl.DateTimeFormat('pt', {
+                dateStyle: 'full',
+                timeStyle: 'full',
+            });
+            return formato.format(objeto);
+        }
+
+        if (Array.isArray(objeto)) {
+            let retornoVetor: string = '[';
+            for (let elemento of objeto) {
+                if (typeof elemento === 'object') {
+                    retornoVetor += `${JSON.stringify(elemento)}, `;
+                    continue;
+                }
+                retornoVetor +=
+                    typeof elemento === 'string'
+                        ? `'${elemento}', `
+                        : `${this.paraTexto(elemento)}, `;
+            }
+
+            if (retornoVetor.length > 1) {
+                retornoVetor = retornoVetor.slice(0, -2);
+            }
+            retornoVetor += ']';
+
+            return retornoVetor;
+        }
+
+        if (typeof objeto === tipoDeDadosPrimitivos.OBJETO) {
+            const objetoEscrita = {};
+            for (const propriedade in objeto) {
+                let valor = objeto[propriedade];
+                if (typeof valor === tipoDeDadosPrimitivos.BOOLEANO) {
+                    valor = valor ? 'verdadeiro' : 'falso';
+                }
+
+                if (valor instanceof ReferenciaMontao) {
+                    valor = this.resolverValor(valor);
+                }
+
+                objetoEscrita[propriedade] = valor;
+            }
+
+            return JSON.stringify(objetoEscrita);
+        }
+
+        switch (objeto.constructor.name) {
+            case 'Object':
+                if ('tipo' in objeto) {
+                    switch (objeto.tipo) {
+                        case 'dicionário':
+                            return JSON.stringify(objeto.valor);
+                        default:
+                            return objeto.valor;
+                    }
+                }
+        }       
+
+        return objeto.toString();
+    }
 }

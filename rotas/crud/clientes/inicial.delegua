@@ -3,7 +3,7 @@ liquido.rotaGet(funcao(requisicao, resposta) {
     lincones.executar("INSERIR EM clientes (NOME) VALORES ('Pernalonga')")
     lincones.executar("INSERIR EM clientes (NOME) VALORES ('Patolino')")
     var teste = lincones.executar("SELECIONAR * DE clientes")
-    resposta.lmht({"linhas": teste.linhasRetornadas}).status(200)
+    resposta.lmht({"linhas": teste[0].linhasRetornadas}).status(200)
 })
 
 liquido.rotaPost(funcao(requisicao, resposta) {
