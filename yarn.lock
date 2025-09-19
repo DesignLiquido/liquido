@@ -318,10 +318,10 @@
   resolved "https://registry.yarnpkg.com/@designliquido/flexoes/-/flexoes-0.1.0.tgz#59bc4c872f49f51ceca9fa4b8554697b82065000"
   integrity sha512-5CpBpoeU4UgfwAV08pxJrJt5qljPqNQQdEU0DXkOsYcmDi0JcIBRjS/308stDuhsxuYH0AyeKn2wge+McynnoA==
 
-"@designliquido/foles@^0.9.6":
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.9.6.tgz#9ca9145d6f4de28fb3050675c257fed46d345cf9"
-  integrity sha512-WasoQG0+gXPgEqdZ60Z+pfh5tMjnjbjHC7CPb1Ml03fcCJ4bOWBH7jMzGhFT6d9ijqLr2ODPORDgGh5LYFAlYQ==
+"@designliquido/foles@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/foles/-/foles-0.10.0.tgz#9728892c136df5da95f6de4412d03df833428807"
+  integrity sha512-JaqEKzLWS3ey0cc99N7LVKRQ3+XN8OIF0z3yHK7kPnjRFJ0US2COwdkLX/NYlrBno9N2wVcdvTJcZP2zad9E/g==
   dependencies:
     commander "^14.0.0"
     vlq "^2.0.4"

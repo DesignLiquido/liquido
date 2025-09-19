@@ -48,7 +48,7 @@
     "dependencies": {
         "@designliquido/delegua-node": "^1.7.2",
         "@designliquido/flexoes": "^0.1.0",
-        "@designliquido/foles": "^0.9.6",
+        "@designliquido/foles": "^0.10.0",
         "@designliquido/lincones-sqlite": "^0.2.5",
         "@designliquido/lmht-js": "^0.5.0",
         "body-parser": "^1.20.3",
