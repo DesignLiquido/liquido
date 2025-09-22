@@ -5,8 +5,8 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
 import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { InterpretadorInterface, RetornoInterpretador, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
-import { InformacaoVariavelOuConstante } from '@designliquido/delegua/informacao-variavel-ou-constante';
+import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
+import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
@@ -23,6 +23,7 @@ import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configurac
 import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
 import { Requisicao } from './infraestrutura/requisicao';
 import { InterpretadorLiquido } from './infraestrutura/interpretador-liquido';
+import { RetornoQuebra } from '@designliquido/delegua/quebras';
 
 /**
  * O núcleo do framework.
@@ -84,7 +85,7 @@ export class Liquido implements LiquidoInterface {
 
         this.roteador.iniciar();
         if (this.provedorLincones.configurado) {
-            (this.interpretador as any).pilhaEscoposExecucao.definirVariavel(
+            this.interpretador.pilhaEscoposExecucao.definirVariavel(
                 'lincones',
                 await this.provedorLincones.resolver()
             );
@@ -310,15 +311,15 @@ export class Liquido implements LiquidoInterface {
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
     async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoVariavelOuConstante('liquido', 'módulo'));
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoVariavelOuConstante('requisicao', 'módulo'));
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoVariavelOuConstante('resposta', 'módulo'));
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoElementoSintatico('liquido', 'módulo'));
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoElementoSintatico('requisicao', 'módulo'));
+        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoElementoSintatico('resposta', 'módulo'));
         const descritorClasseRequisicao = new Requisicao(requisicao);
         await descritorClasseRequisicao.chamar(this.interpretador, []);
         const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
         instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, requisicao.body);
         instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, requisicao.params);
-        instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, requisicao.query);
+        instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, requisicao.query || {});
         instanciaRequisicao.definir({ lexema: 'parametrosCaminho' } as SimboloInterface, requisicao.path);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
             'requisicao',
@@ -342,7 +343,7 @@ export class Liquido implements LiquidoInterface {
      * @param nomeFuncao O nome da função da rota.
      * @returns O resultado da interpretação.
      */
-    async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretador> {
+    async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretadorInterface> {
         try {
             return await this.interpretador.interpretar(
                 [
@@ -360,7 +361,7 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private logicaComumErrosInterpretacao(retornoInterpretador: RetornoInterpretador): {
+    private logicaComumErrosInterpretacao(retornoInterpretador: RetornoInterpretadorInterface): {
         corpoRetorno?: any;
         statusHttp?: number;
         redirecionamento?: string;
@@ -379,20 +380,50 @@ export class Liquido implements LiquidoInterface {
         return { corpoRetorno: corpoRetorno, statusHttp: 500 };
     }
 
+    /**
+     * Lógica para processamento da resposta como uma visão LMHT.
+     * @param caminhoRota O caminho da rota da requisição.
+     * @param statusHttp O status HTTP pré-calculado.
+     * @param propriedades Propriedades da resposta, usadas para escolher a visão e parametrizá-la.
+     * @returns Um objeto com o corpo do retorno e o status HTTP correspondente.
+     */
+    private async logicaComumRespostaVisaoLmht(caminhoRota: string, statusHttp: number, propriedades: {[nome: string]: any}) {
+        try {
+            let visao: string = caminhoRota;
+            // Verifica se foi definida uma preferência de visão.
+            // Se não foi, usa o sufixo da rota como visão correspondente.
+            // Por exemplo, `/rotas/inicial.delegua` tem como visão correspondente `/visoes/inicial.lmht`.
+            if (propriedades.visao) {
+                const partesRota = caminhoRota.split('/');
+                partesRota.pop();
+                visao = partesRota.join('/') + '/' + propriedades.visao;
+            }
+
+            const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(
+                visao,
+                propriedades.valores
+            );
+            return { corpoRetorno: resultadoFormatacaoLmht, statusHttp: statusHttp };
+        } catch (erro: any) {
+            console.error(`Erro ao processar LMHT: ${erro}.`);
+        }
+    }
+
     private async logicaComumResultadoInterpretador(
         caminhoRota: string,
-        retornoInterpretador: RetornoInterpretador
+        retornoInterpretador: RetornoInterpretadorInterface
     ): Promise<CorpoResposta> {
         if (retornoInterpretador.erros.length > 0) {
             return this.logicaComumErrosInterpretacao(retornoInterpretador);
         }
 
         // O resultado que interessa é sempre o último.
-        // Ele antigamente vinha como string, e precisava ser desserializado para ser usado.
-        // Em versões mais recentes do interpretador, o retorno tem sido objetos inteiros.
-        // TODO: Mudar o tipo em Delégua para `resultado` trabalhar com qualquer tipo de objeto.
-        const representacaoObjeto = retornoInterpretador.resultado.pop() as any;
-        const informacoesObjeto: VariavelInterface | any = JSON.parse(representacaoObjeto);
+        // Pela natureza de Delégua, este resultado precisa ser desenvelopado
+        // até obtermos o objeto de resposta, que contém as instruções para
+        // resolver a requisição.
+        const representacaoObjeto = retornoInterpretador.resultado.pop() as ResultadoParcialInterpretadorInterface;
+        const valorRetornado: RetornoQuebra = representacaoObjeto.valorRetornado;
+        const informacoesObjeto: VariavelInterface | any = valorRetornado.valor;
         const objetoResposta: ObjetoDeleguaClasse = informacoesObjeto.hasOwnProperty('valor') ? 
             informacoesObjeto.valor : 
             informacoesObjeto;
@@ -408,25 +439,7 @@ export class Liquido implements LiquidoInterface {
         }
 
         if (objetoResposta.propriedades.lmht) {
-            try {
-                let visao: string = caminhoRota;
-                // Verifica se foi definida uma preferência de visão.
-                // Se não foi, usa o sufixo da rota como visão correspondente.
-                // Por exemplo, `/rotas/inicial.delegua` tem como visão correspondente `/visoes/inicial.lmht`.
-                if (objetoResposta.propriedades.visao) {
-                    const partesRota = caminhoRota.split('/');
-                    partesRota.pop();
-                    visao = partesRota.join('/') + '/' + objetoResposta.propriedades.visao;
-                }
-
-                const resultadoFormatacaoLmht = await this.formatadorLmht.formatar(
-                    visao,
-                    objetoResposta.propriedades.valores
-                );
-                return { corpoRetorno: resultadoFormatacaoLmht, statusHttp: statusHttp };
-            } catch (erro: any) {
-                console.error(`Erro ao processar LMHT: ${erro}.`);
-            }
+            return this.logicaComumRespostaVisaoLmht(caminhoRota, statusHttp, objetoResposta.propriedades);
         }
 
         if (objetoResposta.propriedades.respostaJson) {
