@@ -233,3 +233,7 @@ Futuras versões de Liquido terão:
 Liquido permite a qualquer desenvolvedor que saiba português a escrever aplicações Web, e possivelmente criar um ecossistema profissional a partir dele. Procuramos traduzir o máximo possível de informações e conceitos por uma questão de acessibilidade, mas há limites para isso. Por exemplo, não traduzimos os métodos de HTTP porque entendemos que uma tradução disso implicaria em um protocolo novo de transferência.
 
 O que tentamos fazer é instigar os desenvolvedores a aprenderem inglês conforme vão dominando outros conceitos. Um aprendizado direcionado de inglês é muito mais eficiente do que o aprendizado da língua por si só, sem um objetivo no horizonte.
+
+<a href="https://github.com/DesignLiquido/liquido/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DesignLiquido/liquido" />
+</a>
