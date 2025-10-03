@@ -18,6 +18,90 @@ import { RetornoQuebra } from "@designliquido/delegua/quebras";
 export class InterpretadorLiquido extends InterpretadorComImportacao {
     // Quando for necessário, implementar `overrides` aqui que serão repassados
     // ao núcleo posteriormente.
+    override resolverValor(objeto: any, referencia: boolean = false) {
+        if (objeto === null || objeto === undefined) {
+            return objeto;
+        }
+
+        if (Array.isArray(objeto)) {
+            // Caso interpretador precise da referência ao vetor original (por exemplo, visita a `AcessoMetodoOuPropriedade`).
+            if (referencia) {
+                return objeto;
+            }
+
+            const vetorResolvido: any[] = [];
+            for (const elemento of objeto) {
+                vetorResolvido.push(this.resolverValor(elemento));
+            }
+
+            return vetorResolvido;
+        }
+
+        if (objeto instanceof ReferenciaMontao) {
+            return this.resolverReferenciaMontao(objeto);
+        }
+
+        if (objeto instanceof RetornoQuebra) {
+            return this.resolverValor(objeto.valor);
+        }
+
+        if (objeto.hasOwnProperty) {
+            if (objeto.hasOwnProperty('valorRetornado')) {
+                return this.resolverValor(objeto.valorRetornado);
+            }
+
+            if (objeto.hasOwnProperty('valor')) {
+                if (Array.isArray(objeto.valor)) {
+                    return this.resolverValor(objeto.valor);
+                }
+
+                if (objeto.valor instanceof ReferenciaMontao) {
+                    return this.resolverReferenciaMontao(objeto.valor);
+                }
+
+                return objeto.valor;
+            }
+        }
+
+        return objeto;
+    }
+
+    /**
+     * Retira a interpolação de um texto.
+     * @param {texto} texto O texto
+     * @param {any[]} interpolacoes A lista de interpolações a serem resolvidas.
+     * @returns O texto com o valor das variáveis.
+     */
+    override retirarInterpolacao(
+        texto: string,
+        interpolacoes: { expressaoInterpolacao: string; valor: any }[]
+    ): string {
+        let textoFinal = texto;
+
+        for (const elemento of interpolacoes) {
+            // TODO: Há alguma chance de `elemento` ser `undefined` aqui?
+            let valor = elemento?.valor;
+            if (valor.hasOwnProperty && valor.hasOwnProperty('valorRetornado')) {
+                valor = valor.valorRetornado;
+            }
+
+            if (valor.tipo === tipoDeDadosDelegua.LOGICO) {
+                textoFinal = textoFinal.replace(
+                    '${' + elemento.expressaoInterpolacao + '}',
+                    this.paraTexto(valor)
+                );
+            } else {
+                valor = this.resolverValor(valor);
+                textoFinal = textoFinal.replace(
+                    '${' + elemento.expressaoInterpolacao + '}',
+                    `${this.paraTexto(valor)}`
+                );
+            }
+        }
+
+        return textoFinal;
+    }
+
     override paraTexto(objeto: any): string {
         if (objeto === null || objeto === undefined) return tipoDeDadosDelegua.NULO;
         if (typeof objeto === tipoDeDadosPrimitivos.BOOLEANO) {
