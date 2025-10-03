@@ -234,6 +234,8 @@ Liquido permite a qualquer desenvolvedor que saiba português a escrever aplica�
 
 O que tentamos fazer é instigar os desenvolvedores a aprenderem inglês conforme vão dominando outros conceitos. Um aprendizado direcionado de inglês é muito mais eficiente do que o aprendizado da língua por si só, sem um objetivo no horizonte.
 
+## Quem já Contribuiu
+
 <a href="https://github.com/DesignLiquido/liquido/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=DesignLiquido/liquido" />
 </a>
