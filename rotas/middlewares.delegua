@@ -1,0 +1,12 @@
+
+funcao autenticar(requisicao, resposta) {
+    escreva("Teste de Middleware")
+}
+
+funcao registrar(requisicao, resposta) {
+    escreva("Requisição recebida: ", requisicao.parametrosCaminho)
+}
+
+liquido.rotaGet(autenticar, registrar, funcao(requisicao, resposta) {
+    resposta.enviar("Olá mundo").status(200)
+})

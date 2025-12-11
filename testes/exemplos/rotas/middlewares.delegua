@@ -1,0 +1,48 @@
+// Middleware que apenas loga - não envia resposta
+funcao logarRequisicao(requisicao, resposta) {
+    escreva("Middleware: Requisição recebida")
+}
+
+// Middleware que valida autenticação - pode parar a cadeia
+funcao autenticar(requisicao, resposta) {
+    se (requisicao.parametrosPesquisa.token == "invalido") {
+        retorna resposta.enviar("Não autorizado").status(401)
+    }
+    // Se o token for válido, não envia resposta e continua
+}
+
+// Middleware que adiciona cabeçalho
+funcao adicionarCabecalho(requisicao, resposta) {
+    resposta.status(200)
+}
+
+// Rota 1: Sem middleware (backward compatibility)
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.enviar("Sem middleware").status(200)
+})
+
+// Rota 2: Com um middleware que não para a cadeia
+liquido.rotaPost(logarRequisicao, funcao(requisicao, resposta) {
+    resposta.enviar("Com um middleware").status(200)
+})
+
+// Rota 3: Com múltiplos middlewares
+liquido.rotaPut(logarRequisicao, adicionarCabecalho, funcao(requisicao, resposta) {
+    resposta.enviar("Com múltiplos middlewares").status(200)
+})
+
+// Rota 4: Middleware que para a cadeia (autenticação)
+liquido.rotaDelete(autenticar, funcao(requisicao, resposta) {
+    resposta.enviar("Rota protegida").status(200)
+})
+
+// Rota 5: Mix de middlewares inline e nomeados
+liquido.rotaPatch(
+    logarRequisicao,
+    funcao(requisicao, resposta) {
+        escreva("Middleware inline")
+    },
+    funcao(requisicao, resposta) {
+        resposta.enviar("Mix de middlewares").status(200)
+    }
+)

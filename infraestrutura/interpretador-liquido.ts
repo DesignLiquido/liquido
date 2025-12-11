@@ -11,6 +11,7 @@ import primitivasVetor from '@designliquido/delegua/bibliotecas/primitivas-vetor
 
 // import { RetornoQuebra } from "@designliquido/delegua/quebras";
 import { AcessoIndiceVariavel, AcessoMetodoOuPropriedade, Chamada, Constante, Construto, Dicionario, Isto, Literal, Super, Variavel, Vetor } from "@designliquido/delegua/construtos";
+import { TextoDocumentacao } from "@designliquido/delegua/declaracoes/texto-documentacao";
 import { ErroEmTempoDeExecucao } from "@designliquido/delegua/excecoes";
 
 /**
@@ -18,6 +19,10 @@ import { ErroEmTempoDeExecucao } from "@designliquido/delegua/excecoes";
  * para o núcleo de Delégua.
  */
 export class InterpretadorLiquido extends InterpretadorComImportacao {
+    visitarDeclaracaoTextoDocumentacao(declaracao: TextoDocumentacao): Promise<any> | void {
+        return Promise.resolve();
+    }
+
     protected resolverNomeObjectoAcessado(objetoAcessado: Construto): string {
         switch (objetoAcessado.constructor) {
             // TODO: Não habilitar isso até que vetores sejam repassados para o montão.

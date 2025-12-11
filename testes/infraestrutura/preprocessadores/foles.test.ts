@@ -1,4 +1,4 @@
-import { PreprocessadorFolEs } from '../../../../infraestrutura/preprocessadores';
+import { PreprocessadorFolEs } from '../../../infraestrutura/preprocessadores';
 
 describe('Testes do preprocessador FolEs', () => {
   let preprocessador: PreprocessadorFolEs;

@@ -1,4 +1,4 @@
-import { PreprocessadorHandlebars } from '../../../../infraestrutura/preprocessadores';
+import { PreprocessadorHandlebars } from '../../../infraestrutura/preprocessadores';
 
 describe('Testes do preprocessador Handlebars', () => {
   let preprocessador: PreprocessadorHandlebars;

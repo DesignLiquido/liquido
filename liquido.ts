@@ -2,8 +2,8 @@ import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
 import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
-import { AcessoMetodo, Chamada, Construto, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
-import { Expressao } from '@designliquido/delegua/declaracoes';
+import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
+import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
@@ -266,10 +266,22 @@ export class Liquido implements LiquidoInterface {
                 continue;
             }
 
-            // Liquido espera declarações do tipo `Expressao`, contendo dentro
-            // um construto do tipo `Chamada`.
+            // Primeiro passo: coletar todas as declarações de funções (middlewares/handlers)
+            const funcaoDeclaracoes: Map<string, FuncaoConstruto> = new Map();
             for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
-                const expressao: Chamada = (declaracao as Expressao).expressao as Chamada;
+                if (declaracao instanceof FuncaoDeclaracao) {
+                    funcaoDeclaracoes.set(declaracao.simbolo.lexema, declaracao.funcao);
+                }
+            }
+
+            // Segundo passo: processar registros de rotas e resolver referências a funções
+            for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
+                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
+                if (!(declaracao instanceof Expressao)) {
+                    continue;
+                }
+
+                const expressao: Chamada = declaracao.expressao as Chamada;
                 const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
                 const objeto = entidadeChamada.objeto as Variavel;
 
@@ -287,10 +299,29 @@ export class Liquido implements LiquidoInterface {
                         case 'rotaUnlock':
                         case 'rotaPurge':
                         case 'rotaPropfind':
+                            // Resolve argumentos: converte Variavel em FuncaoConstruto
+                            const argumentosResolvidos: FuncaoConstruto[] = [];
+                            for (const argumento of expressao.argumentos) {
+                                if (argumento instanceof Variavel) {
+                                    // Referência a função declarada
+                                    const nomeFuncao = argumento.simbolo.lexema;
+                                    if (funcaoDeclaracoes.has(nomeFuncao)) {
+                                        argumentosResolvidos.push(funcaoDeclaracoes.get(nomeFuncao));
+                                    } else {
+                                        console.error(`Função '${nomeFuncao}' referenciada mas não encontrada em ${arquivo}`);
+                                    }
+                                } else if (argumento instanceof FuncaoConstruto) {
+                                    // Função inline/anônima
+                                    argumentosResolvidos.push(argumento);
+                                } else {
+                                    console.error(`Argumento de rota inválido em ${arquivo}: esperado função ou referência a função`);
+                                }
+                            }
+
                             await this.adicionarRota(
                                 entidadeChamada.nomeMetodo,
                                 this.resolverCaminhoRota(arquivo),
-                                expressao.argumentos
+                                argumentosResolvidos
                             );
                             break;
                         default:
@@ -417,16 +448,42 @@ export class Liquido implements LiquidoInterface {
             return this.logicaComumErrosInterpretacao(retornoInterpretador);
         }
 
+        // Verifica se há resultado da interpretação
+        if (!retornoInterpretador.resultado || retornoInterpretador.resultado.length === 0) {
+            // Middleware não retornou nada - continuar para próximo middleware
+            return {};
+        }
+
         // O resultado que interessa é sempre o último.
         // Pela natureza de Delégua, este resultado precisa ser desenvelopado
         // até obtermos o objeto de resposta, que contém as instruções para
         // resolver a requisição.
         const representacaoObjeto = retornoInterpretador.resultado.pop() as ResultadoParcialInterpretadorInterface;
+
+        // Valida se o objeto de representação existe e tem valorRetornado
+        if (!representacaoObjeto || !representacaoObjeto.valorRetornado) {
+            // Middleware não retornou resposta - continuar para próximo middleware
+            return {};
+        }
+
         const valorRetornado: RetornoQuebra = representacaoObjeto.valorRetornado;
+
+        // Valida se valorRetornado tem valor
+        if (!valorRetornado || !valorRetornado.valor) {
+            // Middleware não retornou resposta - continuar para próximo middleware
+            return {};
+        }
+
         const informacoesObjeto: VariavelInterface | any = valorRetornado.valor;
-        const objetoResposta: ObjetoDeleguaClasse = informacoesObjeto.hasOwnProperty('valor') ? 
-            informacoesObjeto.valor : 
+        const objetoResposta: ObjetoDeleguaClasse = informacoesObjeto.hasOwnProperty('valor') ?
+            informacoesObjeto.valor :
             informacoesObjeto;
+
+        // Valida se objetoResposta tem propriedades
+        if (!objetoResposta || !objetoResposta.propriedades) {
+            // Middleware não retornou resposta - continuar para próximo middleware
+            return {};
+        }
 
         let statusHttp: number = 200;
         if (objetoResposta.propriedades.statusHttp) {
@@ -453,6 +510,42 @@ export class Liquido implements LiquidoInterface {
         if (objetoResposta.propriedades.mensagem) {
             return { corpoRetorno: objetoResposta.propriedades.mensagem, statusHttp: statusHttp };
         }
+
+        // Middleware não enviou resposta (apenas executou lógica) - continuar para próximo middleware
+        return {};
+    }
+
+    /**
+     * Verifica se uma resposta foi definida pelo middleware ou handler.
+     * @param corpoEStatus O objeto de resposta retornado pelo interpretador.
+     * @returns Verdadeiro se alguma resposta foi definida, falso caso contrário.
+     */
+    private respostaFoiDefinida(corpoEStatus: CorpoResposta): boolean {
+        if (!corpoEStatus) return false;
+        return !!(
+            corpoEStatus.corpoRetorno ||
+            corpoEStatus.redirecionamento ||
+            corpoEStatus.statusHttp
+        );
+    }
+
+    /**
+     * Executa uma função (middleware ou handler) no contexto do interpretador.
+     * @param req O objeto de requisição do Express.
+     * @param caminhoRota O caminho da rota.
+     * @param funcao A função a ser executada.
+     * @param nomeFuncao O nome único para identificar a função no interpretador.
+     * @returns O corpo e status da resposta, se houver.
+     */
+    private async executarFuncaoRota(
+        req: any,
+        caminhoRota: string,
+        funcao: FuncaoConstruto,
+        nomeFuncao: string
+    ): Promise<CorpoResposta> {
+        await this.prepararRequisicao(req, nomeFuncao, funcao);
+        const retornoInterpretador = await this.chamarInterpretador(nomeFuncao);
+        return await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
     }
 
     /**
@@ -460,19 +553,42 @@ export class Liquido implements LiquidoInterface {
      * @param metodoRoteador O método da rota.
      * @param caminhoRota O caminho completo do arquivo que define a rota.
      * @param argumentos Todas as funções em Delégua que devem ser executadas
-     *                   para a resolução da rota. Por enquanto apenas a primeira
-     *                   função é executada.
+     *                   para a resolução da rota. O último argumento é o handler final,
+     *                   todos os anteriores são middlewares executados em sequência.
      */
-    async adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: Construto[]): Promise<void> {
-        // TODO: Melhorar isso para permitir N intermediários na execução da rota.
-        const funcao = argumentos[0] as FuncaoConstruto;
+    async adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: FuncaoConstruto[]): Promise<void> {
+        if (argumentos.length === 0) {
+            console.error(`Rota ${caminhoRota} não possui nenhuma função definida.`);
+            return;
+        }
+
+        // Separa middlewares (todos menos o último) e handler (último argumento)
+        const middlewares = argumentos.slice(0, -1);
+        const handler = argumentos[argumentos.length - 1];
         const metodoResolvido = MetodoRoteador[metodoRoteador.replace('rota', '')];
 
         this.roteador.mapaRotas[metodoResolvido](caminhoRota, async (req, res) => {
-            await this.prepararRequisicao(req, `funcaoRota${metodoRoteador}`, funcao);
+            let corpoEStatus: CorpoResposta = null;
 
-            const retornoInterpretador = await this.chamarInterpretador(`funcaoRota${metodoRoteador}`);
-            const corpoEStatus = await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+            // Executa middlewares em sequência
+            for (let i = 0; i < middlewares.length; i++) {
+                const middleware = middlewares[i];
+                const nomeMiddleware = `middleware${i}_${metodoRoteador}`;
+
+                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, middleware, nomeMiddleware);
+
+                // Se o middleware enviou uma resposta, para a execução
+                if (this.respostaFoiDefinida(corpoEStatus)) {
+                    break;
+                }
+            }
+
+            // Se nenhum middleware enviou resposta, executa o handler final
+            if (!this.respostaFoiDefinida(corpoEStatus)) {
+                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, handler, `handler_${metodoRoteador}`);
+            }
+
+            // Envia a resposta
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
             } else {

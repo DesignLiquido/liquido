@@ -1,10 +1,10 @@
-import { FormatadorLmht } from '../../../infraestrutura/formatadores';
+import { FormatadorLmht } from '../../infraestrutura/formatadores';
 
 describe('Testes do formatador LMHT', () => {
   let formatador: FormatadorLmht;
 
   beforeEach(() => {
-    formatador = new FormatadorLmht(process.cwd() + '/testes/testes-unitarios');
+    formatador = new FormatadorLmht(process.cwd() + '/testes');
   });
 
   it('Deve criar um formatador', () => {
