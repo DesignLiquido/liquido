@@ -26,7 +26,7 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
         nomeModelo = respostaNomeModelo.nomeModelo;
     }
 
-    const declaracoes = importarModelos(nomeModelo);
+    const declaracoes = await importarModelos(nomeModelo);
     criarDiretorioSeNaoExiste('rotas');
 
     const geradorVisoes = new GeradorVisoes();
