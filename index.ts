@@ -61,7 +61,7 @@ class LiquidoPontoEntrada {
             nomeModelo = respostaNomeModelo.nomeModelo;
         }
 
-        const declaracoes = importarModelos(nomeModelo);
+        const declaracoes = await importarModelos(nomeModelo);
         criarDiretorioAplicacao('rotas');
 
         const geradorVisoes = new GeradorVisoes();

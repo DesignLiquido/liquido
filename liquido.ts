@@ -78,7 +78,7 @@ export class Liquido implements LiquidoInterface {
     }
 
     async iniciar(): Promise<void> {
-        this.importarArquivoConfiguracao();
+        await this.importarArquivoConfiguracao();
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
@@ -98,7 +98,7 @@ export class Liquido implements LiquidoInterface {
      * Método de importação do arquivo `configuracao.delegua`.
      * @returns void.
      */
-    importarArquivoConfiguracao(): void {
+    async importarArquivoConfiguracao(): Promise<void> {
         const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
         if (caminhoConfigArquivo.valor === false) {
@@ -108,7 +108,7 @@ export class Liquido implements LiquidoInterface {
 
         try {
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho, -1);
-            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
+            const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo
             );
@@ -254,7 +254,7 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of this.arquivosDelegua) {
             const retornoImportador = this.importador.importar(arquivo, -1);
-            const retornoAvaliadorSintatico = this.avaliadorSintatico.analisar(
+            const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo
             );

@@ -61,7 +61,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
     }
 
     // TODO: Pensar em como fazer isso considerando importações de outros arquivos.
-    protected obterEstruturasDeAltoNivelDeControlador(caminhoControlador: string): Declaracao[] {
+    protected async obterEstruturasDeAltoNivelDeControlador(caminhoControlador: string): Promise<Declaracao[]> {
         const arquivosAbertos = {};
         const conteudoArquivosAbertos = {};
 
@@ -70,7 +70,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
         const retornoImportador = importador.importar(caminhoControlador, -1);
-        const retornoAvaliadorSintatico = avaliadorSintatico.analisar(retornoImportador.retornoLexador, retornoImportador.hashArquivo);
+        const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(retornoImportador.retornoLexador, retornoImportador.hashArquivo);
         if (retornoAvaliadorSintatico.erros.length > 0) {
             this.erros.push(
                 new Error(
@@ -89,7 +89,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
         const controladores = [];
         for (const caminhoArquivo of arquivos) {
-            const estruturas = this.obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
+            const estruturas = await this.obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
             const rotaEControlador = this.lerControlador(caminhoArquivo, estruturas);
             controladores.push(rotaEControlador);
         }

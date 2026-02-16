@@ -29,14 +29,14 @@ export function obterTodosModelos(): { title: string, value: string }[] {
  * @param {string} nomeModelo O nome do arquivo no diretório 'modelos' que contém os modelos.
  * @returns {Declaracao[]} Um vetor de declarações de classes em Delégua.
  */
-export function importarModelos(nomeModelo: string): Declaracao[] {
+export async function importarModelos(nomeModelo: string): Promise<Declaracao[]> {
     const diretorioModelos = caminho.join(process.cwd(), 'modelos');
     const lexador = new Lexador(false);
     const importador = new Importador(lexador, {}, {}, false);
     const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
     const resultadoImportacao = importador.importar(caminho.join(diretorioModelos, nomeModelo + '.delegua'), -1);
-    const retornoAvaliadorSintatico = avaliadorSintatico.analisar(resultadoImportacao.retornoLexador, resultadoImportacao.hashArquivo);
+    const retornoAvaliadorSintatico = await avaliadorSintatico.analisar(resultadoImportacao.retornoLexador, resultadoImportacao.hashArquivo);
     const declaracoes = retornoAvaliadorSintatico.declaracoes;
     return declaracoes;
 }
