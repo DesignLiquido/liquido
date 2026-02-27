@@ -1,4 +1,4 @@
-name: Commit e PR - Principal
+name: Testes - Principal
 
 on:
   pull_request:
@@ -6,10 +6,6 @@ on:
 
 jobs:
   testes-unitarios:
-    permissions:
-      checks: write
-      pull-requests: write
-      contents: write
     runs-on: ubuntu-latest
 
     steps:
@@ -17,13 +13,16 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: '20'
-    - uses: ArtiomTr/jest-coverage-report-action@v2
-      id: coverage
+    - run: yarn install
+    - name: Executar testes com cobertura
+      run: yarn testes --ci --json --testLocationInResults --outputFile=report.json
+      continue-on-error: true
+    - run: echo "${{ github.event.number }}" > pr-number.txt
+    - uses: actions/upload-artifact@v4
+      if: always()
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        test-script: yarn testes
-        package-manager: yarn
-        output: report-markdown
-    - uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        message: ${{ steps.coverage.outputs.report }}
+        name: relatorio-testes
+        path: |
+          report.json
+          pr-number.txt
+        retention-days: 1
