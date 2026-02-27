@@ -46,7 +46,7 @@
         "testes-unitarios": "yarn jest --coverage"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^1.14.1",
+        "@designliquido/delegua-node": "^1.15.0",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.14.0",
         "@designliquido/lincones-sqlite": "^0.3.0",
