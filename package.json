@@ -31,7 +31,7 @@
         "liquido": "bin/liquido"
     },
     "scripts": {
-        "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/liquido ./bin/liquido.cmd ./dist && yarn copyfiles -V ./README.md ./dist",
+        "empacotar": "yarn rimraf ./dist && tsc && yarn copyfiles -V ./bin/liquido ./bin/liquido.cmd ./dist && yarn copyfiles -V ./README.md ./dist && yarn copyfiles -V \"./interface-linha-comando/exemplos/**/*\" ./dist",
         "publicar-npm": "npm publish --access public",
         "iniciar": "nodemon",
         "lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
