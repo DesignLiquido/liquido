@@ -1,7 +1,12 @@
 import * as caminho from 'path';
+import sistemaArquivos from 'fs';
 
 import { Liquido } from '../liquido';
 import { RetornoConfiguracaoInterface } from '../interfaces';
+import {
+    criarDiretorioAplicacao,
+    copiarArquivosDeExemploParaNovoProjeto
+} from '../interface-linha-comando';
 
 describe('Liquido', () => {
     let liquido: Liquido;
@@ -106,6 +111,37 @@ describe('Liquido', () => {
             const instancia = new Liquido(process.cwd());
 
             expect(instancia.diretorioEstatico).toBe('publico');
+        });
+    });
+
+    describe('Testes de Comandos do Terminal', () => {
+        describe('Comando "novo"', () => {
+            const caminhoDiretorioProjeto = criarDiretorioAplicacao(
+                'teste-comando-novo'
+            );
+
+            afterAll(async () => {
+                await sistemaArquivos.promises.rm(
+                    caminhoDiretorioProjeto,
+                    { recursive: true }
+                );
+            });
+
+            it('O valor do atributo "liquido.aplicacao.nome" deve ser o nome do projeto', async () => {
+                await copiarArquivosDeExemploParaNovoProjeto(
+                    'ProjetoLegal',
+                    'api-rest',
+                    caminhoDiretorioProjeto
+                );
+
+                const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
+                    caminhoConfiguracaoDelegua,
+                    'utf-8'
+                );
+
+                expect(codigoConfiguracaoDelegua).toContain('ProjetoLegal');
+            });
         });
     });
 });
