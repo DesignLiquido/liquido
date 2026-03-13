@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { async as glob } from 'fast-glob';
 import sistemaArquivos from 'fs';
 import caminho from 'path';
@@ -69,6 +70,24 @@ export async function copiarArquivosDeExemploParaNovoProjeto(
             }
         })
     );
+}
+
+export async function gerarRepositorioGit(
+    inicializarRepositorioGit: boolean,
+    diretorioProjeto: string,
+) {
+    if (inicializarRepositorioGit) {
+        execSync('git init', { cwd: diretorioProjeto });
+
+        const conteudoGitIgnore = 'node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db';
+        await sistemaArquivos.promises.writeFile(
+            `${diretorioProjeto}/.gitignore`,
+            conteudoGitIgnore
+        );
+
+        execSync('git add .', { cwd: diretorioProjeto });
+        execSync('git commit -m "Commit Inicial"', { cwd: diretorioProjeto });
+    }
 }
 
 /* export function gerarProjetoPorTipoDeProjeto(tipoDeProjeto: string) {

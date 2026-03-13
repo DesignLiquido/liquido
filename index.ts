@@ -17,6 +17,7 @@ import {
     criarDiretorioAplicacao,
     criarDiretorioSeNaoExiste,
     documentar,
+    gerarRepositorioGit,
     importarModelos,
     obterTodosModelos
 } from './interface-linha-comando';
@@ -135,11 +136,31 @@ class LiquidoPontoEntrada {
                     initial: 1
                 });
 
+                const perguntaInicializarRepositorioGit = await prompts({
+                    type: 'confirm',
+                    message: 'Deseja inicializar um repositório Git?',
+                    name: 'confirmado',
+                    initial: true,
+                    onRender() {
+                        this.yesMsg = 'Sim';
+                        this.noMsg = 'não';
+                        this.yesOption = '(S/n)';
+                    }
+                });
+                const inicializarRepositorioGit =
+                    perguntaInicializarRepositorioGit.confirmado;
+
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjeto,
                     perguntaTipoProjeto.tipoProjeto,
                     diretorioCompleto
                 );
+
+                await gerarRepositorioGit(
+                    inicializarRepositorioGit,
+                    diretorioCompleto
+                );
+
                 console.info(yellow(`Seu projeto foi criado com sucesso! ${diretorioCompleto}`))
             }
         }
