@@ -12,13 +12,13 @@ import prompts from 'prompts';
 import {version} from './package.json'
 
 import { Liquido } from './liquido';
-import { 
-    copiarExemploParaProjeto, 
-    criarDiretorioAplicacao, 
-    criarDiretorioSeNaoExiste, 
+import {
+    copiarArquivosDeExemploParaNovoProjeto,
+    criarDiretorioAplicacao,
+    criarDiretorioSeNaoExiste,
     documentar,
-    importarModelos, 
-    obterTodosModelos 
+    importarModelos,
+    obterTodosModelos
 } from './interface-linha-comando';
 import { ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
@@ -37,14 +37,14 @@ class LiquidoPontoEntrada {
     mostrarLogo() {
         console.log(blue(this.logo + '\n'))
     }
-    
+
     async comandoDocumentar() {
         // await encontrarControladores();
         await documentar();
     }
 
     async comandoGerar(
-        args: yargs.ArgumentsCamelCase<ComandoGerarInterface> 
+        args: yargs.ArgumentsCamelCase<ComandoGerarInterface>
     ) {
         let nomeModelo = args.modelo
 
@@ -57,7 +57,7 @@ class LiquidoPontoEntrada {
                 message: 'Qual o nome do modelo?',
                 choices: opcoesModelos
             });
-            
+
             nomeModelo = respostaNomeModelo.nomeModelo;
         }
 
@@ -135,7 +135,11 @@ class LiquidoPontoEntrada {
                     initial: 1
                 });
 
-                await copiarExemploParaProjeto(perguntaTipoProjeto.tipoProjeto, diretorioCompleto);
+                await copiarArquivosDeExemploParaNovoProjeto(
+                    nomeProjeto,
+                    perguntaTipoProjeto.tipoProjeto,
+                    diretorioCompleto
+                );
                 console.info(yellow(`Seu projeto foi criado com sucesso! ${diretorioCompleto}`))
             }
         }
