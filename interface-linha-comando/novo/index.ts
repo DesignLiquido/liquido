@@ -85,8 +85,12 @@ export async function gerarRepositorioGit(
             conteudoGitIgnore
         );
 
+        execSync('git config user.email "liquido@designliquido.com.br"', { cwd: diretorioProjeto });
+        execSync('git config user.name "Liquido"', { cwd: diretorioProjeto });
         execSync('git add .', { cwd: diretorioProjeto });
-        execSync('git commit -m "Commit Inicial"', { cwd: diretorioProjeto });
+        execSync('git commit -m "Versionamento Inicial"', { cwd: diretorioProjeto });
+        execSync('git config --unset user.email', { cwd: diretorioProjeto });
+        execSync('git config --unset user.name', { cwd: diretorioProjeto });
     }
 }
 
