@@ -167,7 +167,7 @@ describe('Liquido', () => {
 
                 expect(arquivos).toContain('.gitignore');
                 expect(conteudoGitIgnore).toContain('node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db');
-                expect(conteudoGitLog).toContain('Commit Inicial');
+                expect(conteudoGitLog).toContain('Versionamento Inicial');
             });
         });
     });
