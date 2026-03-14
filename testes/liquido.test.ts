@@ -1,11 +1,13 @@
 import * as caminho from 'path';
 import sistemaArquivos from 'fs';
+import { execSync } from 'child_process';
 
 import { Liquido } from '../liquido';
 import { RetornoConfiguracaoInterface } from '../interfaces';
 import {
     criarDiretorioAplicacao,
-    copiarArquivosDeExemploParaNovoProjeto
+    copiarArquivosDeExemploParaNovoProjeto,
+    gerarRepositorioGit
 } from '../interface-linha-comando';
 
 describe('Liquido', () => {
@@ -141,6 +143,31 @@ describe('Liquido', () => {
                 );
 
                 expect(codigoConfiguracaoDelegua).toContain('ProjetoLegal');
+            });
+
+            it('O repositório Git deve ser inicializado', async () => {
+                await copiarArquivosDeExemploParaNovoProjeto(
+                    'ProjetoLegal',
+                    'api-rest',
+                    caminhoDiretorioProjeto
+                );
+
+                await gerarRepositorioGit(true, caminhoDiretorioProjeto);
+
+                const arquivos = await sistemaArquivos.promises.readdir(
+                    caminhoDiretorioProjeto
+                );
+                const conteudoGitIgnore = await sistemaArquivos
+                    .promises
+                    .readFile(`${caminhoDiretorioProjeto}/.gitignore`, 'utf-8');
+                const conteudoGitLog = execSync(
+                    'git log',
+                    { cwd: caminhoDiretorioProjeto, encoding: 'utf-8' }
+                );
+
+                expect(arquivos).toContain('.gitignore');
+                expect(conteudoGitIgnore).toContain('node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db');
+                expect(conteudoGitLog).toContain('Versionamento Inicial');
             });
         });
     });
