@@ -16,6 +16,7 @@ import {
     copiarArquivosDeExemploParaNovoProjeto,
     criarDiretorioAplicacao,
     criarDiretorioSeNaoExiste,
+    detectarGerenciadorDePacotes,
     documentar,
     gerarRepositorioGit,
     importarModelos,
@@ -149,6 +150,25 @@ class LiquidoPontoEntrada {
                 });
                 const inicializarRepositorioGit =
                     perguntaInicializarRepositorioGit.confirmado;
+
+                const perguntaQualGerenciadorDePacotesQuerUsar = await prompts({
+                    type: 'select',
+                    name: 'gerenciadorDePacotes',
+                    message: 'Selecione o gerenciador de pacotes que você deseja utilizar',
+                    choices: [
+                        { title: 'NPM', value: 'npm' },
+                        { title: 'Yarn', value: 'yarn' },
+                        { title: 'Bun', value: 'bun' }
+                    ],
+                    initial: 1
+                });
+                const gerenciadorDePacotes =
+                    perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
+
+                await detectarGerenciadorDePacotes(
+                    gerenciadorDePacotes,
+                    diretorioCompleto
+                );
 
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjeto,

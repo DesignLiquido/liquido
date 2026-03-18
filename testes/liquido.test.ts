@@ -1,14 +1,23 @@
 import * as caminho from 'path';
 import sistemaArquivos from 'fs';
-import { execSync } from 'child_process';
+import * as ChildProcess from 'child_process';
 
 import { Liquido } from '../liquido';
 import { RetornoConfiguracaoInterface } from '../interfaces';
 import {
     criarDiretorioAplicacao,
     copiarArquivosDeExemploParaNovoProjeto,
-    gerarRepositorioGit
+    gerarRepositorioGit,
+    detectarGerenciadorDePacotes
 } from '../interface-linha-comando';
+
+jest.mock('child_process', () => {
+    const original = jest.requireActual('child_process');
+    return {
+        ...original,
+        execSync: jest.fn()
+    };
+});
 
 describe('Liquido', () => {
     let liquido: Liquido;
@@ -146,6 +155,10 @@ describe('Liquido', () => {
             });
 
             it('O repositório Git deve ser inicializado', async () => {
+                (ChildProcess.execSync as jest.Mock).mockImplementation(
+                    jest.requireActual('child_process').execSync
+                );
+
                 await copiarArquivosDeExemploParaNovoProjeto(
                     'ProjetoLegal',
                     'api-rest',
@@ -160,7 +173,7 @@ describe('Liquido', () => {
                 const conteudoGitIgnore = await sistemaArquivos
                     .promises
                     .readFile(`${caminhoDiretorioProjeto}/.gitignore`, 'utf-8');
-                const conteudoGitLog = execSync(
+                const conteudoGitLog = ChildProcess.execSync(
                     'git log',
                     { cwd: caminhoDiretorioProjeto, encoding: 'utf-8' }
                 );
@@ -168,6 +181,28 @@ describe('Liquido', () => {
                 expect(arquivos).toContain('.gitignore');
                 expect(conteudoGitIgnore).toContain('node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db');
                 expect(conteudoGitLog).toContain('Versionamento Inicial');
+            });
+
+            it('Deve executar os comandos do npm para inicializar o projeto', async () => {
+                jest.clearAllMocks();
+
+                (ChildProcess.execSync as jest.Mock).mockImplementation(
+                    () => Buffer.from('')
+                );
+
+                await detectarGerenciadorDePacotes(
+                    'npm',
+                    caminhoDiretorioProjeto
+                );
+
+                expect(ChildProcess.execSync).toHaveBeenCalledWith(
+                    'npm init -y',
+                    { cwd: caminhoDiretorioProjeto }
+                );
+                expect(ChildProcess.execSync).toHaveBeenCalledWith(
+                    'npm install liquido@latest',
+                    { cwd: caminhoDiretorioProjeto }
+                );
             });
         });
     });
