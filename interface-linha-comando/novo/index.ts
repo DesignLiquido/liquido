@@ -94,6 +94,29 @@ export async function gerarRepositorioGit(
     }
 }
 
+export async function detectarGerenciadorDePacotes(
+    gerenciadorDePacotes: string,
+    diretorioProjeto: string
+) {
+    switch (gerenciadorDePacotes) {
+        case 'npm': {
+            execSync('npm init -y', { cwd: diretorioProjeto });
+            execSync('npm install liquido@latest', { cwd: diretorioProjeto });
+            break;
+        }
+        case 'yarn': {
+            execSync('yarn init -y', { cwd: diretorioProjeto });
+            execSync('yarn add liquido@latest', { cwd: diretorioProjeto });
+            break;
+        }
+        case 'bun': {
+            execSync('bun init -y', { cwd: diretorioProjeto });
+            execSync('bun add liquido@latest', { cwd: diretorioProjeto });
+            break;
+        }
+    }
+}
+
 /* export function gerarProjetoPorTipoDeProjeto(tipoDeProjeto: string) {
     switch (tipoDeProjeto) {
         case 'api-rest':
