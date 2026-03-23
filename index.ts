@@ -8,6 +8,8 @@ import {
 } from "chalk";
 import yargs from 'yargs'
 import prompts from 'prompts';
+import { cwd } from 'process';
+import path from 'path';
 
 import {version} from './package.json'
 
@@ -110,7 +112,14 @@ class LiquidoPontoEntrada {
         }
 
         if (nomeProjeto.length > 0) {
+            const diretorioAlvo = nomeProjeto;
+
+            if (nomeProjeto === '.' || nomeProjeto === './') {
+                nomeProjeto = path.basename(cwd());
+            }
+
             console.log(green(`Iremos criar um novo projeto em Liquido chamado "${nomeProjeto}"`));
+
             const resposta = await prompts({
                 type: 'confirm',
                 message: 'Confirma?',
@@ -124,7 +133,9 @@ class LiquidoPontoEntrada {
             });
 
             if (resposta.confirmado) {
-                const diretorioCompleto = criarDiretorioAplicacao(nomeProjeto);
+                const diretorioCompleto = criarDiretorioAplicacao(
+                    diretorioAlvo
+                );
 
                 const perguntaTipoProjeto = await prompts({
                     type: 'select',

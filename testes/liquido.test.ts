@@ -204,6 +204,42 @@ describe('Liquido', () => {
                     { cwd: caminhoDiretorioProjeto }
                 );
             });
+
+            it('Deve usar o nome da pasta quando o nome do projeto é criado com "." ou "./"', async () => {
+
+                const spyCwd = jest
+                    .spyOn(process, 'cwd')
+                    .mockReturnValue('/home/usuario/minha-pasta-teste');
+
+                let nomeProjetoTerminal = '.';
+                let nomeProjetoResolvido = nomeProjetoTerminal;
+
+                if (
+                    nomeProjetoTerminal === '.' ||
+                    nomeProjetoTerminal === './'
+                ) nomeProjetoResolvido = caminho.basename(process.cwd());
+
+                await copiarArquivosDeExemploParaNovoProjeto(
+                    nomeProjetoResolvido,
+                    'api-rest',
+                    caminhoDiretorioProjeto
+                );
+
+                const caminhoConfiguracaoDelegua =
+                    `${caminhoDiretorioProjeto}/configuracao.delegua`;
+
+                const codigoConfiguracaoDelegua = await sistemaArquivos
+                    .promises
+                    .readFile(
+                        caminhoConfiguracaoDelegua,
+                        'utf-8'
+                    );
+
+                expect(codigoConfiguracaoDelegua).toContain('minha-pasta-teste');
+                expect(codigoConfiguracaoDelegua).not.toContain("'.'");
+
+                spyCwd.mockRestore();
+           });
         });
     });
 });
