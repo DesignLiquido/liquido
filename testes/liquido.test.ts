@@ -242,4 +242,40 @@ describe('Liquido', () => {
            });
         });
     });
+
+    describe('Processamento de Respostas', () => {
+        it('Deve limpar objetos Delégua e retornar JSON puro', async () => {
+            const objetoSimulado = {
+                propriedades: {
+                    id: 1,
+                    titulo: "Teste",
+                    descricao: "Descricao"
+                },
+                endereco: 'aaa-bbb-ccc-111-222-333'
+            };
+
+            const resultadoLimpo = (liquido as any)
+                .limparObjeto(objetoSimulado);
+
+            expect(resultadoLimpo).toHaveProperty('id', 1);
+            expect(resultadoLimpo).toHaveProperty('titulo', 'Teste');
+            expect(resultadoLimpo).not.toHaveProperty('endereco');
+            expect(typeof resultadoLimpo).toBe('object');
+        });
+
+        it('Deve processar arrays de objetos corretamente', () => {
+            const arraySimulado = [
+                {
+                    propriedades: { id: 1 },
+                    endereco: 'abc-123'
+                }
+            ];
+
+            const resultadoLimpo = (liquido as any).limparObjeto(arraySimulado);
+
+            expect(Array.isArray(resultadoLimpo)).toBe(true);
+            expect(resultadoLimpo[0]).toEqual({ id: 1 });
+            expect(resultadoLimpo[0]).not.toHaveProperty('endereco');
+        });
+    });
 });
