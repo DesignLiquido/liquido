@@ -61,10 +61,10 @@ export class Liquido implements LiquidoInterface {
 
         this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(this.importador);
         this.avaliadorSintatico.tiposDeFerramentasExternas = {
-            liquido: { 
+            liquido: {
                 lincones: 'módulo',
-                liquido: 'módulo', 
-                requisicao: 'módulo', 
+                liquido: 'módulo',
+                requisicao: 'módulo',
                 resposta: 'módulo'
             }
         };
@@ -356,7 +356,7 @@ export class Liquido implements LiquidoInterface {
             'requisicao',
             instanciaRequisicao
         );
-        
+
         const descritorClasseResposta = new Resposta();
         await descritorClasseResposta.chamar(this.interpretador, []);
         this.interpretador.pilhaEscoposExecucao.definirVariavel(
@@ -501,10 +501,21 @@ export class Liquido implements LiquidoInterface {
 
         if (objetoResposta.propriedades.respostaJson) {
             // TODO: Por que valor é sempre um array aqui?
-            const valor = objetoResposta.propriedades.respostaJson.hasOwnProperty('valor')
-                ? objetoResposta.propriedades.respostaJson.valor[0]
-                : objetoResposta.propriedades.respostaJson;
-            return { corpoRetorno: valor, statusHttp: statusHttp };
+            const jsonBruto = objetoResposta.propriedades.respostaJson;
+
+            const dadoParaLimpar = (
+                jsonBruto &&
+                typeof jsonBruto === 'object' &&
+                'valor' in jsonBruto
+            )
+                ? jsonBruto.valor
+                : jsonBruto;
+
+            return {
+                corpoRetorno: this.limparObjeto(dadoParaLimpar),
+                tipoConteudo: 'JSON',
+                statusHttp: statusHttp
+            };
         }
 
         if (objetoResposta.propriedades.mensagem) {
@@ -595,5 +606,32 @@ export class Liquido implements LiquidoInterface {
                 res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
             }
         });
+    }
+
+    private limparObjeto(item: any): any {
+        if (item === null || item === undefined || typeof item !== 'object') {
+            return item;
+        }
+
+        if (Array.isArray(item)) {
+            return item.map((i) => this.limparObjeto(i));
+        }
+
+        if ('valor' in item && item.valor !== undefined) {
+            return this.limparObjeto(item.valor);
+        }
+
+        if ('propriedades' in item && item.propriedades) {
+            const novoObjeto = {};
+            const propriedades = item.propriedades;
+
+            for (const [chave, valorProp] of Object.entries(propriedades)) {
+                novoObjeto[chave] = this.limparObjeto(valorProp);
+            }
+
+            return novoObjeto;
+        }
+
+        return item;
     }
 }
