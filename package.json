@@ -21,6 +21,10 @@
         "lincones"
     ],
     "license": "MIT",
+    "delprops": [
+        { "espacoNomes": "liquido.roteador", "esquema": "./delprops/roteador" },
+        { "espacoNomes": "liquido.autenticacao", "esquema": "./delprops/autenticacao" }
+    ],
     "publishConfig": {
         "registry": "https://registry.npmjs.org/"
     },
@@ -46,7 +50,7 @@
         "testes-unitarios": "yarn jest --coverage"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^1.15.0",
+        "@designliquido/delegua-node": "^1.17.0",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.14.1",
         "@designliquido/lincones-sqlite": "^0.3.0",
