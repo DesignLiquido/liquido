@@ -17,7 +17,7 @@ export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface 
 
         const proximaPropriedade = caminho[0];
         if (!instancia.hasOwnProperty(proximaPropriedade)) {
-            throw new ErroConfiguracao(`Propriedade ${proximaPropriedade} não existe em ${instancia[proximaPropriedade].constructor.name}.`);
+            throw new ErroConfiguracao(`Propriedade ${proximaPropriedade} não existe em ${instancia.constructor.name}.`);
         }
 
         instancia[proximaPropriedade].definirValor(instancia[proximaPropriedade], caminho, valor);
