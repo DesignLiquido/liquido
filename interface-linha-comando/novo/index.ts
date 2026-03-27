@@ -24,7 +24,7 @@ export async function copiarArquivosDeExemploParaNovoProjeto(
         __dirname, '../exemplos/' + tipoDeProjeto
     );
     const formatoGlob =
-        (diretorioExemplos + '/**/*.{delegua,foles,lmht,md}')
+        (diretorioExemplos + '/**/*.{delprops,foles,lmht,md}')
         .replace(/\\/gi, '/');
 
     const caminhosArquivos = await glob([formatoGlob], {
@@ -47,7 +47,7 @@ export async function copiarArquivosDeExemploParaNovoProjeto(
                 { recursive: true }
             )
 
-            if (novoCaminhoArquivo.endsWith('configuracao.delegua')) {
+            if (novoCaminhoArquivo.endsWith('configuracao.delprops')) {
                 let codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
                     caminhoArquivoResolvido,
                     'utf-8'
