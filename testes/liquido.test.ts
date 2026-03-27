@@ -146,7 +146,7 @@ describe('Liquido', () => {
                         caminhoDiretorioProjeto
                     );
 
-                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delprops`;
                     const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
                         caminhoConfiguracaoDelegua,
                         'utf-8'
@@ -162,7 +162,7 @@ describe('Liquido', () => {
                         caminhoDiretorioProjeto
                     );
 
-                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delprops`;
                     const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
                         caminhoConfiguracaoDelegua,
                         'utf-8'
