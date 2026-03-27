@@ -138,20 +138,38 @@ describe('Liquido', () => {
                 );
             });
 
-            it('O valor do atributo "liquido.aplicacao.nome" deve ser o nome do projeto', async () => {
-                await copiarArquivosDeExemploParaNovoProjeto(
-                    'ProjetoLegal',
-                    'api-rest',
-                    caminhoDiretorioProjeto
-                );
+            describe('O valor do atributo "liquido.aplicacao.nome" deve ser o nome do projeto', () => {
+                it('API-REST', async () => {
+                    await copiarArquivosDeExemploParaNovoProjeto(
+                        'ProjetoLegal',
+                        'api-rest',
+                        caminhoDiretorioProjeto
+                    );
 
-                const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
-                const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
-                    caminhoConfiguracaoDelegua,
-                    'utf-8'
-                );
+                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                    const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
+                        caminhoConfiguracaoDelegua,
+                        'utf-8'
+                    );
 
-                expect(codigoConfiguracaoDelegua).toContain('ProjetoLegal');
+                    expect(codigoConfiguracaoDelegua).toContain('ProjetoLegal');
+                });
+
+                it('MVC', async () => {
+                    await copiarArquivosDeExemploParaNovoProjeto(
+                        'ProjetoLegal',
+                        'mvc',
+                        caminhoDiretorioProjeto
+                    );
+
+                    const caminhoConfiguracaoDelegua = `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                    const codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
+                        caminhoConfiguracaoDelegua,
+                        'utf-8'
+                    );
+
+                    expect(codigoConfiguracaoDelegua).toContain('ProjetoLegal');
+                });
             });
 
             it('O repositório Git deve ser inicializado', async () => {
