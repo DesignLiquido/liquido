@@ -26,4 +26,22 @@ describe('Testes do preprocessador FolEs', () => {
 </lmht>`;
     expect(resultado).toBe(esperado);
   });
+
+  it('Deve processar conteúdo LMHT sem tag cabeca', async () => {
+    const conteudo = '<lmht><corpo><p>Olá</p></corpo></lmht>';
+    const resultado = await preprocessador.processar(conteudo);
+    expect(resultado).toContain('<lmht>');
+    expect(resultado).not.toContain('<style>');
+  });
+
+  it('Deve rejeitar conteúdo XML inválido', async () => {
+    const conteudoInvalido = '<lmht><tag-nao-fechada>';
+    await expect(preprocessador.processar(conteudoInvalido)).rejects.toContain('LMHT com problema de conteúdo');
+  });
+
+  it('Deve processar conteúdo com tag cabeça (com acento)', async () => {
+    const conteudo = '<lmht><cabeça><estilo>corpo { tamanho-fonte: 16px; }</estilo></cabeça></lmht>';
+    const resultado = await preprocessador.processar(conteudo);
+    expect(resultado).toContain('<style>');
+  });
 });
