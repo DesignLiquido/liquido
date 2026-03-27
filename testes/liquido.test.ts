@@ -244,7 +244,7 @@ describe('Liquido', () => {
                 );
 
                 const caminhoConfiguracaoDelegua =
-                    `${caminhoDiretorioProjeto}/configuracao.delegua`;
+                    `${caminhoDiretorioProjeto}/configuracao.delprops`;
 
                 const codigoConfiguracaoDelegua = await sistemaArquivos
                     .promises
