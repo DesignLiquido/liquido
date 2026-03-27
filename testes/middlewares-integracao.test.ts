@@ -136,7 +136,7 @@ describe('Testes de Integração - Middlewares', () => {
             expect(retorno.caminho).toContain('configuracao.delegua');
         });
 
-        it.skip('Deve retornar valor false se configuração não existir', () => {
+        it('Deve retornar valor false se configuração não existir', () => {
             const retorno = liquido.resolverArquivoConfiguracao(
                 caminho.join(__dirname, 'nao-existe')
             );

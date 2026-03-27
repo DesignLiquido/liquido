@@ -34,7 +34,7 @@ export class PreprocessadorLmhtParciais {
         }
 
         const parcial = parciais[0];
-        if (!parcial.$.nome) {
+        if (!parcial.$ || !parcial.$.nome) {
             return new Error('Na estrutura parcial, o atributo \'nome\' não foi informado.');
         }
 

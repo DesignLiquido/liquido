@@ -11,14 +11,19 @@ describe('Testes do preprocessador FolEs', () => {
     expect(preprocessador).toBeTruthy();
   });
 
-  it.skip('Deve processar o preprocessador', () => {
+  it('Deve processar o preprocessador', async () => {
     const conteudo = '<lmht><cabeca><estilo>corpo { tamanho-fonte: 22px; }</estilo></cabeca></lmht>';
-    const resultado = preprocessador.processar(conteudo);
-    const esperado = `<lmht><cabeca><style>body {
-  font-size: 22px;
+    const resultado = await preprocessador.processar(conteudo);
+    const esperado = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<lmht>
+  <cabeca>
+    <style>body {
+    font-size: 22px;
 }
 
-</style></cabeca></lmht>`;
+</style>
+  </cabeca>
+</lmht>`;
     expect(resultado).toBe(esperado);
   });
 });

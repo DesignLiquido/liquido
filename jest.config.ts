@@ -12,5 +12,8 @@ export default async (): Promise<Config.InitialOptions> => {
 			color: 'greenBright'
 		},
 		detectOpenHandles: true,
+        moduleNameMapper: {
+            '@designliquido/delegua-interface-grafica': '<rootDir>/testes/__mocks__/delegua-interface-grafica.ts'
+        },
     };
 };

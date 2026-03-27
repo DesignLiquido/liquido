@@ -152,7 +152,12 @@ export class Liquido implements LiquidoInterface {
      */
     resolverArquivoConfiguracao(caminhoTotal: string = ''): RetornoConfiguracaoInterface {
         const diretorioBase = caminhoTotal === '' ? this.diretorioBase : caminhoTotal;
-        const listaDeArquivos = sistemaDeArquivos.readdirSync(diretorioBase);
+        let listaDeArquivos: string[];
+        try {
+            listaDeArquivos = sistemaDeArquivos.readdirSync(diretorioBase);
+        } catch {
+            return { caminho: null, valor: false } as RetornoConfiguracaoInterface;
+        }
 
         for (const arquivo of listaDeArquivos) {
             if (arquivo === 'configuracao.delegua') {

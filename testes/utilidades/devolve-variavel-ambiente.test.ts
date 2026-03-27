@@ -4,41 +4,36 @@ import path from 'path';
 import * as VariaveisAmbiente from '../../infraestrutura/utilidades/variaveis-ambiente';
 const { buscarVariavelAmbienteEmArquivo, devolverVariavelAmbiente, lerTextoDeArquivo } = VariaveisAmbiente;
 
-jest.mock('../../infraestrutura/utilidades/variaveis-ambiente', () => {
-    return {
-        ...jest.requireActual('../../infraestrutura/utilidades/variaveis-ambiente'),
-        lerTextoDeArquivo: jest.fn()
-    };
-});
-
 describe('lerTextoDeArquivo', () => {
-    // TODO: Montar um mock para isso.
-    it.skip('deve ler um arquivo de texto e retornar suas linhas', () => {
-        const caminho = path.resolve(__dirname, 'arquivo-teste.txt');
-        fs.writeFileSync(caminho, 'linha 1\nlinha 2\nlinha 3');
+    it('deve ler um arquivo de texto e retornar suas linhas', () => {
+        const arquivo = path.resolve(__dirname, 'arquivo-teste.txt');
+        fs.writeFileSync(arquivo, 'linha 1\nlinha 2\nlinha 3');
 
-        const linhas = lerTextoDeArquivo(caminho);
+        const linhas = lerTextoDeArquivo(arquivo);
 
         expect(linhas).toEqual(['linha 1', 'linha 2', 'linha 3']);
-        fs.unlinkSync(caminho);
+        fs.unlinkSync(arquivo);
     });
 
-    // TODO: Corrigir.
-    it.skip('deve retornar um array vazio se o arquivo não existir', () => {
-        const caminho = path.resolve(__dirname, 'arquivo-nao-existe.txt');
+    it('deve retornar um array vazio se o arquivo não existir', () => {
+        const arquivo = path.resolve(__dirname, 'arquivo-nao-existe.txt');
 
-        const linhas = lerTextoDeArquivo(caminho);
+        const linhas = lerTextoDeArquivo(arquivo);
 
         expect(linhas).toEqual([]);
     });
 });
 
 describe('buscaVariavelAmbienteEmArquivo', () => {
-    // TODO: Corrigir este mock.
-    it.skip('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
-        (VariaveisAmbiente.lerTextoDeArquivo as jest.Mock).mockImplementation(() => ['chaveSecreta=MinhaChave', 'outraVariavel=OutroValor']);
-        const valor = VariaveisAmbiente.buscarVariavelAmbienteEmArquivo('chaveSecreta');
-        expect(valor).toBe('MinhaChave');
+    it('deve retornar o valor da variável de ambiente se ela existir no arquivo', () => {
+        const arquivoAmbiente = path.join(process.cwd(), '.ambiente');
+        fs.writeFileSync(arquivoAmbiente, 'chaveSecreta=MinhaChave\noutraVariavel=OutroValor');
+        try {
+            const valor = buscarVariavelAmbienteEmArquivo('chaveSecreta');
+            expect(valor).toBe('MinhaChave');
+        } finally {
+            fs.unlinkSync(arquivoAmbiente);
+        }
     });
 
     it('deve retornar undefined se a variável de ambiente não existir no arquivo', () => {
@@ -46,7 +41,7 @@ describe('buscaVariavelAmbienteEmArquivo', () => {
         expect(valor).toBeUndefined();
     });
 });
-        
+
 describe('devolveVariavelAmbiente', () => {
     const ANTIGO_AMBIENTE = process.env;
 

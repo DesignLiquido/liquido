@@ -1,6 +1,15 @@
 import { ProvedorLincones } from '../../infraestrutura/provedores';
 
-describe.skip('Testes do provedor Lincones', () => {
+jest.mock('@designliquido/lincones-sqlite', () => ({
+    __esModule: true,
+    default: jest.fn().mockImplementation(function () {
+        this.iniciar = jest.fn().mockResolvedValue(undefined);
+        this.executar = jest.fn();
+        this.executarComando = jest.fn();
+    }),
+}));
+
+describe('Testes do provedor Lincones', () => {
   let provedor: ProvedorLincones;
 
   beforeEach(() => {
@@ -19,7 +28,7 @@ describe.skip('Testes do provedor Lincones', () => {
 
   it('Deve resolver o provedor', async () => {
     provedor.configurar('tecnologia', 'sqlite');
-    provedor.configurar('caminho', 'banco.db');
+    provedor.configurar('caminho', ':memory:');
     const modulo = await provedor.resolver();
     expect(modulo.componentes['executar']).toBeTruthy();
   });
