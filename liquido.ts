@@ -5,7 +5,7 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
+import { ErroInterpretadorInterface, InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
@@ -24,6 +24,7 @@ import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-docume
 import { Requisicao } from './infraestrutura/requisicao';
 import { InterpretadorLiquido } from './infraestrutura/interpretador-liquido';
 import { RetornoQuebra } from '@designliquido/delegua/quebras';
+import { listaDeErros } from './erros';
 
 /**
  * O núcleo do framework.
@@ -397,6 +398,18 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
+    private classificarErro(erro: ErroInterpretadorInterface): string {
+        const textoErro = (erro.mensagem || erro.erroInterno?.message || '').toLowerCase();
+
+        for (const item of listaDeErros) {
+            if (textoErro.includes(item.palavraChave)) {
+                return item.codigo;
+            }
+        }
+
+        return 'LIQ99999';
+    }
+
     private logicaComumErrosInterpretacao(
         retornoInterpretador: RetornoInterpretadorInterface
     ): {
@@ -407,18 +420,25 @@ export class Liquido implements LiquidoInterface {
         const listaErros: string[] = [];
 
         for (const erro of retornoInterpretador.erros) {
+            const tipoErro = this.classificarErro(erro);
+
             if (erro.erroInterno) {
                 const erroInternoTipado: {
                     message: string;
-                    stack: string;
+                    pilha: string;
                 } = erro.erroInterno;
 
                 listaErros.push(
-                    `Mensagem: ${erroInternoTipado.message}\n
-                    Stack: ${erroInternoTipado.stack}`
+                    `
+                    Código: ${tipoErro}\n
+                    Mensagem: ${erroInternoTipado.message}\n
+                    Pilha: ${erroInternoTipado.pilha}
+                    `
                 );
             } else {
-                listaErros.push(`[Linha ${erro.linha}]: ${erro.mensagem}`);
+                listaErros.push(
+                    `${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`
+                );
             }
         }
 
