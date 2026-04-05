@@ -5,7 +5,7 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes';
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
+import { ErroInterpretadorInterface, InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
 
@@ -24,6 +24,7 @@ import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-docume
 import { Requisicao } from './infraestrutura/requisicao';
 import { InterpretadorLiquido } from './infraestrutura/interpretador-liquido';
 import { RetornoQuebra } from '@designliquido/delegua/quebras';
+import { listaDeErros } from './erros';
 
 /**
  * O núcleo do framework.
@@ -397,23 +398,169 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private logicaComumErrosInterpretacao(retornoInterpretador: RetornoInterpretadorInterface): {
+    private classificarErro(erro: ErroInterpretadorInterface): string {
+        const textoErro = (erro.mensagem || erro.erroInterno?.message || '').toLowerCase();
+
+        for (const item of listaDeErros) {
+            if (textoErro.includes(item.palavraChave)) {
+                return item.codigo;
+            }
+        }
+
+        return 'LIQ99999';
+    }
+
+    private logicaComumErrosInterpretacao(
+        retornoInterpretador: RetornoInterpretadorInterface
+    ): {
         corpoRetorno?: any;
         statusHttp?: number;
         redirecionamento?: string;
     } {
-        let corpoRetorno = '';
+        const listaErros: string[] = [];
+
         for (const erro of retornoInterpretador.erros) {
+            const tipoErro = this.classificarErro(erro);
+
             if (erro.erroInterno) {
-                const erroInternoTipado: { message: string; stack: string } = erro.erroInterno;
-                corpoRetorno += erroInternoTipado.message;
-                corpoRetorno += erroInternoTipado.stack;
+                const erroInternoTipado: {
+                    message: string;
+                    pilha: string;
+                } = erro.erroInterno;
+
+                listaErros.push(
+                    `
+                    Código: ${tipoErro}\n
+                    Mensagem: ${erroInternoTipado.message}\n
+                    Pilha: ${erroInternoTipado.pilha}
+                    `
+                );
             } else {
-                corpoRetorno += `[Linha ${erro.linha}]: ${erro.mensagem}`;
+                listaErros.push(
+                    `${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`
+                );
             }
         }
 
-        return { corpoRetorno: corpoRetorno, statusHttp: 500 };
+        let corpoFinal: any;
+
+        if (this.centroConfiguracoes.liquido.arquetipo === 'mvc') {
+            const itensLista = listaErros
+                .map(erro => `<li><pre>${erro}</pre></li>`)
+                .join('');
+
+            corpoFinal = `
+                <!DOCTYPE html>
+                <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Erro de Execução - Líquido</title>
+                        <style>
+                            :root {
+                                --fundo: #f4f6f8;
+                                --texto: #333;
+                                --vermelho-topo: #dc3545;
+                                --branco: #ffffff;
+                                --borda: #e1e4e8;
+                                --fundo-codigo: #2d2d2d;
+                                --texto-codigo: #f8f8f2;
+                            }
+
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                                background-color: var(--fundo);
+                                color: var(--texto);
+                                margin: 0;
+                                padding: 0;
+                                line-height: 1.6;
+                            }
+
+                            .cabecalho-erro {
+                                background-color: var(--vermelho-topo);
+                                color: var(--branco);
+                                padding: 40px 20px;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            }
+
+                            .container {
+                                max-width: 1000px;
+                                margin: 0 auto;
+                            }
+
+                            h1 {
+                                margin: 0;
+                                font-size: 2.2rem;
+                                font-weight: 600;
+                            }
+
+                            h2 {
+                                color: var(--vermelho-topo);
+                                border-bottom: 2px solid #ffcccc;
+                                padding-bottom: 10px;
+                                margin-top: 40px;
+                                font-size: 1.5rem;
+                            }
+
+                            .conteudo {
+                                padding: 20px;
+                            }
+
+                            ul.stack-trace {
+                                list-style: none;
+                                padding: 0;
+                                margin: 0;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 15px;
+                            }
+
+                            ul.stack-trace li {
+                                background: var(--branco);
+                                border: 1px solid var(--borda);
+                                border-radius: 8px;
+                                padding: 20px;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                overflow-x: auto;
+                            }
+
+                            pre {
+                                background-color: var(--fundo-codigo);
+                                color: var(--texto-codigo);
+                                padding: 15px;
+                                border-radius: 6px;
+                                font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                                font-size: 14px;
+                                margin: 0;
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="cabecalho-erro">
+                            <div class="container">
+                                <h1>Ocorreu um erro</h1>
+                            </div>
+                        </div>
+
+                        <div class="container conteudo">
+                            <h2>Pilha de Execução</h2>
+                            <ul class="stack-trace">${itensLista}</ul>
+                        </div>
+                    </body>
+                </html>
+            `;
+        }
+
+        if (this.centroConfiguracoes.liquido.arquetipo === 'rest') {
+            corpoFinal = {
+                mensagem: 'Ocorreu um erro interno na aplicação.',
+                detalhes: listaErros
+            };
+        }
+
+        return { corpoRetorno: corpoFinal, statusHttp: 500 };
     }
 
     /**

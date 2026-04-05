@@ -295,5 +295,29 @@ describe('Liquido', () => {
             expect(resultadoLimpo[0]).toEqual({ id: 1 });
             expect(resultadoLimpo[0]).not.toHaveProperty('endereco');
         });
+
+        it('[MVC] Deve retornar tela de erro', () => {
+            (liquido as any).centroConfiguracoes = {
+                liquido: { arquetipo: 'mvc' }
+            }
+
+            const erroFalso = {
+                erros: [
+                    {
+                        linha: 1,
+                        mensagem: "Aconteceu um erro..."
+                    }
+                ]
+            };
+
+            const resultado = (liquido as any).logicaComumErrosInterpretacao(
+                erroFalso
+            );
+
+            expect(resultado.statusHttp).toBe(500);
+            expect(resultado.corpoRetorno).toContain(
+                'Erro de Execução - Líquido'
+            );
+        });
     });
 });
