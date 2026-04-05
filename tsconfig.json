@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "ignoreDeprecations": "6.0",
+        "ignoreDeprecations": "5.0",
         "baseUrl": ".",
         "paths": {
             "@designliquido/delegua": ["node_modules/@designliquido/delegua/dist"],
