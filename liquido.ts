@@ -37,7 +37,7 @@ export class Liquido implements LiquidoInterface {
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
     foles: FolEs;
-    centroConfiguracoes: CentroConfiguracoes;
+    centroConfiguracoes!: CentroConfiguracoes;
     autoDocumentador: AutoDocumentador;
 
     arquivosDelegua: string[];
@@ -96,18 +96,22 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
-     * Método de importação do arquivo `configuracao.delegua`.
+     * Método de importação do arquivo `configuracao.delprops`.
      * @returns void.
      */
     async importarArquivoConfiguracao(): Promise<void> {
         const caminhoConfigArquivo = this.resolverArquivoConfiguracao();
 
         if (caminhoConfigArquivo.valor === false) {
-            console.info("Arquivo 'configuracao.delegua' não encontrado.");
+            console.info("Arquivo 'configuracao.delprops' não encontrado.");
             return;
         }
 
         try {
+            if (!caminhoConfigArquivo.caminho) {
+                return;
+            }
+
             const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho, -1);
             const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
                 retornoImportador.retornoLexador,
@@ -161,7 +165,7 @@ export class Liquido implements LiquidoInterface {
         }
 
         for (const arquivo of listaDeArquivos) {
-            if (arquivo === 'configuracao.delegua') {
+            if (arquivo === 'configuracao.delprops') {
                 return { caminho: caminho.join(diretorioBase, arquivo), valor: true } as RetornoConfiguracaoInterface;
             }
         }
@@ -176,7 +180,7 @@ export class Liquido implements LiquidoInterface {
     descobrirRotas(diretorio: string): void {
         const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
-        const diretorioDescobertos = [];
+        const diretorioDescobertos: string[] = [];
 
         listaDeRotas.forEach((diretorioOuArquivo) => {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
@@ -199,7 +203,7 @@ export class Liquido implements LiquidoInterface {
         try {
             const listaDeEstilos = sistemaDeArquivos.readdirSync('./estilos');
 
-            const arquivosDescobertos = [];
+            const arquivosDescobertos: string[] = [];
 
             listaDeEstilos.forEach((diretorioOuArquivo) => {
                 const caminhoAbsoluto = caminho.join('./estilos', diretorioOuArquivo);
@@ -312,7 +316,10 @@ export class Liquido implements LiquidoInterface {
                                     // Referência a função declarada
                                     const nomeFuncao = argumento.simbolo.lexema;
                                     if (funcaoDeclaracoes.has(nomeFuncao)) {
-                                        argumentosResolvidos.push(funcaoDeclaracoes.get(nomeFuncao));
+                                        const funcaoResolvida = funcaoDeclaracoes.get(nomeFuncao);
+                                        if (funcaoResolvida) {
+                                            argumentosResolvidos.push(funcaoResolvida);
+                                        }
                                     } else {
                                         console.error(`Função '${nomeFuncao}' referenciada mas não encontrada em ${arquivo}`);
                                     }
@@ -395,6 +402,7 @@ export class Liquido implements LiquidoInterface {
             );
         } catch (erro: any) {
             console.error(erro);
+            throw erro;
         }
     }
 
@@ -570,7 +578,11 @@ export class Liquido implements LiquidoInterface {
      * @param propriedades Propriedades da resposta, usadas para escolher a visão e parametrizá-la.
      * @returns Um objeto com o corpo do retorno e o status HTTP correspondente.
      */
-    private async logicaComumRespostaVisaoLmht(caminhoRota: string, statusHttp: number, propriedades: {[nome: string]: any}) {
+    private async logicaComumRespostaVisaoLmht(
+        caminhoRota: string,
+        statusHttp: number,
+        propriedades: {[nome: string]: any}
+    ): Promise<CorpoResposta> {
         try {
             let visao: string = caminhoRota;
             // Verifica se foi definida uma preferência de visão.
@@ -589,6 +601,7 @@ export class Liquido implements LiquidoInterface {
             return { corpoRetorno: resultadoFormatacaoLmht, statusHttp: statusHttp };
         } catch (erro: any) {
             console.error(`Erro ao processar LMHT: ${erro}.`);
+            return { corpoRetorno: 'Erro ao processar visualizacao LMHT.', statusHttp: 500 };
         }
     }
 
@@ -728,10 +741,17 @@ export class Liquido implements LiquidoInterface {
         // Separa middlewares (todos menos o último) e handler (último argumento)
         const middlewares = argumentos.slice(0, -1);
         const handler = argumentos[argumentos.length - 1];
-        const metodoResolvido = MetodoRoteador[metodoRoteador.replace('rota', '')];
+        const chaveMetodo = metodoRoteador.replace('rota', '') as keyof typeof MetodoRoteador;
+        const metodoResolvido = MetodoRoteador[chaveMetodo];
+        const registradorRota = this.roteador.mapaRotas[metodoResolvido];
 
-        this.roteador.mapaRotas[metodoResolvido](caminhoRota, async (req, res) => {
-            let corpoEStatus: CorpoResposta = null;
+        if (!metodoResolvido || !registradorRota) {
+            console.error(`Metodo de rota '${metodoRoteador}' nao suportado.`);
+            return;
+        }
+
+        registradorRota(caminhoRota, async (req, res) => {
+            let corpoEStatus: CorpoResposta = {};
 
             // Executa middlewares em sequência
             for (let i = 0; i < middlewares.length; i++) {
@@ -755,7 +775,8 @@ export class Liquido implements LiquidoInterface {
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
             } else {
-                res.send(corpoEStatus.corpoRetorno).status(corpoEStatus.statusHttp);
+                const statusResposta = corpoEStatus.statusHttp ?? 200;
+                res.status(statusResposta).send(corpoEStatus.corpoRetorno);
             }
         });
     }
@@ -774,7 +795,7 @@ export class Liquido implements LiquidoInterface {
         }
 
         if ('propriedades' in item && item.propriedades) {
-            const novoObjeto = {};
+            const novoObjeto: {[chave: string]: any} = {};
             const propriedades = item.propriedades;
 
             for (const [chave, valorProp] of Object.entries(propriedades)) {

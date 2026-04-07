@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "ignoreDeprecations": "5.0",
-        "baseUrl": ".",
+        "types": ["node", "jest"],
         "paths": {
-            "@designliquido/delegua": ["node_modules/@designliquido/delegua/dist"],
-            "@designliquido/delegua/*": ["node_modules/@designliquido/delegua/dist/*"]
+            "@designliquido/delegua": ["./node_modules/@designliquido/delegua/dist"],
+            "@designliquido/delegua/*": ["./node_modules/@designliquido/delegua/dist/*"]
         },
         "outDir": "dist",
         "module": "commonjs",

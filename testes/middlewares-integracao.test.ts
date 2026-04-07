@@ -133,7 +133,7 @@ describe('Testes de Integração - Middlewares', () => {
             );
 
             expect(retorno.valor).toBe(true);
-            expect(retorno.caminho).toContain('configuracao.delegua');
+            expect(retorno.caminho).toContain('configuracao.delprops');
         });
 
         it('Deve retornar valor false se configuração não existir', () => {

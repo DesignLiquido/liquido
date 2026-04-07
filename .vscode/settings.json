@@ -1,3 +1,7 @@
 {
-    "nuxt.isNuxtApp": false
+    "nuxt.isNuxtApp": false,
+    "chat.tools.terminal.autoApprove": {
+        "yarn jest": true,
+        "yarn tsc": true
+    }
 }

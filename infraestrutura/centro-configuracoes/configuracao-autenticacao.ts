@@ -1,4 +1,4 @@
-import { RoteadorInterface } from "interfaces/roteador-interface";
+import { RoteadorInterface } from "../../interfaces/roteador-interface";
 import { ConfiguracaoComum } from "./configuracao-comum";
 
 export class ConfiguracaoAutenticacao extends ConfiguracaoComum {

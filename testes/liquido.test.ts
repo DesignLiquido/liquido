@@ -55,7 +55,7 @@ describe('Liquido', () => {
         );
 
         expect(retorno.valor).toBeTruthy();
-        expect(retorno.caminho).toBe(caminho.join(__dirname, 'exemplos', 'configuracao.delegua'));
+        expect(retorno.caminho).toBe(caminho.join(__dirname, 'exemplos', 'configuracao.delprops'));
     });
 
     describe('Testes de Middlewares', () => {

@@ -1,4 +1,4 @@
 export interface RetornoConfiguracaoInterface {
-    caminho: string;
+    caminho: string | null;
     valor: boolean;
 }

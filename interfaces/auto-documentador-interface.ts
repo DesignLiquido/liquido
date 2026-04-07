@@ -1,4 +1,4 @@
-import { DocumentoOpenApi } from "infraestrutura/auto-documentacao";
+import { DocumentoOpenApi } from "../infraestrutura/auto-documentacao";
 
 export interface AutoDocumentadorInterface {
     nomeAplicacao: string;
