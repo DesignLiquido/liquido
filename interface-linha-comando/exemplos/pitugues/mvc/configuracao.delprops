@@ -1,0 +1,24 @@
+// Configuração da aplicação em si.
+liquido.arquetipo = 'mvc'
+liquido.linguagem = 'pituguês'
+liquido.aplicacao.nome = 'Minha aplicação'
+liquido.aplicacao.versao = '0.0.0'
+liquido.aplicacao.descricao = 'A minha aplicação é um MVC.'
+liquido.aplicacao.licenca.nome = 'MIT'
+liquido.aplicacao.licenca.url = 'https://github.com/DesignLiquido/liquido/LICENSE'
+
+// Configuração de arquivos estáticos
+liquido.roteador.diretorioEstatico = 'publico'
+
+// Configuração do roteador.
+liquido.roteador.cors = verdadeiro
+liquido.roteador.bodyParser = verdadeiro
+liquido.roteador.morgan = verdadeiro
+liquido.roteador.cookieParser = verdadeiro
+liquido.roteador.passport = falso
+liquido.roteador.json = verdadeiro
+liquido.roteador.helmet = verdadeiro
+
+// Configuração de bases de dados
+liquido.dados.lincones.tecnologia = 'sqlite'
+liquido.dados.lincones.caminho = ':memory:'
