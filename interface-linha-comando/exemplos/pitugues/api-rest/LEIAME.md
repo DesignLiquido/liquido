@@ -1,22 +1,22 @@
 # API REST
 
-Este padrão de projeto implementa o que chamamos de API (_Application Programming Interface_, ou Interface de Programação de Aplicação) REST (_Representational State Transfer_, ou Transferência de Estado Representacional). 
+Este padrão de projeto implementa o que chamamos de API (_Application Programming Interface_, ou Interface de Programação de Aplicação) REST (_Representational State Transfer_, ou Transferência de Estado Representacional).
 
 ## Não li e nem lerei
 
-Se você não tem paciência para ler o documento inteiro, colocamos em `rotas/inicial.delegua` um exemplo funcional de rotas trabalhando com JSON. Há um outro documento `LEIAME.md` dentro do diretório `rotas` que pode ajudar.
+Se você não tem paciência para ler o documento inteiro, colocamos em `rotas/inicial.pitu` um exemplo funcional de rotas trabalhando com JSON. Há um outro documento `LEIAME.md` dentro do diretório `rotas` que pode ajudar.
 
 Se tem, boa leitura.
 
 ## Siglas API e REST
 
-É importante entender o que cada uma dessas siglas significa separadamente. 
+É importante entender o que cada uma dessas siglas significa separadamente.
 
 **APIs** normalmente expõem componentes que são usados dentro de uma aplicação, como métodos, propriedades e classes, e são tipicamente distribuídas por pessoas ou empresas para uso por terceiros (ou consumidores). Por definição, uma interface não expõe como esses métodos, propriedades e classes são implementados. A maioria das interfaces possui uma documentação, e esta documentação orienta os consumidores sobre como utilizar cada componente da interface.
 
-**REST** é um dos vários protocolos da Internet. Em REST, uma aplicação expõe uma série de recursos. Cada recurso é acessível através de um conjunto de endereços e métodos. 
+**REST** é um dos vários protocolos da Internet. Em REST, uma aplicação expõe uma série de recursos. Cada recurso é acessível através de um conjunto de endereços e métodos.
 
-Cada endereço segue uma convenção que chamamos de URL (_Universal Resource Locator_, ou Localizador Universal de Recurso). _Sites_, ou sítios da internet, usualmente são acessíveis por um endereço que indica qual protocolo de transferência deve ser utilizando (HTTP e FTP são os mais populares, mas há muitos outros), seguido de `://` (dois-pontos e duas barras), um localizador DNS (_Domain Name Server_, ou Servidor de Nomes de Domínio) e um caminho. Por exemplo, `http://designliquido.com.br`. O protocolo é HTTP, e o endereço DNS da empresa que construiu Líquido é `designliquido.com.br` (`.com` quer dizer que é um sítio comercial, e `.br` quer dizer que fica no Brasil). 
+Cada endereço segue uma convenção que chamamos de URL (_Universal Resource Locator_, ou Localizador Universal de Recurso). _Sites_, ou sítios da internet, usualmente são acessíveis por um endereço que indica qual protocolo de transferência deve ser utilizando (HTTP e FTP são os mais populares, mas há muitos outros), seguido de `://` (dois-pontos e duas barras), um localizador DNS (_Domain Name Server_, ou Servidor de Nomes de Domínio) e um caminho. Por exemplo, `http://designliquido.com.br`. O protocolo é HTTP, e o endereço DNS da empresa que construiu Líquido é `designliquido.com.br` (`.com` quer dizer que é um sítio comercial, e `.br` quer dizer que fica no Brasil).
 
 Ao acessar o sítio da Design Líquido no seu navegador de internet, o navegador assume um método (ou verbo) padrão. Por padrão, toda e qualquer requisição cujo método não esteja especificado usa o método `GET` (obter). Este método indica que queremos ler o conteúdo correspondente ao endereço. O servidor da Design Líquido irá receber esta requisição, montar uma página em HTML e devolver.
 
@@ -28,7 +28,7 @@ APIs REST se tornaram muito populares com a criação de _smartphones_. Antes do
 
 Serialização é um processo de estruturação de dados. Essa estruturação pode ser legível a seres humanos (por exemplo, JSON, XML, YAML) ou não (Protobuf, binário, etc.), sendo os formatos menos legíveis os mais otimizados para uso por máquinas. A serialização é feita por serializadores, e o processo de desestruturação desses dados é chamado de desserialização. Serializadores e desserializadores seguem a especificação do formato que implementam.
 
-Existem centenas de formatos de serialização, que servem a diferentes propósitos. JSON e XML, por exemplo, são muito bons para estruturar dados aninhados, em uma enorme quantidade de detalhes. 
+Existem centenas de formatos de serialização, que servem a diferentes propósitos. JSON e XML, por exemplo, são muito bons para estruturar dados aninhados, em uma enorme quantidade de detalhes.
 
 A melhor forma de explicar serialização é por exemplos. Vamos supor que queremos construir uma API REST para um blog. O primeiro recurso que queremos implementar é o de leitura de artigos, e vamos supor que temos três artigos já escritos:
 
@@ -111,20 +111,20 @@ Ou seja, aninhamos os artigos como valor de uma chave `"artigos"`, dentro de um 
 
 ## Serialização para JSON em Líquido
 
-O método `.json()` do objeto `resposta` serializa um dicionário em Delégua para a representação JSON. Dicionários em Delégua são muito parecidos com objetos JSON, com algumas diferenças:
+O método `.json()` do objeto `resposta` serializa um dicionário em Pituguês para a representação JSON. Dicionários em Pituguês são muito parecidos com objetos JSON, com algumas diferenças:
 
-- Dicionários em Delégua permitem chaves como números. Objetos JSON permitem apenas chaves delimitadas por aspas duplas.
+- Dicionários em Pituguês permitem chaves como números. Objetos JSON permitem apenas chaves delimitadas por aspas duplas.
 
 Para usar, basta passar qualquer dicionário, seja literal ou variável, como argumento de `resposta.json()`:
 
 ```js
-liquido.rotaGet(funcao(requisicao, resposta) {
+@liquido.rotaGet("/")
+funcao minha_rota(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
-})
 ```
 
 ## Auto-documentação
@@ -136,13 +136,13 @@ Uma boa parte dos elementos são depreendidos pelo método de rota usado, o tipo
 Do exemplo anterior:
 
 ```js
-liquido.rotaGet(funcao(requisicao, resposta) {
+@liquido.rotaGet("/")
+funcao minha_rota(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
-})
 ```
 
 - Sabemos a rota pela posição do arquivo controlador na estrutura de diretórios;
@@ -160,21 +160,21 @@ Os decoradores suportados atualmente estão como no exemplo abaixo:
 
 ```js
 @rest.documentacao(
-    sumario = "Um exemplo de rota GET.", 
-    descricao = "Uma descrição mais detalhada sobre como a rota GET funciona.", 
+    sumario = "Um exemplo de rota GET.",
+    descricao = "Uma descrição mais detalhada sobre como a rota GET funciona.",
     idOperacao = "lerArtigos",
     etiquetas = ["artigos"]
 )
 @rest.resposta(
-    codigo = 200, 
-    descricao = "Devolvido com sucesso", 
+    codigo = 200,
+    descricao = "Devolvido com sucesso",
     formatos = ["application/json", "application/xml"]
 )
-liquido.rotaGet(funcao(requisicao, resposta) {
+@liquido.rotaGet("/")
+funcao minha_rota(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
-})
 ```

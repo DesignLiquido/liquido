@@ -27,7 +27,10 @@ describe('Liquido', () => {
     });
 
     it('Testando descobrirRotas()', () => {
-        liquido.descobrirRotas(caminho.join(__dirname, 'exemplos/rotas'));
+        liquido.descobrirRotas(
+            caminho.join(__dirname, 'exemplos/rotas'),
+            'delegua'
+        );
         const rota1 = liquido.arquivosDelegua[0].split('rotas')[1];
         const rota2 = liquido.arquivosDelegua[1].split('rotas')[1];
         expect(liquido.arquivosDelegua.length).toBeGreaterThanOrEqual(2);
@@ -38,10 +41,13 @@ describe('Liquido', () => {
     it('Testando resolverCaminhoRota()', () => {
         const expected: string[] = [];
 
-        liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+        liquido.descobrirRotas(
+            caminho.join(__dirname, 'exemplos', 'rotas'),
+            'delegua'
+        );
 
         liquido.arquivosDelegua.forEach((arquivo) => {
-            expected.push(liquido.resolverCaminhoRota(arquivo));
+            expected.push(liquido.resolverCaminhoRota(arquivo, 'delegua'));
         });
 
         expect(expected.length).toBeGreaterThanOrEqual(2);
@@ -65,7 +71,10 @@ describe('Liquido', () => {
 
         it('Deve importar arquivo de rotas com middlewares sem erros', async () => {
             // Testa que o arquivo com middlewares é importado corretamente
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Verifica que o arquivo middlewares.delegua foi descoberto
             const arquivoMiddlewares = liquido.arquivosDelegua.find(
@@ -78,7 +87,10 @@ describe('Liquido', () => {
         it('Deve processar rotas com diferentes quantidades de middlewares', async () => {
             // Este teste verifica que as rotas são registradas corretamente
             // Pode ser expandido para verificar o comportamento específico
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Verifica que múltiplos arquivos de rota foram descobertos
             expect(liquido.arquivosDelegua.length).toBeGreaterThan(0);
@@ -92,7 +104,10 @@ describe('Liquido', () => {
 
         it('Deve resolver caminhos de rotas com middlewares corretamente', () => {
             const caminhoTeste = caminho.join(__dirname, 'exemplos', 'rotas', 'middlewares.delegua');
-            const caminhoResolvido = liquido.resolverCaminhoRota(caminhoTeste);
+            const caminhoResolvido = liquido.resolverCaminhoRota(
+                caminhoTeste,
+                'delegua'
+            );
 
             // O caminho resolvido deve ser '/middlewares'
             expect(caminhoResolvido).toBe('/middlewares');
@@ -143,6 +158,7 @@ describe('Liquido', () => {
                     await copiarArquivosDeExemploParaNovoProjeto(
                         'ProjetoLegal',
                         'api-rest',
+                        'delegua',
                         caminhoDiretorioProjeto
                     );
 
@@ -159,6 +175,7 @@ describe('Liquido', () => {
                     await copiarArquivosDeExemploParaNovoProjeto(
                         'ProjetoLegal',
                         'mvc',
+                        'delegua',
                         caminhoDiretorioProjeto
                     );
 
@@ -180,6 +197,7 @@ describe('Liquido', () => {
                 await copiarArquivosDeExemploParaNovoProjeto(
                     'ProjetoLegal',
                     'api-rest',
+                    'delegua',
                     caminhoDiretorioProjeto
                 );
 
@@ -240,6 +258,7 @@ describe('Liquido', () => {
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjetoResolvido,
                     'api-rest',
+                    'delegua',
                     caminhoDiretorioProjeto
                 );
 
