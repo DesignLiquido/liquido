@@ -1,0 +1,3 @@
+@liquido.rotaGet("/")
+funcao minha_rota_get(requisicao, resposta):
+    resposta.enviar("Olá, Pituguês").status(200)

@@ -64,6 +64,71 @@ describe('Liquido', () => {
         expect(retorno.caminho).toBe(caminho.join(__dirname, 'exemplos', 'configuracao.delprops'));
     });
 
+    describe('Suporte a Pituguês', () => {
+        it('Deve analisar e carregar o arquivo inicial.pitu sem erros de sintaxe', async () => {
+            liquido = new Liquido(caminho.join(__dirname, 'exemplos'));
+
+            (liquido as any).centroConfiguracoes = {
+                liquido: { linguagem: 'pitugues' }
+            };
+
+            jest.spyOn(
+                liquido,
+                'importarArquivoConfiguracao'
+            ).mockImplementation(async () => { });
+
+            await expect(liquido.iniciar()).resolves.not.toThrow();
+
+            expect(liquido.arquivosPitugues.length).toBeGreaterThan(0);
+
+            const arquivoProcessado = liquido.arquivosPitugues.some(
+                arquivo => arquivo.includes('inicial.pitu')
+            );
+            expect(arquivoProcessado).toBe(true);
+        });
+
+        it('Deve descobrir arquivos .pitu recursivamente quando a linguagem for pitugues', () => {
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'pitugues'
+            );
+
+            expect(liquido.arquivosPitugues.length).toBeGreaterThan(0);
+
+            liquido.arquivosPitugues.forEach(arquivo => {
+                expect(arquivo.endsWith('.pitu')).toBe(true);
+            });
+
+            expect(liquido.arquivosDelegua.length).toBe(0);
+        });
+
+        it('Deve resolver caminho de arquivo inicial.pitu para rota raiz', () => {
+            const arquivo = caminho.join(
+                __dirname,
+                'exemplos',
+                'rotas',
+                'inicial.pitu'
+            );
+            const rota = liquido.resolverCaminhoRota(arquivo, 'pitugues');
+
+            expect(rota).toBe('');
+        });
+
+        it('Deve remover extensão .pitu do caminho', () => {
+            const arquivo = caminho.join(
+                __dirname,
+                'exemplos',
+                'rotas',
+                'teste.pitu'
+            );
+            const rota = liquido.resolverCaminhoRota(arquivo, 'pitugues');
+
+            expect(rota).not.toContain('.pitu');
+
+            expect(rota.replace(/\\/g, '/')).toBe('/teste');
+        });
+    });
+
     describe('Testes de Middlewares', () => {
         beforeEach(() => {
             liquido = new Liquido(process.cwd());

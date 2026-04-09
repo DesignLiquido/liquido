@@ -57,7 +57,9 @@ export class Liquido implements LiquidoInterface {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
         this.arquivosDelegua = [];
+        this.arquivosPitugues = [];
         this.rotasDelegua = [];
+        this.rotasPitugues = [];
         this.diretorioDescobertos = [];
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
