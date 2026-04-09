@@ -2,7 +2,7 @@ import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
 import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
-import { AvaliadorSintaticoPituguesComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/dialetos/avaliador-sintatico-pitugues-com-importacao';
+import { AvaliadorSintaticoLiquidoPitugues } from './infraestrutura/avaliador-sintatico-liquido';
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
@@ -26,7 +26,6 @@ import { Requisicao } from './infraestrutura/requisicao';
 import { InterpretadorLiquido, InterpretadorLiquidoPitugues } from './infraestrutura/interpretador-liquido';
 import { RetornoQuebra } from '@designliquido/delegua/quebras';
 import { listaDeErros } from './erros';
-import { RetornoAvaliadorSintatico } from '@designliquido/lincones-sqlite/fontes/comum/fontes/interfaces/retornos';
 import { Declaracao } from '@designliquido/foles/declaracoes';
 
 /**
@@ -34,7 +33,7 @@ import { Declaracao } from '@designliquido/foles/declaracoes';
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador;
-    avaliadorSintatico: AvaliadorSintaticoComImportacao | AvaliadorSintaticoPituguesComImportacao;
+    avaliadorSintatico: AvaliadorSintaticoComImportacao | AvaliadorSintaticoLiquidoPitugues;
     interpretador: InterpretadorInterface;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
@@ -63,6 +62,21 @@ export class Liquido implements LiquidoInterface {
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
 
+        this.importador = new Importador(
+            new Lexador(),
+            this.arquivosAbertos,
+            this.conteudoArquivosAbertos,
+            false
+        );
+        this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(
+            this.importador
+        );
+        this.interpretador = new InterpretadorLiquido(
+            this.importador,
+            process.cwd(),
+            false,
+            console.log
+        );
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
@@ -73,20 +87,8 @@ export class Liquido implements LiquidoInterface {
     async iniciar(): Promise<void> {
         await this.importarArquivoConfiguracao();
 
-        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem;
-
-        this.avaliadorSintatico = linguagemSelecionada === 'delegua'
-            ? new AvaliadorSintaticoComImportacao(this.importador)
-            : new AvaliadorSintaticoPituguesComImportacao(this.importador);
-
-        this.avaliadorSintatico.tiposDeFerramentasExternas = {
-            liquido: {
-                lincones: 'módulo',
-                liquido: 'módulo',
-                requisicao: 'módulo',
-                resposta: 'módulo'
-            }
-        };
+        const linguagemSelecionada = this
+            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
 
         if (linguagemSelecionada === 'delegua') {
             this.importador = new Importador(
@@ -115,6 +117,19 @@ export class Liquido implements LiquidoInterface {
                 console.log
             );
         }
+
+        this.avaliadorSintatico = linguagemSelecionada === 'delegua'
+            ? new AvaliadorSintaticoComImportacao(this.importador)
+            : new AvaliadorSintaticoLiquidoPitugues(this.importador);
+
+        this.avaliadorSintatico.tiposDeFerramentasExternas = {
+            liquido: {
+                lincones: 'módulo',
+                liquido: 'módulo',
+                requisicao: 'módulo',
+                resposta: 'módulo'
+            }
+        };
 
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
@@ -394,7 +409,8 @@ export class Liquido implements LiquidoInterface {
             'rotaPropfind'
         ]);
 
-        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem;
+        const linguagemSelecionada = this
+            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
 
         this.descobrirRotas(
             caminho.join(this.diretorioBase, 'rotas'),
