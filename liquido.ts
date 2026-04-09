@@ -1,8 +1,7 @@
 import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
-import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
-import { AvaliadorSintaticoLiquidoPitugues } from './infraestrutura/avaliador-sintatico-liquido';
+import { AvaliadorSintaticoDeleguaLiquido, AvaliadorSintaticoPituguesLiquido } from './infraestrutura/avaliador-sintatico-liquido';
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
@@ -33,7 +32,7 @@ import { Declaracao } from '@designliquido/foles/declaracoes';
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador;
-    avaliadorSintatico: AvaliadorSintaticoComImportacao | AvaliadorSintaticoLiquidoPitugues;
+    avaliadorSintatico: AvaliadorSintaticoDeleguaLiquido | AvaliadorSintaticoPituguesLiquido;
     interpretador: InterpretadorInterface;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
@@ -70,7 +69,7 @@ export class Liquido implements LiquidoInterface {
             this.conteudoArquivosAbertos,
             false
         );
-        this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(
+        this.avaliadorSintatico = new AvaliadorSintaticoDeleguaLiquido(
             this.importador
         );
         this.interpretador = new InterpretadorLiquido(
@@ -121,8 +120,8 @@ export class Liquido implements LiquidoInterface {
         }
 
         this.avaliadorSintatico = linguagemSelecionada === 'delegua'
-            ? new AvaliadorSintaticoComImportacao(this.importador)
-            : new AvaliadorSintaticoLiquidoPitugues(this.importador);
+            ? new AvaliadorSintaticoDeleguaLiquido(this.importador)
+            : new AvaliadorSintaticoPituguesLiquido(this.importador);
 
         this.avaliadorSintatico.tiposDeFerramentasExternas = {
             liquido: {
@@ -395,6 +394,28 @@ export class Liquido implements LiquidoInterface {
         return argumentosResolvidos;
     }
 
+    private extrairChamadaLiquido(
+        declaracao: any
+    ): { nomeMetodo: string; argumentos: any[] } | null {
+        const expressao = declaracao instanceof Expressao
+            ? declaracao.expressao
+            : null;
+
+        if (
+            expressao instanceof Chamada &&
+            expressao.entidadeChamada instanceof AcessoMetodo &&
+            expressao.entidadeChamada.objeto instanceof Variavel &&
+            expressao.entidadeChamada.objeto.simbolo.lexema.toLowerCase() === 'liquido'
+        ) {
+            return {
+                nomeMetodo: expressao.entidadeChamada.nomeMetodo,
+                argumentos: expressao.argumentos
+            };
+        }
+
+        return null;
+    }
+
     async importarArquivosRotas(): Promise<void> {
         const metodosRotaPermitidos = new Set([
             'rotaGet',
@@ -432,33 +453,54 @@ export class Liquido implements LiquidoInterface {
 
             // Segundo passo: processar registros de rotas e resolver referências a funções
             for (const declaracao of declaracoes) {
-                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
-                if (!(declaracao instanceof Expressao)) continue;
+                // Decoradores em Funções (@liquido.rotaGet)
+                if (
+                    declaracao instanceof FuncaoDeclaracao && declaracao.decoradores?.length > 0
+                ) {
+                    for (const decorador of declaracao.decoradores) {
+                        const nomeDecorador = decorador.nome.toLowerCase();
 
-                const expressao = declaracao.expressao as Chamada;
-                const entidadeChamada = expressao.entidadeChamada as AcessoMetodo;
-                const objeto = entidadeChamada.objeto as Variavel;
+                        if (nomeDecorador.startsWith('liquido.rota')) {
+                            const partes = decorador.nome.split('.');
+                            const nomeMetodo = partes[partes.length - 1];
 
-                if (objeto.simbolo.lexema.toLowerCase() !== 'liquido') continue;
-
-                const nomeMetodo = entidadeChamada.nomeMetodo;
-                if (!metodosRotaPermitidos.has(nomeMetodo)) {
-                    console.error(`Método ${nomeMetodo} não reconhecido.`);
-                    continue;
+                            if (metodosRotaPermitidos.has(nomeMetodo)) {
+                                await this.adicionarRota(
+                                    nomeMetodo,
+                                    this.resolverCaminhoRota(
+                                        arquivo,
+                                        linguagemSelecionada
+                                    ),
+                                    [declaracao.funcao]
+                                );
+                            }
+                        }
+                    }
                 }
 
-                // Resolve argumentos: converte Variavel em FuncaoConstruto
-                const argumentosResolvidos = this.resolverArgumentosDaRota(
-                    expressao.argumentos,
-                    funcaoDeclaracoes,
-                    arquivo
-                );
+                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
+                const chamadaLiquido = this.extrairChamadaLiquido(declaracao);
+                if (chamadaLiquido) {
+                    const { nomeMetodo, argumentos } = chamadaLiquido;
 
-                await this.adicionarRota(
-                    nomeMetodo,
-                    this.resolverCaminhoRota(arquivo, linguagemSelecionada),
-                    argumentosResolvidos
-                );
+                    if (metodosRotaPermitidos.has(nomeMetodo)) {
+                        const argumentosResolvidos = this
+                            .resolverArgumentosDaRota(
+                                argumentos,
+                                funcaoDeclaracoes,
+                                arquivo
+                            );
+
+                        await this.adicionarRota(
+                            nomeMetodo,
+                            this.resolverCaminhoRota(
+                                arquivo,
+                                linguagemSelecionada
+                            ),
+                            argumentosResolvidos
+                        );
+                    }
+                }
             }
         }
     }
@@ -849,7 +891,11 @@ export class Liquido implements LiquidoInterface {
      *                   para a resolução da rota. O último argumento é o handler final,
      *                   todos os anteriores são middlewares executados em sequência.
      */
-    async adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: FuncaoConstruto[]): Promise<void> {
+    async adicionarRota(
+        metodoRoteador: string,
+        caminhoRota: string,
+        argumentos: FuncaoConstruto[]
+    ): Promise<void> {
         if (argumentos.length === 0) {
             console.error(`Rota ${caminhoRota} não possui nenhuma função definida.`);
             return;
@@ -865,6 +911,13 @@ export class Liquido implements LiquidoInterface {
         if (!metodoResolvido || !registradorRota) {
             console.error(`Metodo de rota '${metodoRoteador}' nao suportado.`);
             return;
+        }
+
+        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem || 'delegua';
+        if (linguagemSelecionada === 'delegua') {
+            this.rotasDelegua.push(caminhoRota);
+        } else {
+            this.rotasPitugues.push(caminhoRota);
         }
 
         registradorRota(caminhoRota, async (req, res) => {

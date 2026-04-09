@@ -65,6 +65,32 @@ describe('Liquido', () => {
     });
 
     describe('Suporte a Pituguês', () => {
+        it('Deve registrar a rota "/" a partir de um decorador no Pituguês', async () => {
+            const instanciaTeste = new Liquido(
+                caminho.join(__dirname, 'exemplos')
+            );
+
+            (instanciaTeste as any).centroConfiguracoes = {
+                liquido: { linguagem: 'pitugues', arquetipo: 'rest' }
+            };
+
+            jest.spyOn(
+                instanciaTeste,
+                'importarArquivoConfiguracao'
+            ).mockImplementation(async () => { });
+            jest.spyOn(
+                instanciaTeste.roteador,
+                'iniciar'
+            ).mockImplementation(() => { });
+
+            await instanciaTeste.iniciar();
+
+            expect(instanciaTeste.arquivosPitugues.length).toBeGreaterThan(0);
+            expect(instanciaTeste.rotasPitugues).toContain('');
+
+            jest.restoreAllMocks();
+        });
+
         it('Deve analisar e carregar o arquivo inicial.pitu sem erros de sintaxe', async () => {
             liquido = new Liquido(caminho.join(__dirname, 'exemplos'));
 
@@ -76,6 +102,11 @@ describe('Liquido', () => {
                 liquido,
                 'importarArquivoConfiguracao'
             ).mockImplementation(async () => { });
+
+            jest.spyOn(
+                liquido.roteador,
+                'iniciar'
+            ).mockImplementation(() => { });
 
             await expect(liquido.iniciar()).resolves.not.toThrow();
 
