@@ -27,7 +27,10 @@ describe('Liquido', () => {
     });
 
     it('Testando descobrirRotas()', () => {
-        liquido.descobrirRotas(caminho.join(__dirname, 'exemplos/rotas'));
+        liquido.descobrirRotas(
+            caminho.join(__dirname, 'exemplos/rotas'),
+            'delegua'
+        );
         const rota1 = liquido.arquivosDelegua[0].split('rotas')[1];
         const rota2 = liquido.arquivosDelegua[1].split('rotas')[1];
         expect(liquido.arquivosDelegua.length).toBeGreaterThanOrEqual(2);
@@ -38,10 +41,13 @@ describe('Liquido', () => {
     it('Testando resolverCaminhoRota()', () => {
         const expected: string[] = [];
 
-        liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+        liquido.descobrirRotas(
+            caminho.join(__dirname, 'exemplos', 'rotas'),
+            'delegua'
+        );
 
         liquido.arquivosDelegua.forEach((arquivo) => {
-            expected.push(liquido.resolverCaminhoRota(arquivo));
+            expected.push(liquido.resolverCaminhoRota(arquivo, 'delegua'));
         });
 
         expect(expected.length).toBeGreaterThanOrEqual(2);
@@ -58,6 +64,102 @@ describe('Liquido', () => {
         expect(retorno.caminho).toBe(caminho.join(__dirname, 'exemplos', 'configuracao.delprops'));
     });
 
+    describe('Suporte a Pituguês', () => {
+        it('Deve registrar a rota "/" a partir de um decorador no Pituguês', async () => {
+            const instanciaTeste = new Liquido(
+                caminho.join(__dirname, 'exemplos')
+            );
+
+            (instanciaTeste as any).centroConfiguracoes = {
+                liquido: { linguagem: 'pitugues', arquetipo: 'rest' }
+            };
+
+            jest.spyOn(
+                instanciaTeste,
+                'importarArquivoConfiguracao'
+            ).mockImplementation(async () => { });
+            jest.spyOn(
+                instanciaTeste.roteador,
+                'iniciar'
+            ).mockImplementation(() => { });
+
+            await instanciaTeste.iniciar();
+
+            expect(instanciaTeste.arquivosPitugues.length).toBeGreaterThan(0);
+            expect(instanciaTeste.rotasPitugues).toContain('');
+
+            jest.restoreAllMocks();
+        });
+
+        it('Deve analisar e carregar o arquivo inicial.pitu sem erros de sintaxe', async () => {
+            liquido = new Liquido(caminho.join(__dirname, 'exemplos'));
+
+            (liquido as any).centroConfiguracoes = {
+                liquido: { linguagem: 'pitugues' }
+            };
+
+            jest.spyOn(
+                liquido,
+                'importarArquivoConfiguracao'
+            ).mockImplementation(async () => { });
+
+            jest.spyOn(
+                liquido.roteador,
+                'iniciar'
+            ).mockImplementation(() => { });
+
+            await expect(liquido.iniciar()).resolves.not.toThrow();
+
+            expect(liquido.arquivosPitugues.length).toBeGreaterThan(0);
+
+            const arquivoProcessado = liquido.arquivosPitugues.some(
+                arquivo => arquivo.includes('inicial.pitu')
+            );
+            expect(arquivoProcessado).toBe(true);
+        });
+
+        it('Deve descobrir arquivos .pitu recursivamente quando a linguagem for pitugues', () => {
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'pitugues'
+            );
+
+            expect(liquido.arquivosPitugues.length).toBeGreaterThan(0);
+
+            liquido.arquivosPitugues.forEach(arquivo => {
+                expect(arquivo.endsWith('.pitu')).toBe(true);
+            });
+
+            expect(liquido.arquivosDelegua.length).toBe(0);
+        });
+
+        it('Deve resolver caminho de arquivo inicial.pitu para rota raiz', () => {
+            const arquivo = caminho.join(
+                __dirname,
+                'exemplos',
+                'rotas',
+                'inicial.pitu'
+            );
+            const rota = liquido.resolverCaminhoRota(arquivo, 'pitugues');
+
+            expect(rota).toBe('');
+        });
+
+        it('Deve remover extensão .pitu do caminho', () => {
+            const arquivo = caminho.join(
+                __dirname,
+                'exemplos',
+                'rotas',
+                'teste.pitu'
+            );
+            const rota = liquido.resolverCaminhoRota(arquivo, 'pitugues');
+
+            expect(rota).not.toContain('.pitu');
+
+            expect(rota.replace(/\\/g, '/')).toBe('/teste');
+        });
+    });
+
     describe('Testes de Middlewares', () => {
         beforeEach(() => {
             liquido = new Liquido(process.cwd());
@@ -65,7 +167,10 @@ describe('Liquido', () => {
 
         it('Deve importar arquivo de rotas com middlewares sem erros', async () => {
             // Testa que o arquivo com middlewares é importado corretamente
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Verifica que o arquivo middlewares.delegua foi descoberto
             const arquivoMiddlewares = liquido.arquivosDelegua.find(
@@ -78,7 +183,10 @@ describe('Liquido', () => {
         it('Deve processar rotas com diferentes quantidades de middlewares', async () => {
             // Este teste verifica que as rotas são registradas corretamente
             // Pode ser expandido para verificar o comportamento específico
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Verifica que múltiplos arquivos de rota foram descobertos
             expect(liquido.arquivosDelegua.length).toBeGreaterThan(0);
@@ -92,7 +200,10 @@ describe('Liquido', () => {
 
         it('Deve resolver caminhos de rotas com middlewares corretamente', () => {
             const caminhoTeste = caminho.join(__dirname, 'exemplos', 'rotas', 'middlewares.delegua');
-            const caminhoResolvido = liquido.resolverCaminhoRota(caminhoTeste);
+            const caminhoResolvido = liquido.resolverCaminhoRota(
+                caminhoTeste,
+                'delegua'
+            );
 
             // O caminho resolvido deve ser '/middlewares'
             expect(caminhoResolvido).toBe('/middlewares');
@@ -143,6 +254,7 @@ describe('Liquido', () => {
                     await copiarArquivosDeExemploParaNovoProjeto(
                         'ProjetoLegal',
                         'api-rest',
+                        'delegua',
                         caminhoDiretorioProjeto
                     );
 
@@ -159,6 +271,7 @@ describe('Liquido', () => {
                     await copiarArquivosDeExemploParaNovoProjeto(
                         'ProjetoLegal',
                         'mvc',
+                        'delegua',
                         caminhoDiretorioProjeto
                     );
 
@@ -180,6 +293,7 @@ describe('Liquido', () => {
                 await copiarArquivosDeExemploParaNovoProjeto(
                     'ProjetoLegal',
                     'api-rest',
+                    'delegua',
                     caminhoDiretorioProjeto
                 );
 
@@ -240,6 +354,7 @@ describe('Liquido', () => {
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjetoResolvido,
                     'api-rest',
+                    'delegua',
                     caminhoDiretorioProjeto
                 );
 

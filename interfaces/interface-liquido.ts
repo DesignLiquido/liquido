@@ -16,8 +16,8 @@ export interface LiquidoInterface {
     diretorioEstatico: string;
 
     iniciar(): Promise<void>;
-    descobrirRotas(diretorio: string): void;
-    resolverCaminhoRota(caminhoArquivo: string): string;
+    descobrirRotas(diretorio: string, linguagem: string): void;
+    resolverCaminhoRota(caminhoArquivo: string, linguagem: string): string;
     importarArquivosRotas(): void;
     importarArquivoConfiguracao(): void;
     resolverArquivoConfiguracao(caminhoTotal?: string): RetornoConfiguracaoInterface;

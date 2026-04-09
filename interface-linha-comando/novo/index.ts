@@ -18,13 +18,14 @@ export function criarDiretorioAplicacao(nomeAplicacao: string): string {
 export async function copiarArquivosDeExemploParaNovoProjeto(
     nomeProjeto: string,
     tipoDeProjeto: string,
+    linguagemDeBackEnd: string,
     diretorioProjeto: string
 ) {
     const diretorioExemplos = caminho.join(
-        __dirname, '../exemplos/' + tipoDeProjeto
+        __dirname, `../exemplos/${linguagemDeBackEnd}/` + tipoDeProjeto
     );
     const formatoGlob =
-        (diretorioExemplos + '/**/*.{delprops,foles,lmht,md}')
+        (diretorioExemplos + '/**/*.{delegua,pitu,delprops,foles,lmht,md}')
         .replace(/\\/gi, '/');
 
     const caminhosArquivos = await glob([formatoGlob], {

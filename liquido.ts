@@ -1,13 +1,13 @@
 import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
-import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
+import { AvaliadorSintaticoDeleguaLiquido, AvaliadorSintaticoPituguesLiquido } from './infraestrutura/avaliador-sintatico-liquido';
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
-import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes';
+import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { ErroInterpretadorInterface, InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
-import { Lexador, Simbolo } from '@designliquido/delegua/lexador';
+import { Lexador, LexadorPitugues, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
 
@@ -22,16 +22,17 @@ import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
 import { AspectoConfiguracaoInterface } from './infraestrutura/centro-configuracoes/aspecto-configuracao-interface';
 import { AutoDocumentador } from './infraestrutura/auto-documentacao/auto-documentador';
 import { Requisicao } from './infraestrutura/requisicao';
-import { InterpretadorLiquido } from './infraestrutura/interpretador-liquido';
+import { InterpretadorLiquido, InterpretadorLiquidoPitugues } from './infraestrutura/interpretador-liquido';
 import { RetornoQuebra } from '@designliquido/delegua/quebras';
 import { listaDeErros } from './erros';
+import { Declaracao } from '@designliquido/foles/declaracoes';
 
 /**
  * O núcleo do framework.
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador;
-    avaliadorSintatico: AvaliadorSintaticoComImportacao;
+    avaliadorSintatico: AvaliadorSintaticoDeleguaLiquido | AvaliadorSintaticoPituguesLiquido;
     interpretador: InterpretadorInterface;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
@@ -41,7 +42,9 @@ export class Liquido implements LiquidoInterface {
     autoDocumentador: AutoDocumentador;
 
     arquivosDelegua: string[];
+    arquivosPitugues: string[];
     rotasDelegua: string[];
+    rotasPitugues: string[];
     diretorioBase: string;
     diretorioDescobertos: string[];
     diretorioEstatico: string;
@@ -53,25 +56,16 @@ export class Liquido implements LiquidoInterface {
         this.arquivosAbertos = {};
         this.conteudoArquivosAbertos = {};
         this.arquivosDelegua = [];
+        this.arquivosPitugues = [];
         this.rotasDelegua = [];
+        this.rotasPitugues = [];
         this.diretorioDescobertos = [];
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
 
-        this.importador = new Importador(new Lexador(), this.arquivosAbertos, this.conteudoArquivosAbertos, false);
-
-        this.avaliadorSintatico = new AvaliadorSintaticoComImportacao(this.importador);
-        this.avaliadorSintatico.tiposDeFerramentasExternas = {
-            liquido: {
-                lincones: 'módulo',
-                liquido: 'módulo',
-                requisicao: 'módulo',
-                resposta: 'módulo'
-            }
-        };
+        this.configurarPipelineLinguagem('delegua');
 
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
-        this.interpretador = new InterpretadorLiquido(this.importador, process.cwd(), false, console.log);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
         this.provedorLincones = new ProvedorLincones();
@@ -80,6 +74,12 @@ export class Liquido implements LiquidoInterface {
 
     async iniciar(): Promise<void> {
         await this.importarArquivoConfiguracao();
+
+        const linguagemSelecionada = this
+            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
+
+        this.configurarPipelineLinguagem(linguagemSelecionada);
+
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
@@ -93,6 +93,50 @@ export class Liquido implements LiquidoInterface {
         }
 
         this.escreverEstilos();
+    }
+
+    private configurarPipelineLinguagem(linguagem: string = 'delegua'): void {
+        const lexador = linguagem === 'delegua'
+            ? new Lexador()
+            : new LexadorPitugues();
+
+        this.importador = new Importador(
+            lexador,
+            this.arquivosAbertos,
+            this.conteudoArquivosAbertos,
+            false
+        );
+
+        if (linguagem === 'delegua') {
+            this.interpretador = new InterpretadorLiquido(
+                this.importador,
+                process.cwd(),
+                false,
+                console.log
+            );
+            this.avaliadorSintatico = new AvaliadorSintaticoDeleguaLiquido(
+                this.importador
+            );
+        } else {
+            this.interpretador = new InterpretadorLiquidoPitugues(
+                this.importador,
+                process.cwd(),
+                false,
+                console.log
+            );
+            this.avaliadorSintatico = new AvaliadorSintaticoPituguesLiquido(
+                this.importador
+            );
+        }
+
+        this.avaliadorSintatico.tiposDeFerramentasExternas = {
+            liquido: {
+                lincones: 'módulo',
+                liquido: 'módulo',
+                requisicao: 'módulo',
+                resposta: 'módulo'
+            }
+        };
     }
 
     /**
@@ -177,16 +221,24 @@ export class Liquido implements LiquidoInterface {
      * Método de descoberta de rotas. Recursivo.
      * @param diretorio O diretório a ser pesquisado.
      */
-    descobrirRotas(diretorio: string): void {
+    descobrirRotas(diretorio: string, linguagem: string): void {
         const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
         const diretorioDescobertos: string[] = [];
 
         listaDeRotas.forEach((diretorioOuArquivo) => {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
-            if (caminhoAbsoluto.endsWith('.delegua')) {
-                this.arquivosDelegua.push(caminhoAbsoluto);
-                return;
+
+            if (linguagem === 'delegua') {
+                if (caminhoAbsoluto.endsWith('.delegua')) {
+                    this.arquivosDelegua.push(caminhoAbsoluto);
+                    return;
+                }
+            } else if (linguagem === 'pitugues') {
+                if (caminhoAbsoluto.endsWith('.pitu')) {
+                    this.arquivosPitugues.push(caminhoAbsoluto);
+                    return;
+                }
             }
 
             if (sistemaDeArquivos.lstatSync(caminhoAbsoluto).isDirectory()) {
@@ -195,7 +247,7 @@ export class Liquido implements LiquidoInterface {
         });
 
         diretorioDescobertos.forEach((diretorioDescoberto) => {
-            this.descobrirRotas(diretorioDescoberto);
+            this.descobrirRotas(diretorioDescoberto, linguagem);
         });
     }
 
@@ -248,98 +300,197 @@ export class Liquido implements LiquidoInterface {
      * @param {string} caminhoArquivo O caminho do arquivo que está sendo lido
      * @returns A rota resolvida.
      */
-    resolverCaminhoRota(caminhoArquivo: string): string {
+    resolverCaminhoRota(caminhoArquivo: string, linguagem: string): string {
+        const extensaoLinguagem = linguagem === 'delegua'
+            ? 'delegua'
+            : 'pitu';
+
         const partesArquivo = caminhoArquivo.split('rotas');
         const rotaResolvida = partesArquivo[1]
-            .replace('inicial.delegua', '')
-            .replace('.delegua', '')
+            .replace(`inicial.${extensaoLinguagem}`, '')
+            .replace(`.${extensaoLinguagem}`, '')
             .replace(new RegExp(`\\${caminho.sep}`, 'g'), '/')
             .replace(new RegExp(`/$`, 'g'), '')
             .replace(new RegExp(`\\[(.+)\\]`, 'g'), ':$1');
         return rotaResolvida;
     }
 
-    async importarArquivosRotas(): Promise<void> {
-        this.descobrirRotas(caminho.join(this.diretorioBase, 'rotas'));
+    async analisarArquivo(arquivo: string): Promise<Declaracao[] | null> {
+        const retornoImportador = this.importador.importar(arquivo, -1);
 
-        for (const arquivo of this.arquivosDelegua) {
-            const retornoImportador = this.importador.importar(arquivo, -1);
-            const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
+        const retornoAvaliadorSintatico = await this
+            .avaliadorSintatico
+            .analisar(
                 retornoImportador.retornoLexador,
                 retornoImportador.hashArquivo
             );
 
-            if (retornoAvaliadorSintatico.erros.length > 0) {
-                for (const erro of retornoAvaliadorSintatico.erros) {
-                    console.error(`[Linha ${erro.linha}] Erro na rota ${arquivo}: ${erro.message}`);
-                }
-                continue;
+        if (retornoAvaliadorSintatico.erros.length > 0) {
+            for (const erro of retornoAvaliadorSintatico.erros) {
+                console.error(
+                    `[Linha ${erro.linha}] Erro na rota ${arquivo}: ${erro.message}`
+                );
             }
+
+            return null;
+        }
+
+        return retornoAvaliadorSintatico.declaracoes;
+    }
+
+    private coletarFuncoesDaRota(
+        declaracoes: Declaracao[]
+    ): Map<string, FuncaoConstruto> {
+        const funcaoDeclaracoes: Map<string, FuncaoConstruto> = new Map();
+
+        for (const declaracao of declaracoes) {
+            if (declaracao instanceof FuncaoDeclaracao) {
+                funcaoDeclaracoes.set(declaracao.simbolo.lexema, declaracao.funcao);
+            }
+        }
+
+        return funcaoDeclaracoes;
+    }
+
+    private resolverArgumentosDaRota(
+        argumentos: any[],
+        funcoesDeclaradas: Map<string, FuncaoConstruto>,
+        arquivo: string
+    ): FuncaoConstruto[] {
+        const argumentosResolvidos: FuncaoConstruto[] = [];
+
+        for (const argumento of argumentos) {
+            if (argumento instanceof Variavel) {
+                // Referência a função declarada
+                const nomeFuncao = argumento.simbolo.lexema;
+
+                if (funcoesDeclaradas.has(nomeFuncao)) {
+                    const funcaoResolvida = funcoesDeclaradas.get(nomeFuncao);
+
+                    if (funcaoResolvida) {
+                        argumentosResolvidos.push(funcaoResolvida);
+                    }
+                } else {
+                    console.error(`Função '${nomeFuncao}' referenciada mas não encontrada em ${arquivo}`);
+                }
+            } else if (argumento instanceof FuncaoConstruto) {
+                // Função inline/anônima
+                argumentosResolvidos.push(argumento);
+            } else {
+                console.error(
+                    `Argumento de rota inválido em ${arquivo}: esperado função ou referência a função`
+                );
+            }
+        }
+
+        return argumentosResolvidos;
+    }
+
+    private extrairChamadaLiquido(
+        declaracao: any
+    ): { nomeMetodo: string; argumentos: any[] } | null {
+        const expressao = declaracao instanceof Expressao
+            ? declaracao.expressao
+            : null;
+
+        if (
+            expressao instanceof Chamada &&
+            expressao.entidadeChamada instanceof AcessoMetodo &&
+            expressao.entidadeChamada.objeto instanceof Variavel &&
+            expressao.entidadeChamada.objeto.simbolo.lexema.toLowerCase() === 'liquido'
+        ) {
+            return {
+                nomeMetodo: expressao.entidadeChamada.nomeMetodo,
+                argumentos: expressao.argumentos
+            };
+        }
+
+        return null;
+    }
+
+    async importarArquivosRotas(): Promise<void> {
+        const metodosRotaPermitidos = new Set([
+            'rotaGet',
+            'rotaPost',
+            'rotaPut',
+            'rotaDelete',
+            'rotaPatch',
+            'rotaOptions',
+            'rotaCopy',
+            'rotaHead',
+            'rotaLock',
+            'rotaUnlock',
+            'rotaPurge',
+            'rotaPropfind'
+        ]);
+
+        const linguagemSelecionada = this
+            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
+
+        this.descobrirRotas(
+            caminho.join(this.diretorioBase, 'rotas'),
+            linguagemSelecionada
+        );
+
+        const arquivosParaLer = linguagemSelecionada === 'delegua'
+            ? this.arquivosDelegua
+            : this.arquivosPitugues;
+
+        for (const arquivo of arquivosParaLer) {
+            const declaracoes = await this.analisarArquivo(arquivo);
+            if (!declaracoes) continue;
 
             // Primeiro passo: coletar todas as declarações de funções (middlewares/handlers)
-            const funcaoDeclaracoes: Map<string, FuncaoConstruto> = new Map();
-            for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
-                if (declaracao instanceof FuncaoDeclaracao) {
-                    funcaoDeclaracoes.set(declaracao.simbolo.lexema, declaracao.funcao);
-                }
-            }
+            const funcaoDeclaracoes = this.coletarFuncoesDaRota(declaracoes);
 
             // Segundo passo: processar registros de rotas e resolver referências a funções
-            for (const declaracao of retornoAvaliadorSintatico.declaracoes) {
-                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
-                if (!(declaracao instanceof Expressao)) {
-                    continue;
+            for (const declaracao of declaracoes) {
+                // Decoradores em Funções (@liquido.rotaGet)
+                if (
+                    declaracao instanceof FuncaoDeclaracao && declaracao.decoradores?.length > 0
+                ) {
+                    for (const decorador of declaracao.decoradores) {
+                        const nomeDecorador = decorador.nome.toLowerCase();
+
+                        if (nomeDecorador.startsWith('liquido.rota')) {
+                            const partes = decorador.nome.split('.');
+                            const nomeMetodo = partes[partes.length - 1];
+
+                            if (metodosRotaPermitidos.has(nomeMetodo)) {
+                                await this.adicionarRota(
+                                    nomeMetodo,
+                                    this.resolverCaminhoRota(
+                                        arquivo,
+                                        linguagemSelecionada
+                                    ),
+                                    [declaracao.funcao]
+                                );
+                            }
+                        }
+                    }
                 }
 
-                const expressao: Chamada = declaracao.expressao as Chamada;
-                const entidadeChamada: AcessoMetodo = expressao.entidadeChamada as AcessoMetodo;
-                const objeto = entidadeChamada.objeto as Variavel;
+                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
+                const chamadaLiquido = this.extrairChamadaLiquido(declaracao);
+                if (chamadaLiquido) {
+                    const { nomeMetodo, argumentos } = chamadaLiquido;
 
-                if (objeto.simbolo.lexema.toLowerCase() === 'liquido') {
-                    switch (entidadeChamada.nomeMetodo) {
-                        case 'rotaGet':
-                        case 'rotaPost':
-                        case 'rotaPut':
-                        case 'rotaDelete':
-                        case 'rotaPatch':
-                        case 'rotaOptions':
-                        case 'rotaCopy':
-                        case 'rotaHead':
-                        case 'rotaLock':
-                        case 'rotaUnlock':
-                        case 'rotaPurge':
-                        case 'rotaPropfind':
-                            // Resolve argumentos: converte Variavel em FuncaoConstruto
-                            const argumentosResolvidos: FuncaoConstruto[] = [];
-                            for (const argumento of expressao.argumentos) {
-                                if (argumento instanceof Variavel) {
-                                    // Referência a função declarada
-                                    const nomeFuncao = argumento.simbolo.lexema;
-                                    if (funcaoDeclaracoes.has(nomeFuncao)) {
-                                        const funcaoResolvida = funcaoDeclaracoes.get(nomeFuncao);
-                                        if (funcaoResolvida) {
-                                            argumentosResolvidos.push(funcaoResolvida);
-                                        }
-                                    } else {
-                                        console.error(`Função '${nomeFuncao}' referenciada mas não encontrada em ${arquivo}`);
-                                    }
-                                } else if (argumento instanceof FuncaoConstruto) {
-                                    // Função inline/anônima
-                                    argumentosResolvidos.push(argumento);
-                                } else {
-                                    console.error(`Argumento de rota inválido em ${arquivo}: esperado função ou referência a função`);
-                                }
-                            }
-
-                            await this.adicionarRota(
-                                entidadeChamada.nomeMetodo,
-                                this.resolverCaminhoRota(arquivo),
-                                argumentosResolvidos
+                    if (metodosRotaPermitidos.has(nomeMetodo)) {
+                        const argumentosResolvidos = this
+                            .resolverArgumentosDaRota(
+                                argumentos,
+                                funcaoDeclaracoes,
+                                arquivo
                             );
-                            break;
-                        default:
-                            console.error(`Método ${entidadeChamada.nomeMetodo} não reconhecido.`);
-                            break;
+
+                        await this.adicionarRota(
+                            nomeMetodo,
+                            this.resolverCaminhoRota(
+                                arquivo,
+                                linguagemSelecionada
+                            ),
+                            argumentosResolvidos
+                        );
                     }
                 }
             }
@@ -732,7 +883,11 @@ export class Liquido implements LiquidoInterface {
      *                   para a resolução da rota. O último argumento é o handler final,
      *                   todos os anteriores são middlewares executados em sequência.
      */
-    async adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: FuncaoConstruto[]): Promise<void> {
+    async adicionarRota(
+        metodoRoteador: string,
+        caminhoRota: string,
+        argumentos: FuncaoConstruto[]
+    ): Promise<void> {
         if (argumentos.length === 0) {
             console.error(`Rota ${caminhoRota} não possui nenhuma função definida.`);
             return;
@@ -748,6 +903,13 @@ export class Liquido implements LiquidoInterface {
         if (!metodoResolvido || !registradorRota) {
             console.error(`Metodo de rota '${metodoRoteador}' nao suportado.`);
             return;
+        }
+
+        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem || 'delegua';
+        if (linguagemSelecionada === 'delegua') {
+            this.rotasDelegua.push(caminhoRota);
+        } else {
+            this.rotasPitugues.push(caminhoRota);
         }
 
         registradorRota(caminhoRota, async (req, res) => {

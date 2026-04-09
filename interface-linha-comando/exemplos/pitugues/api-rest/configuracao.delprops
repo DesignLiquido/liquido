@@ -1,5 +1,6 @@
 // Configuração da aplicação em si.
 liquido.arquetipo = 'rest'
+liquido.linguagem = 'pituguês'
 liquido.aplicacao.nome = 'Minha aplicação'
 liquido.aplicacao.versao = '0.0.0'
 liquido.aplicacao.descricao = 'A minha aplicação é uma API REST.'

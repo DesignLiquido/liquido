@@ -148,6 +148,23 @@ class LiquidoPontoEntrada {
                     initial: 1
                 });
 
+                const perguntaLinguagemDeBackEnd = await prompts({
+                    type: 'select',
+                    name: 'linguagemBackEnd',
+                    message: 'Selecione a linguagem de programação',
+                    choices: [
+                        {
+                            title: 'Delégua',
+                            value: 'delegua'
+                        },
+                        {
+                            title: 'Pituguês',
+                            value: 'pitugues'
+                        }
+                    ],
+                    initial: 1
+                });
+
                 const perguntaInicializarRepositorioGit = await prompts({
                     type: 'confirm',
                     message: 'Deseja inicializar um repositório Git?',
@@ -176,6 +193,8 @@ class LiquidoPontoEntrada {
                 const gerenciadorDePacotes =
                     perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
 
+                const linguagemSelecionada = perguntaLinguagemDeBackEnd.linguagemBackEnd;
+
                 await detectarGerenciadorDePacotes(
                     gerenciadorDePacotes,
                     diretorioCompleto
@@ -183,6 +202,7 @@ class LiquidoPontoEntrada {
 
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjeto,
+                    linguagemSelecionada,
                     perguntaTipoProjeto.tipoProjeto,
                     diretorioCompleto
                 );

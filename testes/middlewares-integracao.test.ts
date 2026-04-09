@@ -7,6 +7,10 @@ describe('Testes de Integração - Middlewares', () => {
 
     beforeEach(() => {
         liquido = new Liquido(caminho.join(__dirname, 'exemplos'));
+
+        (liquido as any).centroConfiguracoes = {
+            liquido: { linguagem: 'delegua', arquetipo: 'rest' }
+        };
     });
 
     describe('Importação e Parsing de Rotas com Middlewares', () => {
@@ -16,7 +20,10 @@ describe('Testes de Integração - Middlewares', () => {
         });
 
         it('Deve descobrir todas as rotas incluindo middlewares', () => {
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Verifica que descobriu múltiplos arquivos
             expect(liquido.arquivosDelegua.length).toBeGreaterThan(0);
@@ -35,7 +42,10 @@ describe('Testes de Integração - Middlewares', () => {
                 'rotas',
                 'middlewares.delegua'
             );
-            const caminhoResolvido = liquido.resolverCaminhoRota(arquivoTeste);
+            const caminhoResolvido = liquido.resolverCaminhoRota(
+                arquivoTeste,
+                'delegua'
+            );
 
             expect(caminhoResolvido).toBe('/middlewares');
         });
@@ -70,7 +80,10 @@ describe('Testes de Integração - Middlewares', () => {
         });
 
         it('Deve descobrir arquivos .delegua recursivamente', () => {
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Deve encontrar múltiplos arquivos
             expect(liquido.arquivosDelegua.length).toBeGreaterThanOrEqual(3);
@@ -82,7 +95,10 @@ describe('Testes de Integração - Middlewares', () => {
         });
 
         it('Deve descobrir arquivos em subdiretórios', () => {
-            liquido.descobrirRotas(caminho.join(__dirname, 'exemplos', 'rotas'));
+            liquido.descobrirRotas(
+                caminho.join(__dirname, 'exemplos', 'rotas'),
+                'delegua'
+            );
 
             // Deve incluir arquivos do subdiretório mvc
             const arquivoMvc = liquido.arquivosDelegua.find(
@@ -95,28 +111,28 @@ describe('Testes de Integração - Middlewares', () => {
     describe('Resolução de Caminhos', () => {
         it('Deve resolver caminho de arquivo inicial.delegua para rota raiz', () => {
             const arquivo = caminho.join(__dirname, 'exemplos', 'rotas', 'inicial.delegua');
-            const rota = liquido.resolverCaminhoRota(arquivo);
+            const rota = liquido.resolverCaminhoRota(arquivo, 'delegua');
 
             expect(rota).toBe('');
         });
 
         it('Deve resolver caminho de arquivo em subdiretório', () => {
             const arquivo = caminho.join(__dirname, 'exemplos', 'rotas', 'mvc', 'inicial.delegua');
-            const rota = liquido.resolverCaminhoRota(arquivo);
+            const rota = liquido.resolverCaminhoRota(arquivo, 'delegua');
 
             expect(rota).toBe('/mvc');
         });
 
         it('Deve remover extensão .delegua do caminho', () => {
             const arquivo = caminho.join(__dirname, 'exemplos', 'rotas', 'teste.delegua');
-            const rota = liquido.resolverCaminhoRota(arquivo);
+            const rota = liquido.resolverCaminhoRota(arquivo, 'delegua');
 
             expect(rota).not.toContain('.delegua');
         });
 
         it('Deve substituir separadores de caminho por barras', () => {
             const arquivo = caminho.join(__dirname, 'exemplos', 'rotas', 'sub', 'teste.delegua');
-            const rota = liquido.resolverCaminhoRota(arquivo);
+            const rota = liquido.resolverCaminhoRota(arquivo, 'delegua');
 
             // Deve usar barras, não backslashes
             expect(rota).toContain('/');

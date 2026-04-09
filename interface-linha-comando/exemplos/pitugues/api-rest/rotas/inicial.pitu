@@ -1,0 +1,22 @@
+@rest.documentacao(
+    sumario = "Um exemplo de rota GET.",
+    descricao = "Uma descrição mais detalhada sobre como a rota GET funciona.",
+    idOperacao = "lerArtigos",
+    etiquetas = ["artigos"]
+)
+@rest.resposta(
+    codigo = 200,
+    descricao = "Devolvido com sucesso",
+    formatos = ["application/json", "application/xml"]
+)
+@liquido.rotaGet("/")
+funcao rota_principal(requisicao, resposta):
+    resposta.json([{
+        "id": 1,
+        "titulo": "teste 1",
+        "descricao": "descricao 1"
+    }])
+
+@liquido.rotaPost("/artigos")
+funcao minha_rota_post(requisicao, resposta):
+    resposta.redirecionar("/artigos")
