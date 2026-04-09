@@ -7,6 +7,10 @@ describe('Testes de Integração - Middlewares', () => {
 
     beforeEach(() => {
         liquido = new Liquido(caminho.join(__dirname, 'exemplos'));
+
+        (liquido as any).centroConfiguracoes = {
+            liquido: { linguagem: 'delegua', arquetipo: 'rest' }
+        };
     });
 
     describe('Importação e Parsing de Rotas com Middlewares', () => {

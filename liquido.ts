@@ -63,21 +63,8 @@ export class Liquido implements LiquidoInterface {
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
 
-        this.importador = new Importador(
-            new Lexador(),
-            this.arquivosAbertos,
-            this.conteudoArquivosAbertos,
-            false
-        );
-        this.avaliadorSintatico = new AvaliadorSintaticoDeleguaLiquido(
-            this.importador
-        );
-        this.interpretador = new InterpretadorLiquido(
-            this.importador,
-            process.cwd(),
-            false,
-            console.log
-        );
+        this.configurarPipelineLinguagem('delegua');
+
         this.formatadorLmht = new FormatadorLmht(this.diretorioBase);
         this.autoDocumentador = new AutoDocumentador();
         this.roteador = new Roteador(this.autoDocumentador);
@@ -91,46 +78,7 @@ export class Liquido implements LiquidoInterface {
         const linguagemSelecionada = this
             .centroConfiguracoes?.liquido?.linguagem || 'delegua';
 
-        if (linguagemSelecionada === 'delegua') {
-            this.importador = new Importador(
-                new Lexador(),
-                this.arquivosAbertos,
-                this.conteudoArquivosAbertos,
-                false
-            );
-            this.interpretador = new InterpretadorLiquido(
-                this.importador,
-                process.cwd(),
-                false,
-                console.log
-            );
-        } else {
-            this.importador = new Importador(
-                new LexadorPitugues(),
-                this.arquivosAbertos,
-                this.conteudoArquivosAbertos,
-                false
-            );
-            this.interpretador = new InterpretadorLiquidoPitugues(
-                this.importador,
-                process.cwd(),
-                false,
-                console.log
-            );
-        }
-
-        this.avaliadorSintatico = linguagemSelecionada === 'delegua'
-            ? new AvaliadorSintaticoDeleguaLiquido(this.importador)
-            : new AvaliadorSintaticoPituguesLiquido(this.importador);
-
-        this.avaliadorSintatico.tiposDeFerramentasExternas = {
-            liquido: {
-                lincones: 'módulo',
-                liquido: 'módulo',
-                requisicao: 'módulo',
-                resposta: 'módulo'
-            }
-        };
+        this.configurarPipelineLinguagem(linguagemSelecionada);
 
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
@@ -145,6 +93,50 @@ export class Liquido implements LiquidoInterface {
         }
 
         this.escreverEstilos();
+    }
+
+    private configurarPipelineLinguagem(linguagem: string = 'delegua'): void {
+        const lexador = linguagem === 'delegua'
+            ? new Lexador()
+            : new LexadorPitugues();
+
+        this.importador = new Importador(
+            lexador,
+            this.arquivosAbertos,
+            this.conteudoArquivosAbertos,
+            false
+        );
+
+        if (linguagem === 'delegua') {
+            this.interpretador = new InterpretadorLiquido(
+                this.importador,
+                process.cwd(),
+                false,
+                console.log
+            );
+            this.avaliadorSintatico = new AvaliadorSintaticoDeleguaLiquido(
+                this.importador
+            );
+        } else {
+            this.interpretador = new InterpretadorLiquidoPitugues(
+                this.importador,
+                process.cwd(),
+                false,
+                console.log
+            );
+            this.avaliadorSintatico = new AvaliadorSintaticoPituguesLiquido(
+                this.importador
+            );
+        }
+
+        this.avaliadorSintatico.tiposDeFerramentasExternas = {
+            liquido: {
+                lincones: 'módulo',
+                liquido: 'módulo',
+                requisicao: 'módulo',
+                resposta: 'módulo'
+            }
+        };
     }
 
     /**

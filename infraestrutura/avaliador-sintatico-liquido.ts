@@ -4,35 +4,9 @@ import { Importador } from '@designliquido/delegua-node/importador';
 import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/pitugues';
 import { Decorador } from '@designliquido/delegua';
 
-function filtrarErrosFalsoPositivos(retorno: any) {
-    if (!retorno.erros || retorno.erros.length === 0) return retorno;
-
-    const mensagensIgnoradas = [
-        "variável não definida: 'liquido'",
-        "variável não definida: 'requisicao'",
-        "variável não definida: 'resposta'",
-        "esperado expressão",
-        "esperado nome do parâmetro"
-    ];
-
-    retorno.erros = retorno.erros.filter((erro: any) => {
-        const mensagem = (erro.message || erro.mensagem || '').toLowerCase();
-
-        return !mensagensIgnoradas.some(msg => mensagem.includes(msg));
-    });
-
-    return retorno;
-}
-
 export class AvaliadorSintaticoDeleguaLiquido extends AvaliadorSintaticoComImportacao {
     constructor(importador: Importador) {
         super(importador);
-    }
-
-    async analisar(retornoLexador: any, hashArquivo: number): Promise<any> {
-        const retorno = await super.analisar(retornoLexador, hashArquivo);
-
-        return filtrarErrosFalsoPositivos(retorno);
     }
 }
 
@@ -45,12 +19,6 @@ export class AvaliadorSintaticoPituguesLiquido extends AvaliadorSintaticoPitugue
 
     constructor(importador: Importador) {
         super(importador);
-    }
-
-    async analisar(retornoLexador: any, hashArquivo: number): Promise<any> {
-        const retorno = await super.analisar(retornoLexador, hashArquivo);
-
-        return filtrarErrosFalsoPositivos(retorno);
     }
 
     protected async resolverDecoradores(): Promise<void> {
