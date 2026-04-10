@@ -21,10 +21,11 @@ Conjunto de ferramentas para desenvolvimento de aplicações para a internet 100
 ## Motivação
 
 - [Delégua](https://github.com/DesignLiquido/delegua) é uma linguagem de programação 100% em português;
+- [Pituguês](https://github.com/DesignLiquido/pitugues) é uma linguagem de programação 100% em português com sintaxe baseada em indentação, inspirada em Python;
 - [LMHT](https://github.com/DesignLiquido/LMHT) é uma linguagem de marcação 100% em português, feita para estruturar páginas de internet;
 - [FolEs](https://github.com/DesignLiquido/FolEs) é uma linguagem para folhas de estilo, que estilizam páginas de internet.
 
-Liquido é um ferramentário que combina as três linguagens para ser possível desenvolver para a internet 100% em português.
+Liquido é um ferramentário que combina essas linguagens para ser possível desenvolver para a internet 100% em português.
 
 ## Instalação
 
@@ -84,7 +85,7 @@ npx liquido novo [nome-do-projeto]
 
 `nome-do-projeto` é opcional. Se não for fornecido, a interface deverá perguntar pelo nome do projeto.
 
-### Olá mundo em liquido
+### Olá mundo em Delégua
 
 Crie no seu projeto um diretório chamado `rotas`. Depois, crie dentro de `rotas` um arquivo chamado `inicial.delegua`.
 
@@ -109,6 +110,20 @@ npm run liquido
 ```
 
 Isso deve iniciar um servidor HTTP na porta 3000. Experimente entrar em http://localhost:3000. A mensagem "Olá mundo" deve aparecer.
+
+### Olá mundo em Pituguês
+
+Para usar Pituguês, defina `liquido.linguagem = 'pituguês'` no arquivo de configuração (veja a seção [Configuração](#configuração)). Crie um diretório chamado `rotas` e dentro dele um arquivo chamado `inicial.pitu`.
+
+Em Pituguês, as rotas são registradas por meio de decoradores acima da declaração da função:
+
+```python
+@liquido.rotaGet("/")
+funcao minha_rota_get(requisicao, resposta):
+    resposta.enviar("Olá mundo").status(200)
+```
+
+Execute liquido normalmente com `yarn liquido` ou `npm run liquido`. A mensagem "Olá mundo" deve aparecer ao acessar http://localhost:3000.
 
 ## Inspiração
 
@@ -140,13 +155,20 @@ Para uma implementação inicial, foram escolhidas bibliotecas consagradas do No
 - [Passport](https://www.passportjs.org/), um _middleware_ básico de autenticação;
 - [Cookie Parser](https://www.npmjs.com/package/cookie-parser), um _middleware_ para interpretação de _cookies_ que venham em requisições.
 
-Liquido instancia os três componentes básicos de Delégua e os controla, instrumentando instruções escritas em Delégua para JavaScript puro. Isso garante a acessibilidade de se programar em português com o mínimo de impacto no desempenho da aplicação como um todo, além da eliminação da complexidade de se implementar tudo dentro de Delégua.
+Liquido instancia os componentes básicos de Delégua ou Pituguês (conforme a configuração) e os controla, instrumentando instruções escritas nessas linguagens para JavaScript puro. Isso garante a acessibilidade de se programar em português com o mínimo de impacto no desempenho da aplicação como um todo, além da eliminação da complexidade de se implementar tudo dentro de cada linguagem.
 
 ### Convenção de Rotas
 
-Toda e qualquer rota deve ficar em um diretório `rotas`. O arquivo padrão deve ter o nome `inicial.delegua`.
+Toda e qualquer rota deve ficar em um diretório `rotas`. O arquivo padrão depende da linguagem configurada:
 
-Com isso, se queremos criar uma rota na raiz do site, podemos criar um arquivo `inicial.delegua` com o seguinte:
+| Linguagem | Extensão | Arquivo padrão    |
+|-----------|----------|-------------------|
+| Delégua   | `.delegua` | `inicial.delegua` |
+| Pituguês  | `.pitu`    | `inicial.pitu`    |
+
+#### Rotas em Delégua
+
+Se queremos criar uma rota na raiz do site, podemos criar um arquivo `inicial.delegua` com o seguinte:
 
 ```js
 liquido.rotaGet(funcao(requisicao, resposta) {
@@ -154,14 +176,24 @@ liquido.rotaGet(funcao(requisicao, resposta) {
 })
 ```
 
+#### Rotas em Pituguês
+
+Em Pituguês, as rotas são declaradas com decoradores seguidos da definição da função:
+
+```python
+@liquido.rotaGet("/")
+funcao minha_rota_get(requisicao, resposta):
+    resposta.enviar("Olá mundo").status(200)
+```
+
 A instrução acima registra uma rota HTTP GET em "/" (por exemplo, `http://localhost:3000/`) que responde com um texto "Olá mundo" e o status HTTP 200.
 
 Se queremos uma rota `http://localhost:3000/teste`, podemos fazer de duas formas:
 
-- Criar um arquivo `teste.delegua` em `/rotas`
-- Criar um diretório `teste` dentro de rotas com um arquivo `inicial.delegua`.
+- Em Delégua: criar um arquivo `teste.delegua` em `/rotas`, ou um diretório `teste` com `inicial.delegua` dentro.
+- Em Pituguês: criar um arquivo `teste.pitu` em `/rotas`, ou um diretório `teste` com `inicial.pitu` dentro.
 
-Assim como para o diretório `rotas`, todo e qualquer diretório dentro de `rotas` também tem como arquivo padrão o `inicial.delegua`
+Assim como para o diretório `rotas`, todo e qualquer diretório dentro de `rotas` também tem como arquivo padrão o `inicial.delegua` (Delégua) ou `inicial.pitu` (Pituguês).
 
 Cada arquivo só pode ter uma chamada por método HTTP de rota. Por exemplo, um arquivo não pode ter duas chamadas a `liquido.rotaGet()`. Nada impede um arquivo de ter uma chamada para cada tipo de rota. Os métodos são:
 
@@ -186,16 +218,34 @@ Algumas rotas ainda não são suportadas porque o Express.js 4 não as implement
 
 ### Configuração
 
-Liquido procura por um arquivo chamado `configuracao.delegua` na raiz do seu projeto. Nele ficam as configurações globais da aplicação.
+Liquido procura por um arquivo chamado `configuracao.delprops` na raiz do seu projeto. Nele ficam as configurações globais da aplicação.
 
-Um exemplo de `configuracao.delegua` é o seguinte:
+A propriedade `liquido.linguagem` define qual linguagem de back-end será usada. Os valores aceitos são `'delegua'` (padrão) e `'pituguês'`.
+
+Um exemplo de `configuracao.delprops` para um projeto em Delégua:
 
 ```js
+liquido.arquetipo = 'rest'
+liquido.linguagem = 'delegua'
 liquido.roteador.cors = verdadeiro
 liquido.roteador.bodyParser = verdadeiro
 liquido.roteador.morgan = verdadeiro
 liquido.roteador.cookieParser = verdadeiro
 liquido.roteador.passport = verdadeiro
+liquido.roteador.json = verdadeiro
+liquido.roteador.helmet = verdadeiro
+```
+
+Para usar Pituguês, basta alterar a propriedade `linguagem`:
+
+```js
+liquido.arquetipo = 'rest'
+liquido.linguagem = 'pituguês'
+liquido.roteador.cors = verdadeiro
+liquido.roteador.bodyParser = verdadeiro
+liquido.roteador.morgan = verdadeiro
+liquido.roteador.cookieParser = verdadeiro
+liquido.roteador.passport = falso
 liquido.roteador.json = verdadeiro
 liquido.roteador.helmet = verdadeiro
 ```
