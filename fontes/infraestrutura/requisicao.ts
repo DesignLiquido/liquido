@@ -1,9 +1,6 @@
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { PropriedadeClasse } from '@designliquido/delegua/declaracoes';
 import { DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { Literal } from '@designliquido/delegua';
-
-import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
  * A classe de Requisição envelopa todos os aspectos importantes do Express,
@@ -35,7 +32,7 @@ export class Requisicao extends DescritorTipoClasse {
 
         super(
             new Simbolo('IDENTIFICADOR', 'Requisicao', null, -1, -1), 
-            null, 
+            undefined, 
             metodos, 
             propriedades
         );

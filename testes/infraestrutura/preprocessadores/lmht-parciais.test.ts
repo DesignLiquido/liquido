@@ -1,4 +1,4 @@
-import { PreprocessadorLmhtParciais } from '../../../infraestrutura/preprocessadores/lmht-parciais';
+import { PreprocessadorLmhtParciais } from '../../../fontes/infraestrutura/preprocessadores/lmht-parciais';
 import { verificarXml } from '../../ajudadores/verificar-xml';
 
 describe('Preprocessador de parciais em LMHT', () => {

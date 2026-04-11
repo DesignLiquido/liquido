@@ -1,0 +1,18 @@
+/**
+ * @veja fontes\infraestrutura\resposta.ts
+ */
+@definicao
+classe estrangeira Resposta {
+    destino: texto;
+    respostaJson: dicionário;
+    mensagem: texto;
+    statusHttp: número;
+    valores: dicionário;
+    visao: texto;
+
+    enviar(mensagem: texto): Resposta;
+    status(statusHttp: número): Resposta;
+    lmht(visaoEValores: qualquer[]): Resposta;
+    redirecionar(destino: texto): Resposta;
+    json(respostaJson: dicionário): Resposta;
+}

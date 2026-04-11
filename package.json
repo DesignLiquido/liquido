@@ -35,7 +35,7 @@
         "registry": "https://registry.npmjs.org/"
     },
     "engines": {
-        "node": "^18.18.0 || >=20.0.0"
+        "node": ">=20.0.0"
     },
     "bin": {
         "liquido": "bin/liquido"
@@ -56,10 +56,10 @@
         "testes-unitarios": "yarn jest --coverage"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^1.18.1",
+        "@designliquido/delegua-node": "^1.18.2",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.15.1",
-        "@designliquido/lincones-sqlite": "^0.3.0",
+        "@designliquido/lincones-sqlite": "^0.3.2",
         "@designliquido/lmht-js": "^0.6.2",
         "body-parser": "^1.20.3",
         "chalk": "4.1.2",
@@ -82,7 +82,6 @@
         "yargs": "^17.7.2"
     },
     "devDependencies": {
-        "@designliquido/delegua-interface-grafica": "^0.1.0",
         "@types/body-parser": "^1.19.5",
         "@types/cookie-parser": "^1.4.7",
         "@types/cors": "^2.8.17",

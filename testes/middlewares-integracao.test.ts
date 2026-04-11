@@ -1,6 +1,6 @@
 import * as caminho from 'path';
 
-import { Liquido } from '../liquido';
+import { Liquido } from '../fontes/liquido';
 
 describe('Testes de Integração - Middlewares', () => {
     let liquido: Liquido;

@@ -17,7 +17,7 @@ jest.mock('passport', () => ({
     authenticate: jest.fn().mockReturnValue(jest.fn())
 }));
 
-import Autenticacao from '../../infraestrutura/utilidades/autenticacao';
+import Autenticacao from '../../fontes/infraestrutura/utilidades/autenticacao';
 
 describe('Autenticação - callback JWT', () => {
     const ANTIGO_AMBIENTE = process.env;

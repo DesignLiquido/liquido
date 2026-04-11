@@ -11,7 +11,7 @@ import prompts from 'prompts';
 import { cwd } from 'process';
 import path from 'path';
 
-import {version} from './package.json'
+import {version} from '../package.json'
 
 import { Liquido } from './liquido';
 import {
@@ -125,7 +125,7 @@ class LiquidoPontoEntrada {
                 message: 'Confirma?',
                 name: 'confirmado',
                 initial: true,
-                onRender() {
+                onRender(this: any) {
                     this.yesMsg = 'Sim';
                     this.noMsg = 'não';
                     this.yesOption = '(S/n)';
@@ -170,7 +170,7 @@ class LiquidoPontoEntrada {
                     message: 'Deseja inicializar um repositório Git?',
                     name: 'confirmado',
                     initial: true,
-                    onRender() {
+                    onRender(this: any) {
                         this.yesMsg = 'Sim';
                         this.noMsg = 'não';
                         this.yesOption = '(S/n)';
@@ -231,8 +231,8 @@ class LiquidoPontoEntrada {
         .alias('ajuda', '?')
         .command(['*', 'servidor'], 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor)
         .command('documentar', 'Lê o projeto e gera uma documentação OpenAPI correspondente', {}, this.comandoDocumentar)
-        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', {}, this.comandoNovo)
-        .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', {}, this.comandoGerar)
+        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', { nome: { type: 'string' as const, default: '' } }, this.comandoNovo)
+        .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', { modelo: { type: 'string' as const, default: '' } }, this.comandoGerar)
         .argv
     }
 

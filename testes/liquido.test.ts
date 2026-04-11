@@ -2,14 +2,14 @@ import * as caminho from 'path';
 import sistemaArquivos from 'fs';
 import * as ChildProcess from 'child_process';
 
-import { Liquido } from '../liquido';
-import { RetornoConfiguracaoInterface } from '../interfaces';
+import { Liquido } from '../fontes/liquido';
+import { RetornoConfiguracaoInterface } from '../fontes/interfaces';
 import {
     criarDiretorioAplicacao,
     copiarArquivosDeExemploParaNovoProjeto,
     gerarRepositorioGit,
     detectarGerenciadorDePacotes
-} from '../interface-linha-comando';
+} from '../fontes/interface-linha-comando';
 
 jest.mock('child_process', () => {
     const original = jest.requireActual('child_process');

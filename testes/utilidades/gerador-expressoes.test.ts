@@ -1,4 +1,4 @@
-import { GeradorExpressoes } from '../../infraestrutura/utilidades/gerador-expressoes';
+import { GeradorExpressoes } from '../../fontes/infraestrutura/utilidades/gerador-expressoes';
 import {
     AcessoIndiceVariavel,
     AcessoMetodoOuPropriedade,

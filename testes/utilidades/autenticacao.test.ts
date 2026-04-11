@@ -1,4 +1,4 @@
-import Autenticacao from '../../infraestrutura/utilidades/autenticacao';
+import Autenticacao from '../../fontes/infraestrutura/utilidades/autenticacao';
 
 describe('Autenticação', () => {
     const ANTIGO_AMBIENTE = process.env;

@@ -5,7 +5,15 @@ import { AvaliadorSintaticoDeleguaLiquido, AvaliadorSintaticoPituguesLiquido } f
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { ErroInterpretadorInterface, InterpretadorInterface, ResultadoParcialInterpretadorInterface, RetornoInterpretadorInterface, SimboloInterface, VariavelInterface } from '@designliquido/delegua/interfaces';
+import { 
+    ErroInterpretadorInterface, 
+    InterpretadorInterface, 
+    ResultadoParcialInterpretadorInterface, 
+    RetornoInterpretadorInterface, 
+    RetornoLexador, 
+    SimboloInterface, 
+    VariavelInterface 
+} from '@designliquido/delegua/interfaces';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, LexadorPitugues, Simbolo } from '@designliquido/delegua/lexador';
 
@@ -31,9 +39,9 @@ import { Declaracao } from '@designliquido/foles/declaracoes';
  * O núcleo do framework.
  */
 export class Liquido implements LiquidoInterface {
-    importador: Importador;
-    avaliadorSintatico: AvaliadorSintaticoDeleguaLiquido | AvaliadorSintaticoPituguesLiquido;
-    interpretador: InterpretadorInterface;
+    importador: Importador | undefined = undefined;
+    avaliadorSintatico: AvaliadorSintaticoDeleguaLiquido | AvaliadorSintaticoPituguesLiquido | undefined = undefined;
+    interpretador: InterpretadorInterface | undefined = undefined;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
     provedorLincones: ProvedorLincones;
@@ -85,7 +93,7 @@ export class Liquido implements LiquidoInterface {
         await this.importarArquivosRotas();
 
         this.roteador.iniciar();
-        if (this.provedorLincones.configurado) {
+        if (this.provedorLincones.configurado && this.interpretador) {
             this.interpretador.pilhaEscoposExecucao.definirVariavel(
                 'lincones',
                 await this.provedorLincones.resolver()
@@ -156,21 +164,21 @@ export class Liquido implements LiquidoInterface {
                 return;
             }
 
-            const retornoImportador = this.importador.importar(caminhoConfigArquivo.caminho, -1);
-            const retornoAvaliadorSintatico = await this.avaliadorSintatico.analisar(
-                retornoImportador.retornoLexador,
-                retornoImportador.hashArquivo
+            const retornoImportador = this.importador?.importar(caminhoConfigArquivo.caminho, -1);
+            const retornoAvaliadorSintatico = await this.avaliadorSintatico?.analisar(
+                retornoImportador?.retornoLexador as RetornoLexador<SimboloInterface<string>>,
+                retornoImportador?.hashArquivo as number
             );
 
-            if (retornoAvaliadorSintatico.erros.length > 0) {
+            if ((retornoAvaliadorSintatico?.erros || []).length > 0) {
                 let mensagemCompleta = "";
-                for (const erro of retornoAvaliadorSintatico.erros) {
+                for (const erro of retornoAvaliadorSintatico?.erros || []) {
                     mensagemCompleta += `[Linha ${erro.linha}] Erro no arquivo de configuração: ${erro.message}\n`;
                 }
                 throw new Error(mensagemCompleta);
             }
 
-            this.centroConfiguracoes = new CentroConfiguracoes(retornoAvaliadorSintatico.declaracoes);
+            this.centroConfiguracoes = new CentroConfiguracoes(retornoAvaliadorSintatico?.declaracoes || []);
 
             for (const [chave, configuracao] of Object.entries(this.centroConfiguracoes)) {
                 switch (chave) {
@@ -316,17 +324,18 @@ export class Liquido implements LiquidoInterface {
     }
 
     async analisarArquivo(arquivo: string): Promise<Declaracao[] | null> {
-        const retornoImportador = this.importador.importar(arquivo, -1);
+        const retornoImportador = this.importador?.importar(arquivo, -1);
 
-        const retornoAvaliadorSintatico = await this
-            .avaliadorSintatico
-            .analisar(
-                retornoImportador.retornoLexador,
-                retornoImportador.hashArquivo
+        const retornoAvaliadorSintatico = await (this
+            .avaliadorSintatico as { 
+                analisar: (retornoLexador: RetornoLexador<SimboloInterface<string>>, hashArquivo: number) => Promise<{ erros: any[]; declaracoes: Declaracao[] }> 
+            })?.analisar(
+                retornoImportador?.retornoLexador as RetornoLexador<SimboloInterface<string>>,
+                retornoImportador?.hashArquivo as number
             );
 
-        if (retornoAvaliadorSintatico.erros.length > 0) {
-            for (const erro of retornoAvaliadorSintatico.erros) {
+        if (retornoAvaliadorSintatico?.erros.length > 0) {
+            for (const erro of retornoAvaliadorSintatico?.erros || []) {
                 console.error(
                     `[Linha ${erro.linha}] Erro na rota ${arquivo}: ${erro.message}`
                 );
@@ -335,7 +344,7 @@ export class Liquido implements LiquidoInterface {
             return null;
         }
 
-        return retornoAvaliadorSintatico.declaracoes;
+        return retornoAvaliadorSintatico?.declaracoes || [];
     }
 
     private coletarFuncoesDaRota(
@@ -506,30 +515,30 @@ export class Liquido implements LiquidoInterface {
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
     async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoElementoSintatico('liquido', 'módulo'));
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoElementoSintatico('requisicao', 'módulo'));
-        this.avaliadorSintatico.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoElementoSintatico('resposta', 'módulo'));
+        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoElementoSintatico('liquido', 'módulo'));
+        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoElementoSintatico('requisicao', 'módulo'));
+        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoElementoSintatico('resposta', 'módulo'));
         const descritorClasseRequisicao = new Requisicao(requisicao);
-        await descritorClasseRequisicao.chamar(this.interpretador, []);
+        await descritorClasseRequisicao.chamar(this.interpretador as InterpretadorInterface, []);
         const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
         instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, requisicao.body);
         instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, requisicao.params);
         instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, requisicao.query || {});
         instanciaRequisicao.definir({ lexema: 'parametrosCaminho' } as SimboloInterface, requisicao.path);
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        this.interpretador?.pilhaEscoposExecucao.definirVariavel(
             'requisicao',
             instanciaRequisicao
         );
 
         const descritorClasseResposta = new Resposta();
-        await descritorClasseResposta.chamar(this.interpretador, []);
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(
+        await descritorClasseResposta.chamar(this.interpretador as InterpretadorInterface, []);
+        this.interpretador?.pilhaEscoposExecucao.definirVariavel(
             'resposta',
             new ObjetoDeleguaClasse(descritorClasseResposta)
         );
 
         const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);
-        this.interpretador.pilhaEscoposExecucao.definirVariavel(nomeFuncao, funcaoRetorno);
+        this.interpretador?.pilhaEscoposExecucao.definirVariavel(nomeFuncao, funcaoRetorno);
     }
 
     /**
@@ -540,7 +549,7 @@ export class Liquido implements LiquidoInterface {
      */
     async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretadorInterface> {
         try {
-            return await this.interpretador.interpretar(
+            return await this.interpretador?.interpretar(
                 [
                     new Expressao(
                         new Chamada(-1, new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)), [
@@ -550,7 +559,10 @@ export class Liquido implements LiquidoInterface {
                     )
                 ],
                 true
-            );
+            ) || { 
+                erros: [],
+                resultado: []
+            } as RetornoInterpretadorInterface;
         } catch (erro: any) {
             console.error(erro);
             throw erro;

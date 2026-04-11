@@ -1,5 +1,5 @@
-import { AutoDocumentador } from '../../infraestrutura/auto-documentacao/auto-documentador';
-import { Roteador } from '../../infraestrutura/roteador';
+import { AutoDocumentador } from '../../fontes/infraestrutura/auto-documentacao/auto-documentador';
+import { Roteador } from '../../fontes/infraestrutura/roteador';
 
 jest.mock('express', () => {
   return () => ({

@@ -3,5 +3,5 @@
     "rotas"
   ],
   "ext": "delegua, lmht, foles",
-  "exec": "ts-node ./index.ts"
+  "exec": "ts-node ./fontes/index.ts"
 }

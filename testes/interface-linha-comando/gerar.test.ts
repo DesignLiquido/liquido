@@ -1,10 +1,10 @@
 import * as sistemaArquivos from 'fs';
-import * as caminho from 'path';
+
 import {
     obterTodosModelos,
     criarDiretorioSeNaoExiste,
     criarDiretorioComIdSeNaoExiste
-} from '../../interface-linha-comando/gerar';
+} from '../../fontes/interface-linha-comando/gerar';
 
 jest.mock('fs', () => ({
     ...jest.requireActual('fs'),

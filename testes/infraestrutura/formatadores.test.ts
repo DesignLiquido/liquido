@@ -1,4 +1,4 @@
-import { FormatadorLmht } from '../../infraestrutura/formatadores';
+import { FormatadorLmht } from '../../fontes/infraestrutura/formatadores';
 
 describe('Testes do formatador LMHT', () => {
   let formatador: FormatadorLmht;

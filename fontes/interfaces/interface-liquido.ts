@@ -6,8 +6,8 @@ import { Roteador } from '../infraestrutura/roteador';
 import { RetornoConfiguracaoInterface } from './retorno-configuracao-interface';
 
 export interface LiquidoInterface {
-    importador: Importador;
-    interpretador: InterpretadorInterface;
+    importador: Importador | undefined;
+    interpretador: InterpretadorInterface | undefined;
     roteador: Roteador;
     arquivosDelegua: string[];
     rotasDelegua: string[];

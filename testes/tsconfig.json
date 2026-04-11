@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "types": ["node", "jest"],
+        "module": "commonjs",
+        "target": "ES2017",
+        "allowJs": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true
+    },
+    "include": [
+        "./**/*",
+        "../fontes/**/*"
+    ]
+}

@@ -1,12 +1,12 @@
-import { CentroConfiguracoes } from '../../infraestrutura/centro-configuracoes';
-import { ConfiguracaoAplicacao } from '../../infraestrutura/centro-configuracoes/configuracao-aplicacao';
-import { ConfiguracaoAutenticacao } from '../../infraestrutura/centro-configuracoes/configuracao-autenticacao';
-import { ConfiguracaoDados } from '../../infraestrutura/centro-configuracoes/configuracao-dados';
-import { ConfiguracaoLicenca } from '../../infraestrutura/centro-configuracoes/configuracao-licenca';
-import { ConfiguracaoLincones } from '../../infraestrutura/centro-configuracoes/configuracao-lincones';
-import { ConfiguracaoLiquido } from '../../infraestrutura/centro-configuracoes/configuracao-liquido';
-import { ConfiguracaoRoteador } from '../../infraestrutura/centro-configuracoes/configuracao-roteador';
-import { ErroConfiguracao } from '../../infraestrutura/centro-configuracoes/erro-configuracao';
+import { CentroConfiguracoes } from '../../fontes/infraestrutura/centro-configuracoes';
+import { ConfiguracaoAplicacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-aplicacao';
+import { ConfiguracaoAutenticacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-autenticacao';
+import { ConfiguracaoDados } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-dados';
+import { ConfiguracaoLicenca } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-licenca';
+import { ConfiguracaoLincones } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-lincones';
+import { ConfiguracaoLiquido } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-liquido';
+import { ConfiguracaoRoteador } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-roteador';
+import { ErroConfiguracao } from '../../fontes/infraestrutura/centro-configuracoes/erro-configuracao';
 
 describe('Testes das classes de configuração', () => {
     describe('ErroConfiguracao', () => {

@@ -1,4 +1,4 @@
-import { ProvedorLincones } from '../../infraestrutura/provedores';
+import { ProvedorLincones } from '../../fontes/infraestrutura/provedores';
 
 jest.mock('@designliquido/lincones-sqlite', () => ({
     __esModule: true,

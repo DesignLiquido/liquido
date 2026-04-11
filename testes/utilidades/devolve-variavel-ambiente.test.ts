@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import * as VariaveisAmbiente from '../../infraestrutura/utilidades/variaveis-ambiente';
+import * as VariaveisAmbiente from '../../fontes/infraestrutura/utilidades/variaveis-ambiente';
 const { buscarVariavelAmbienteEmArquivo, devolverVariavelAmbiente, lerTextoDeArquivo } = VariaveisAmbiente;
 
 describe('lerTextoDeArquivo', () => {

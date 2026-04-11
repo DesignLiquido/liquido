@@ -13,7 +13,7 @@ import { GeradorExpressoes } from './utilidades/gerador-expressoes';
  */
 export class Resposta extends DescritorTipoClasse {
     constructor() {
-        const metodos = {};
+        const metodos: { [chave: string]: DeleguaFuncao } = {};
         const propriedades = [
             new PropriedadeClasse(
                 new Simbolo('IDENTIFICADOR', 'destino', null, -1, -1),
@@ -198,7 +198,7 @@ export class Resposta extends DescritorTipoClasse {
         
         super(
             new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), 
-            null, 
+            undefined, 
             metodos, 
             propriedades
         );

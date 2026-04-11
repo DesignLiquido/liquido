@@ -1,0 +1,10 @@
+/**
+ * @veja fontes\infraestrutura\requisicao.ts
+ */
+@definicao
+classe estrangeira Requisicao {
+    corpo: dicionário;
+    parametros: dicionário;
+    parametrosPesquisa: dicionário;
+    parametrosCaminho: dicionário;
+}
