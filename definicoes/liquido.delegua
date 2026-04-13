@@ -1,4 +1,30 @@
+/**
+ * Definição de tipo do núcleo do framework Líquido.
+ * Cada método registra uma rota HTTP e aceita zero ou mais middlewares
+ * seguidos do handler final. Todos os argumentos têm o mesmo tipo:
+ * funcao<Requisicao, Resposta>[].
+ *
+ * Exemplo de uso:
+ *   funcao autenticar(requisicao, resposta) { ... }
+ *
+ *   liquido.rotaGet(autenticar, funcao(requisicao, resposta) {
+ *       resposta.enviar("Olá mundo").status(200)
+ *   })
+ *
+ * @veja fontes\infraestrutura\roteador\roteador.ts
+ */
 @definicao
 classe estrangeira Liquido {
-    // TODO: definir métodos e propriedades
+    rotaGet(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaPost(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaPut(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaDelete(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaPatch(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaOptions(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaCopy(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaHead(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaLock(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaUnlock(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaPurge(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    rotaPropfind(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
 }
