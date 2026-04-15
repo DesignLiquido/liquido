@@ -11,6 +11,10 @@
         {
             "name": "Italo Brito Brandão",
             "url": "https://github.com/ItaloCobains"
+        },
+        {
+            "name": "Victor Francelino",
+            "url": "https://github.com/VictorFrancelino"
         }
     ],
     "keywords": [
@@ -56,7 +60,7 @@
         "testes-unitarios": "yarn jest --coverage"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^1.18.2",
+        "@designliquido/delegua-node": "^1.18.4",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.15.1",
         "@designliquido/lincones-sqlite": "^0.3.2",

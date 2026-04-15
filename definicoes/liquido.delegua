@@ -15,16 +15,89 @@
  */
 @definicao
 classe estrangeira Liquido {
+    /**
+     * Registra uma rota GET para uma determinada rota. Rotas GET são usadas normalmente para recuperar dados do servidor, 
+     * em modo leitura.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota.
+     */
     rotaGet(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota POST para uma determinada rota. Rotas POST são usadas normalmente para criar novos recursos no servidor, 
+     * ou enviar dados para processamento.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaPost(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota PUT para uma determinada rota. Rotas PUT são usadas normalmente para atualizar recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaPut(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota DELETE para uma determinada rota. Rotas DELETE são usadas normalmente para remover recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaDelete(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota PATCH para uma determinada rota. Rotas PATCH são usadas normalmente para atualizar parcialmente recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaPatch(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota OPTIONS para uma determinada rota. Rotas OPTIONS são usadas normalmente para descrever as opções de comunicação para o recurso de destino.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaOptions(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota COPY para uma determinada rota. Rotas COPY são usadas normalmente para copiar recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaCopy(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota HEAD para uma determinada rota. Rotas HEAD são usadas normalmente para recuperar os cabeçalhos de um recurso, sem o corpo da resposta.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaHead(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota LOCK para uma determinada rota. Rotas LOCK são usadas normalmente para bloquear recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaLock(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota UNLOCK para uma determinada rota. Rotas UNLOCK são usadas normalmente para desbloquear recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaUnlock(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota PURGE para uma determinada rota. Rotas PURGE são usadas normalmente para limpar recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaPurge(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
+    /**
+     * Registra uma rota PROPFIND para uma determinada rota. Rotas PROPFIND são usadas normalmente para recuperar propriedades de recursos existentes no servidor.
+     * Cada método de rota aceita uma sequência de funções, onde as primeiras são intermediárias (middlewares), 
+     * e a última é o manipulador final da rota. Cada função na sequência é do tipo funcao<Requisicao, Resposta>, ou 
+     * seja, `funcao(requisicao: Requisicao, resposta: Resposta) { ... }`.
+     */
     rotaPropfind(...sequenciaExecucao: funcao<Requisicao, Resposta>[]);
 }
