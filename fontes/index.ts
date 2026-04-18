@@ -203,8 +203,8 @@ class LiquidoPontoEntrada {
 
                 await copiarArquivosDeExemploParaNovoProjeto(
                     nomeProjeto,
-                    linguagemSelecionada,
                     perguntaTipoProjeto.tipoProjeto,
+                    linguagemSelecionada,
                     diretorioCompleto
                 );
 
