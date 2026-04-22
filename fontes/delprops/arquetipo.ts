@@ -1,0 +1,15 @@
+import { DefinicaoPropriedade } from '@designliquido/delprops';
+
+/**
+ * Propriedades de configuração do arquétipo Líquido (`liquido.arquetipo`).
+ */
+const arquetipo: DefinicaoPropriedade[] = [
+    {
+        nome: 'arquetipo',
+        tipo: 'texto',
+        detalhe: 'Arquétipo do projeto Líquido.',
+        valoresPermitidos: ['rest', 'mvc'],
+    },
+];
+
+export default arquetipo;

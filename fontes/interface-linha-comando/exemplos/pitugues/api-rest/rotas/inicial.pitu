@@ -9,14 +9,19 @@
     descricao = "Devolvido com sucesso",
     formatos = ["application/json", "application/xml"]
 )
-@liquido.rotaGet("/")
-funcao rota_principal(requisicao, resposta):
+funcao rotaGet(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
 
-@liquido.rotaPost("/artigos")
-funcao minha_rota_post(requisicao, resposta):
-    resposta.redirecionar("/artigos")
+funcao rotaPost(requisicao, resposta):
+    resposta.json([{
+        "id": 2,
+        "titulo": "teste 2",
+        "descricao": "descricao 2"
+    }])
+    
+liquido.rotaGet(rotaGet)
+liquido.rotaPost(rotaPost)

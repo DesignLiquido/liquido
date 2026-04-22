@@ -1,0 +1,8 @@
+{
+  "watch": [
+    "estilos",
+    "rotas",
+    "visoes"
+  ],
+  "ext": "pitu, pitugues, lmht, foles"
+}

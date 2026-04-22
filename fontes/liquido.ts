@@ -100,7 +100,9 @@ export class Liquido implements LiquidoInterface {
             );
         }
 
-        this.escreverEstilos();
+        if (this.centroConfiguracoes?.liquido?.arquetipo !== 'rest') {
+            this.escreverEstilos();
+        }
     }
 
     private configurarPipelineLinguagem(linguagem: string = 'delegua'): void {
