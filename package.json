@@ -25,6 +25,9 @@
         "lincones"
     ],
     "license": "MIT",
+    "delegua": {
+        "definicoes": "./definicoes"
+    },
     "delprops": [
         {
             "espacoNomes": "liquido.arquetipo",

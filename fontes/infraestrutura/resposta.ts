@@ -119,25 +119,26 @@ export class Resposta extends DescritorTipoClasse {
         // classe Resposta {
         //     visao: texto
         //     valores: dicionário
-        // 
-        //     lmht(*visaoEValores) {
+        //
+        //     lmht(...visaoEValores) {
         //         se visaoEValores.tamanho() > 1 {
         //             isto.visao = visaoEValores[0]
         //             isto.valores = visaoEValores[1]
-        //         } senão {
+        //         } senão se visaoEValores.tamanho() == 1 {
         //             isto.valores = visaoEValores[0]
         //         }
-        // 
+        //         // 0 argumentos: visao resolvida automaticamente pela rota
+        //
         //         retorna isto
         //     }
         // }
 
-        metodos['lmht'] = geradorExpressoes.gerarMetodo('lmht', 
+        metodos['lmht'] = geradorExpressoes.gerarMetodo('lmht',
             geradorExpressoes.gerarConstrutoFuncao(
                 [geradorExpressoes.gerarParametro('visaoEValores', 'vetor', 'multiplo')],
                 [
                     geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                        'lmht', 
+                        'lmht',
                         geradorExpressoes.gerarLiteral(true)
                     ),
                     geradorExpressoes.gerarDeclaracaoSe(
@@ -150,23 +151,36 @@ export class Resposta extends DescritorTipoClasse {
                             ),
                             geradorExpressoes.gerarOperadorComparacao('maior'),
                             geradorExpressoes.gerarLiteral(1)
-                        ), 
-                        geradorExpressoes.gerarBlocoEscopo([ // Se
+                        ),
+                        geradorExpressoes.gerarBlocoEscopo([ // Se: 2+ args
                             geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                'visao', 
+                                'visao',
                                 geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
                             ),
                             geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                'valores', 
+                                'valores',
                                 geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 1)
                             )
                         ]),
-                        geradorExpressoes.gerarBlocoEscopo([ // Senão
-                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                'valores', 
-                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
+                        geradorExpressoes.gerarDeclaracaoSe( // Senão se: 1 arg
+                            geradorExpressoes.gerarConstrutoBinario(
+                                geradorExpressoes.gerarChamada(
+                                    geradorExpressoes.gerarAcessoMetodoOuPropriedade(
+                                        geradorExpressoes.gerarReferenciaVariavel('visaoEValores'),
+                                        'tamanho'
+                                    )
+                                ),
+                                geradorExpressoes.gerarOperadorComparacao('igual'),
+                                geradorExpressoes.gerarLiteral(1)
                             ),
-                        ])
+                            geradorExpressoes.gerarBlocoEscopo([
+                                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
+                                    'valores',
+                                    geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
+                                )
+                            ])
+                            // 0 args: nenhuma atribuição; visao resolvida pela rota em logicaComumRespostaVisaoLmht
+                        )
                     ),
                     geradorExpressoes.gerarRetornoDeFuncao('isto')
                 ])
