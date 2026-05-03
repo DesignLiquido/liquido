@@ -5,8 +5,8 @@ import { ConfiguracaoDados } from "./configuracao-dados";
 import { ConfiguracaoRoteador } from "./configuracao-roteador";
 
 export class ConfiguracaoLiquido extends ConfiguracaoComum {
-    arquetipo: 'rest' | 'mvc';
-    linguagem: 'delegua' | 'pitugues';
+    arquetipo: 'rest' | 'mvc' = 'rest';
+    linguagem: 'delegua' | 'pitugues' = 'delegua';
     aplicacao: ConfiguracaoAplicacao;
     autenticacao: ConfiguracaoAutenticacao;
     dados: ConfiguracaoDados;
