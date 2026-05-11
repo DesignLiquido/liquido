@@ -1,6 +1,6 @@
 import { Importador } from '@designliquido/delegua-node/importador';
-import { Construto, FuncaoConstruto } from '@designliquido/delegua/construtos';
-import { InterpretadorInterface, RetornoInterpretadorInterface } from '@designliquido/delegua/interfaces';
+import { FuncaoConstruto } from '@designliquido/delegua/construtos';
+import { ConstrutoInterface, InterpretadorInterface, RetornoInterpretadorInterface } from '@designliquido/delegua/interfaces';
 
 import { Roteador } from '../infraestrutura/roteador';
 import { RetornoConfiguracaoInterface } from './retorno-configuracao-interface';
@@ -24,5 +24,5 @@ export interface LiquidoInterface {
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
     chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretadorInterface>;
-    adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: Construto[]): void;
+    adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: ConstrutoInterface[]): void;
 }
