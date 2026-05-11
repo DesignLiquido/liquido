@@ -11,7 +11,7 @@ import {
     Decorador,
     Literal,
     Vetor,
-    Construto
+    ConstrutoInterface
 } from '@designliquido/delegua';
 import { Importador } from '@designliquido/delegua-node/importador';
 import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
@@ -97,7 +97,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         return controladores;
     }
 
-    protected resolverConstrutoValorDecorador(construtoValor: Construto): any {
+    protected resolverConstrutoValorDecorador(construtoValor: ConstrutoInterface): any {
         switch (construtoValor.constructor.name) {
             case 'Literal':
                 return (construtoValor as Literal).valor;
@@ -124,7 +124,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         const retorno: RotaOpenApi = {};
         const decoradoresValidosDocumentacao = this.decoradoresValidos['@rest.documentacao'];
         for (const [nomeAtributo, valorAtributo] of Object.entries(atributos)) {
-            retorno[decoradoresValidosDocumentacao[nomeAtributo]] = valorAtributo;
+            retorno[decoradoresValidosDocumentacao[nomeAtributo] as keyof RotaOpenApi] = valorAtributo;
         }
 
         return retorno;
@@ -140,10 +140,10 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         const codigo = atributos['codigo'] || atributos['código'];
         const retorno: RespostaOpenApi = {};
         for (const [nomeAtributo, valorAtributo] of Object.entries(atributos)) {
-            retorno[decoradoresValidosResposta[nomeAtributo]] = valorAtributo;
+            retorno.content![decoradoresValidosResposta[nomeAtributo] as any] = valorAtributo;
         }
 
-        delete retorno['statusCode'];
+        // delete retorno['statusCode'];
         return [codigo, retorno];
     }
 
@@ -212,7 +212,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
             }
 
             const metodoResolvido = entidadeChamada.simbolo.lexema.replace('rota', '');
-            descritivoControlador[metodoResolvido.toLowerCase()] = descritivoMetodoRota;
+            descritivoControlador[metodoResolvido.toLowerCase() as MetodoHttpOpenApi] = descritivoMetodoRota;
         }
 
         return [rotaRelativa, descritivoControlador];
@@ -233,7 +233,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         };
 
         for (const rotaEControlador of rotasEControladores) {
-            documento.paths[rotaEControlador[0]] = rotaEControlador[1];
+            documento.paths![rotaEControlador[0]] = rotaEControlador[1];
         }
 
         // console.log(documento);

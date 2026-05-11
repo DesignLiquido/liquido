@@ -1,21 +1,15 @@
-import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node';
 import { AvaliadorSintaticoPituguesComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/dialetos/avaliador-sintatico-pitugues-com-importacao';
 import { Importador } from '@designliquido/delegua-node/importador';
-import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/pitugues';
 import { Decorador } from '@designliquido/delegua';
 
-export class AvaliadorSintaticoDeleguaLiquido extends AvaliadorSintaticoComImportacao {
-    constructor(importador: Importador) {
-        super(importador);
-    }
-}
+import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/pitugues';
 
-export class AvaliadorSintaticoPituguesLiquido extends AvaliadorSintaticoPituguesComImportacao {
+export class AvaliadorSintaticoLiquidoPitugues extends AvaliadorSintaticoPituguesComImportacao {
     tiposDeFerramentasExternas: {
         [nomeFerramenta: string]: {
             [nomeTipo: string]: string;
         };
-    };
+    } = {};
 
     constructor(importador: Importador) {
         super(importador);
@@ -55,7 +49,7 @@ export class AvaliadorSintaticoPituguesLiquido extends AvaliadorSintaticoPitugue
                     let indexArgumento = 0;
 
                     do {
-                        const valorExpressao = await this.expressao();
+                        const valorExpressao = await this.atribuir();
 
                         atributos[indexArgumento] = valorExpressao;
 

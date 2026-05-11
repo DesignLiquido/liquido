@@ -3,7 +3,6 @@ import {
     DefinirValor,
     FuncaoConstruto,
     Isto,
-    Construto,
     Variavel,
     Binario,
     Literal,
@@ -11,7 +10,7 @@ import {
     AcessoMetodoOuPropriedade,
     AcessoIndiceVariavel
 } from '@designliquido/delegua/construtos';
-import { ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
+import { ConstrutoInterface, ParametroInterface, SimboloInterface } from '@designliquido/delegua/interfaces';
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { Expressao, Retorna, Declaracao, Se, Bloco } from '@designliquido/delegua/declaracoes';
 
@@ -46,7 +45,7 @@ export class GeradorExpressoes {
         return new Chamada(-1, entidadeChamada, argumentos);
     }
 
-    gerarConstrutoBinario(ladoEsquerdo: Construto, operador: SimboloInterface, ladoDireito: Construto) {
+    gerarConstrutoBinario(ladoEsquerdo: ConstrutoInterface, operador: SimboloInterface, ladoDireito: ConstrutoInterface): Binario {
         return new Binario(-1, ladoEsquerdo, operador, ladoDireito);
     }
 
@@ -54,7 +53,7 @@ export class GeradorExpressoes {
         return new FuncaoConstruto(-1, -1, parametros, corpo);
     }
 
-    gerarDeclaracaoSe(condicao: Construto, caminhoEntao: Declaracao, caminhoSenao?: Declaracao) {
+    gerarDeclaracaoSe(condicao: ConstrutoInterface, caminhoEntao: Declaracao, caminhoSenao?: Declaracao) {
         return new Se(condicao, caminhoEntao, [], caminhoSenao);
     }
 
@@ -102,7 +101,7 @@ export class GeradorExpressoes {
      * Por exemplo, `isto.a = 1` seria algo como
      * `gerarAtribuicaoValorEmPropriedadeClasse('a', 1)`.
      */
-    gerarAtribuicaoValorEmPropriedadeClasse(nomePropriedade: string, valor: Construto): Expressao {
+    gerarAtribuicaoValorEmPropriedadeClasse(nomePropriedade: string, valor: ConstrutoInterface): Expressao {
         return new Expressao(
             new DefinirValor(
                 -1,

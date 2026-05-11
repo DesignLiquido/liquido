@@ -1,7 +1,7 @@
 import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
-import { AvaliadorSintaticoDeleguaLiquido, AvaliadorSintaticoPituguesLiquido } from './infraestrutura/avaliador-sintatico-liquido';
+import { AvaliadorSintaticoLiquido, AvaliadorSintaticoLiquidoPitugues } from './infraestrutura/avaliadores-sintaticos';
 import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
@@ -10,7 +10,7 @@ import {
     InterpretadorInterface, 
     ResultadoParcialInterpretadorInterface, 
     RetornoInterpretadorInterface, 
-    RetornoLexador, 
+    RetornoLexadorInterface, 
     SimboloInterface, 
     VariavelInterface 
 } from '@designliquido/delegua/interfaces';
@@ -40,7 +40,7 @@ import { Declaracao } from '@designliquido/foles/declaracoes';
  */
 export class Liquido implements LiquidoInterface {
     importador: Importador | undefined = undefined;
-    avaliadorSintatico: AvaliadorSintaticoDeleguaLiquido | AvaliadorSintaticoPituguesLiquido | undefined = undefined;
+    avaliadorSintatico: AvaliadorSintaticoLiquido | AvaliadorSintaticoLiquidoPitugues | undefined = undefined;
     interpretador: InterpretadorInterface | undefined = undefined;
     roteador: Roteador;
     formatadorLmht: FormatadorLmht;
@@ -124,7 +124,7 @@ export class Liquido implements LiquidoInterface {
                 false,
                 console.log
             );
-            this.avaliadorSintatico = new AvaliadorSintaticoDeleguaLiquido(
+            this.avaliadorSintatico = new AvaliadorSintaticoLiquido(
                 this.importador
             );
         } else {
@@ -134,7 +134,7 @@ export class Liquido implements LiquidoInterface {
                 false,
                 console.log
             );
-            this.avaliadorSintatico = new AvaliadorSintaticoPituguesLiquido(
+            this.avaliadorSintatico = new AvaliadorSintaticoLiquidoPitugues(
                 this.importador
             );
         }
@@ -168,7 +168,7 @@ export class Liquido implements LiquidoInterface {
 
             const retornoImportador = this.importador?.importar(caminhoConfigArquivo.caminho, -1);
             const retornoAvaliadorSintatico = await this.avaliadorSintatico?.analisar(
-                retornoImportador?.retornoLexador as RetornoLexador<SimboloInterface<string>>,
+                retornoImportador?.retornoLexador as RetornoLexadorInterface<SimboloInterface<string>>,
                 retornoImportador?.hashArquivo as number
             );
 
@@ -330,9 +330,9 @@ export class Liquido implements LiquidoInterface {
 
         const retornoAvaliadorSintatico = await (this
             .avaliadorSintatico as { 
-                analisar: (retornoLexador: RetornoLexador<SimboloInterface<string>>, hashArquivo: number) => Promise<{ erros: any[]; declaracoes: Declaracao[] }> 
+                analisar: (retornoLexador: RetornoLexadorInterface<SimboloInterface<string>>, hashArquivo: number) => Promise<{ erros: any[]; declaracoes: Declaracao[] }> 
             })?.analisar(
-                retornoImportador?.retornoLexador as RetornoLexador<SimboloInterface<string>>,
+                retornoImportador?.retornoLexador as RetornoLexadorInterface<SimboloInterface<string>>,
                 retornoImportador?.hashArquivo as number
             );
 
