@@ -1,0 +1,34 @@
+/**
+ * @veja fontes\infraestrutura\provedores\index.ts
+ * @veja https://github.com/DesignLiquido/lincones-sqlite
+ */
+@definicao
+classe estrangeira RetornoComando {
+    linhasAfetadas: número;
+    ultimoId: qualquer;
+    linhasRetornadas: qualquer[];
+    comandoExecutado: texto;
+    mensagemExecucao: texto;
+}
+
+/**
+ * Cliente LinConEs disponível em arquivos de rota do Líquido.
+ * Permite executar consultas em LinConEs (SQL em português).
+ *
+ * Exemplo de uso:
+ *   var resultado = lincones.executar("SELECIONAR * DE clientes")
+ *   escreva(resultado.linhasRetornadas)
+ *
+ * @veja fontes\infraestrutura\provedores\index.ts
+ */
+@definicao
+classe estrangeira Lincones {
+    /**
+     * Executa uma consulta LinConEs e retorna o resultado.
+     */
+    executar(consulta: texto): RetornoComando;
+    /**
+     * Executa uma consulta LinConEs com parâmetros posicionais.
+     */
+    executarComando(consulta: texto, parametros: qualquer[]): RetornoComando;
+}
