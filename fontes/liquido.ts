@@ -10,10 +10,10 @@ import {
     InterpretadorInterface, 
     ResultadoParcialInterpretadorInterface, 
     RetornoInterpretadorInterface, 
-    RetornoLexadorInterface, 
     SimboloInterface, 
     VariavelInterface 
 } from '@designliquido/delegua/interfaces';
+import { RetornoLexadorInterface } from '@designliquido/delegua/interfaces/retornos/retorno-lexador-interface';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, LexadorPitugues, Simbolo } from '@designliquido/delegua/lexador';
 

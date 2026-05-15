@@ -11,7 +11,7 @@ export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface 
                 throw new ErroConfiguracao(`Propriedade ${caminho[0]} não existe em ${instancia.constructor.name}.`);
             }
 
-            instancia[caminho[0]] = valor;
+            (instancia as any)[caminho[0]] = valor;
             return;
         }
 
@@ -20,6 +20,6 @@ export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface 
             throw new ErroConfiguracao(`Propriedade ${proximaPropriedade} não existe em ${instancia.constructor.name}.`);
         }
 
-        instancia[proximaPropriedade].definirValor(instancia[proximaPropriedade], caminho, valor);
+        (instancia as any)[proximaPropriedade].definirValor((instancia as any)[proximaPropriedade], caminho, valor);
     }
 }

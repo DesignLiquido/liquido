@@ -11,6 +11,9 @@ export class ConfiguracaoAplicacao extends ConfiguracaoComum {
     constructor() {
         super();
         this.licenca = new ConfiguracaoLicenca();
+        this.nome = '';
+        this.versao = '';
+        this.descricao = '';    
     }
 
     configurar(componentes: {[key: string]: any}) {
