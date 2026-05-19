@@ -79,12 +79,14 @@ export async function gerarRepositorioGit(
 ) {
     if (inicializarRepositorioGit) {
         execSync('git init', { cwd: diretorioProjeto });
+        execSync('git config --global --add safe.directory ' + diretorioProjeto);
 
         const conteudoGitIgnore = 'node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db';
         await sistemaArquivos.promises.writeFile(
             `${diretorioProjeto}/.gitignore`,
             conteudoGitIgnore
         );
+
 
         execSync('git config user.email "liquido@designliquido.com.br"', { cwd: diretorioProjeto });
         execSync('git config user.name "Liquido"', { cwd: diretorioProjeto });
