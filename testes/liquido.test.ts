@@ -337,6 +337,31 @@ describe('Liquido', () => {
                 );
             });
 
+
+            it('Deve executar os comandos do yarn para inicializar o projeto', async () => {
+                jest.clearAllMocks();
+
+                (ChildProcess.execSync as jest.Mock).mockImplementation(
+                    () => Buffer.from('')
+                );
+
+                await detectarGerenciadorDePacotes(
+                    'yarn',
+                    caminhoDiretorioProjeto
+                );
+
+                expect(ChildProcess.execSync).toHaveBeenCalledWith(
+                    'yarn init -2 -y',
+                    { cwd: caminhoDiretorioProjeto }
+                );
+                expect(ChildProcess.execSync).toHaveBeenCalledWith(
+                    'yarn add liquido@latest',
+                    { cwd: caminhoDiretorioProjeto }
+                );
+    
+            });
+        
+
             it('Deve usar o nome da pasta quando o nome do projeto é criado com "." ou "./"', async () => {
 
                 const spyCwd = jest
