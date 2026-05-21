@@ -351,7 +351,7 @@ describe('Liquido', () => {
                 );
 
                 expect(ChildProcess.execSync).toHaveBeenCalledWith(
-                    'yarn init -2 -y',
+                    'yarn init -y',
                     { cwd: caminhoDiretorioProjeto }
                 );
                 expect(ChildProcess.execSync).toHaveBeenCalledWith(
