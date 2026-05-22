@@ -108,7 +108,7 @@ export async function detectarGerenciadorDePacotes(
             break;
         }
         case 'yarn': {
-            execSync('yarn init', { cwd: diretorioProjeto });
+            execSync('yarn init -y', { cwd: diretorioProjeto });
             execSync('yarn add liquido@latest', { cwd: diretorioProjeto });
             break;
         }
