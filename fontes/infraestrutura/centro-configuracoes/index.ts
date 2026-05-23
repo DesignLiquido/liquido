@@ -27,10 +27,11 @@ export class CentroConfiguracoes {
         }
 
         for (const entradaConfiguracao of entradasConfiguracao) {
-            const caminhoConfiguracao = entradaConfiguracao[0];
+            const caminhoConfiguracao = entradaConfiguracao[0] as string[];
             const valorConfiguracao = entradaConfiguracao[1];
-            (this[caminhoConfiguracao[0]] as AspectoConfiguracaoInterface)
-                .definirValor(this[caminhoConfiguracao[0]], caminhoConfiguracao, valorConfiguracao);
+            const propriedadeConfiguracao = caminhoConfiguracao[0] as keyof CentroConfiguracoes;
+            const aspecto = this[propriedadeConfiguracao] as AspectoConfiguracaoInterface;
+            aspecto.definirValor(aspecto, caminhoConfiguracao, valorConfiguracao);
         }
 
         // TODO: Hablitar em modo verboso.
@@ -53,7 +54,7 @@ export class CentroConfiguracoes {
         return [partesNomePropriedade, informacoesVariavel.valor];
     }
 
-    protected desdobrarNomePropriedade(objetoExterno: AcessoMetodoOuPropriedade) {
+    protected desdobrarNomePropriedade(objetoExterno: AcessoMetodoOuPropriedade): string[] {
         if (!objetoExterno.objeto) {
             return [objetoExterno.simbolo.lexema];
         }
