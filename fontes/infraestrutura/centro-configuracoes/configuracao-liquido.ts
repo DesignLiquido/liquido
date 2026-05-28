@@ -6,7 +6,19 @@ import { ConfiguracaoRoteador } from "./configuracao-roteador";
 
 export class ConfiguracaoLiquido extends ConfiguracaoComum {
     arquetipo: 'rest' | 'mvc' = 'rest';
-    linguagem: 'delegua' | 'pitugues' = 'delegua';
+
+    private _linguagem: 'delegua' | 'pitugues' = 'delegua';
+
+    get linguagem(): 'delegua' | 'pitugues' {
+        return this._linguagem;
+    }
+
+    set linguagem(valor: string) {
+        const normalizado = valor
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') as 'delegua' | 'pitugues';
+        this._linguagem = normalizado;
+    }
     aplicacao: ConfiguracaoAplicacao;
     autenticacao: ConfiguracaoAutenticacao;
     dados: ConfiguracaoDados;
