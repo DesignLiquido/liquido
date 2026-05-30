@@ -242,10 +242,20 @@ describe('Liquido', () => {
                 'teste-comando-novo'
             );
 
+            beforeAll(async () => {
+                if (sistemaArquivos.existsSync(caminhoDiretorioProjeto)) {
+                    await sistemaArquivos.promises.rm(
+                        caminhoDiretorioProjeto,
+                        { recursive: true, force: true }
+                    );
+                    sistemaArquivos.mkdirSync(caminhoDiretorioProjeto);
+                }
+            });
+
             afterAll(async () => {
                 await sistemaArquivos.promises.rm(
                     caminhoDiretorioProjeto,
-                    { recursive: true }
+                    { recursive: true, force: true }
                 );
             });
 

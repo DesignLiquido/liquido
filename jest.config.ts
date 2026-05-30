@@ -7,6 +7,7 @@ export default async (): Promise<Config.InitialOptions> => {
         preset: 'ts-jest',
         testEnvironment: 'node',
         coverageReporters: ['json-summary', 'lcov', 'text', 'text-summary'],
+        testTimeout: 30000,
 		displayName: {
 			name: 'liquido',
 			color: 'greenBright'

@@ -105,6 +105,7 @@ dist
 # Liquido
 publico/**/*
 meu-projeto
+teste-comando-novo
 
 # Claude
 CLAUDE.md
