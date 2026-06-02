@@ -7,7 +7,7 @@ export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface 
     definirValor(instancia: AspectoConfiguracaoInterface, caminho: string[], valor: any): void {
         caminho.shift();
         if (caminho.length === 1) {
-            if (!instancia.hasOwnProperty(caminho[0])) {
+            if (!(caminho[0] in instancia)) {
                 throw new ErroConfiguracao(`Propriedade ${caminho[0]} não existe em ${instancia.constructor.name}.`);
             }
 
@@ -16,7 +16,7 @@ export abstract class ConfiguracaoComum implements AspectoConfiguracaoInterface 
         }
 
         const proximaPropriedade = caminho[0];
-        if (!instancia.hasOwnProperty(proximaPropriedade)) {
+        if (!(proximaPropriedade in instancia)) {
             throw new ErroConfiguracao(`Propriedade ${proximaPropriedade} não existe em ${instancia.constructor.name}.`);
         }
 
