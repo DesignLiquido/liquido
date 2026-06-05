@@ -3,8 +3,8 @@
         "ignoreDeprecations": "5.0",
         "types": ["node", "jest"],
         "paths": {
-            "@designliquido/delegua": ["./node_modules/@designliquido/delegua/dist"],
-            "@designliquido/delegua/*": ["./node_modules/@designliquido/delegua/dist/*"]
+            "@designliquido/delegua": ["./node_modules/@designliquido/delegua"],
+            "@designliquido/delegua/*": ["./node_modules/@designliquido/delegua/*"]
         },
         "outDir": "dist",
         "module": "commonjs",
