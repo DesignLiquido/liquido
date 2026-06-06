@@ -113,7 +113,7 @@ describe('Testes de Integração - Middlewares', () => {
             const arquivo = caminho.join(__dirname, 'exemplos', 'rotas', 'inicial.delegua');
             const rota = liquido.resolverCaminhoRota(arquivo, 'delegua');
 
-            expect(rota).toBe('');
+            expect(rota).toBe('/');
         });
 
         it('Deve resolver caminho de arquivo em subdiretório', () => {
