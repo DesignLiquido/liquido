@@ -217,7 +217,10 @@ export class Roteador implements RoteadorInterface {
                         id: usuario.id
                     };
                     const token = jwt.encode(payload, devolverVariavelAmbiente('chaveSecreta') as string);
-                    users.find((u) => u.id === usuario.id).token = token;
+                    const user = users.find((u) => u.id === usuario.id);
+                    if (user) {
+                        user.token = token;
+                    }
                     return res.json({ token });
                 } else {
                     res.sendStatus(401);

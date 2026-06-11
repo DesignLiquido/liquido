@@ -51,7 +51,7 @@ describe('Liquido', () => {
         });
 
         expect(expected.length).toBeGreaterThanOrEqual(2);
-        expect(expected[0]).toBe('');
+        expect(expected[0]).toBe('/');
         expect(expected[1]).toBe('/middlewares');
     });
 
@@ -86,7 +86,7 @@ describe('Liquido', () => {
             await instanciaTeste.iniciar();
 
             expect(instanciaTeste.arquivosPitugues.length).toBeGreaterThan(0);
-            expect(instanciaTeste.rotasPitugues).toContain('');
+            expect(instanciaTeste.rotasPitugues).toContain('/');
 
             jest.restoreAllMocks();
         });
@@ -142,7 +142,7 @@ describe('Liquido', () => {
             );
             const rota = liquido.resolverCaminhoRota(arquivo, 'pitugues');
 
-            expect(rota).toBe('');
+            expect(rota).toBe('/');
         });
 
         it('Deve remover extensão .pitu do caminho', () => {

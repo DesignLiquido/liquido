@@ -322,7 +322,8 @@ export class Liquido implements LiquidoInterface {
             .replace(new RegExp(`\\${caminho.sep}`, 'g'), '/')
             .replace(new RegExp(`/$`, 'g'), '')
             .replace(new RegExp(`\\[(.+)\\]`, 'g'), ':$1');
-        return rotaResolvida;
+
+        return rotaResolvida === '' ? '/' : rotaResolvida;
     }
 
     async analisarArquivo(arquivo: string): Promise<Declaracao[] | null> {
