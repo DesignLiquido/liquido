@@ -4,6 +4,7 @@ import { pluralizar } from '@designliquido/flexoes';
 import {
     blue,
     green,
+    red,
     yellow
 } from "chalk";
 import yargs from 'yargs'
@@ -23,9 +24,11 @@ import {
     documentar,
     gerarRepositorioGit,
     importarModelos,
+    inicializarBancoDeleguaEntidades,
+    inicializarBancoLincones,
     obterTodosModelos
 } from './interface-linha-comando';
-import { ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
+import { ComandoBancoIniciarInterface, ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
 import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
 
@@ -218,6 +221,41 @@ class LiquidoPontoEntrada {
         }
     }
 
+    async comandoBancoIniciar(
+        args: yargs.ArgumentsCamelCase<ComandoBancoIniciarInterface>
+    ) {
+        const liquido = new Liquido(process.cwd());
+        await liquido.importarArquivoConfiguracao();
+
+        const dados = liquido.centroConfiguracoes?.liquido?.dados;
+        const motor = dados?.motor ?? 'lincones';
+        const tecnologia = dados?.lincones?.tecnologia;
+        const caminhoBanco = dados?.lincones?.caminho;
+
+        if (!tecnologia || !caminhoBanco) {
+            console.error(red('Configuração de banco de dados não encontrada em configuracao.delprops.'));
+            console.error(red('Adicione liquido.dados.lincones.tecnologia e liquido.dados.lincones.caminho'));
+            process.exit(1);
+        }
+
+        if (motor === 'delegua-entidades') {
+            await inicializarBancoDeleguaEntidades(
+                tecnologia,
+                caminhoBanco,
+                args.apenasEstrutura,
+                args.apenasDados
+            );
+        } else {
+            await inicializarBancoLincones(
+                tecnologia,
+                caminhoBanco,
+                args.arquivo,
+                args.apenasEstrutura,
+                args.apenasDados
+            );
+        }
+    }
+
     comandoServidor() {
         const liquido = new Liquido(process.cwd());
         liquido.iniciar();
@@ -234,6 +272,16 @@ class LiquidoPontoEntrada {
         .command('documentar', 'Lê o projeto e gera uma documentação OpenAPI correspondente', {}, this.comandoDocumentar)
         .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', { nome: { type: 'string' as const, default: '' } }, this.comandoNovo)
         .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', { modelo: { type: 'string' as const, default: '' } }, this.comandoGerar)
+        .command(
+            'banco iniciar',
+            'Inicializa a estrutura e dados do banco de dados a partir de um script LinConEs ou de migrações e sementes do delegua-entidades.',
+            {
+                arquivo: { type: 'string' as const, default: 'inicializacao.lincones', describe: 'Arquivo de script LinConEs a executar (padrão: inicializacao.lincones)' },
+                'apenas-estrutura': { type: 'boolean' as const, default: false, describe: 'Executa apenas enunciados DDL (estrutura)' },
+                'apenas-dados': { type: 'boolean' as const, default: false, describe: 'Executa apenas enunciados DML (dados)' }
+            },
+            this.comandoBancoIniciar.bind(this)
+        )
         .argv
     }
 

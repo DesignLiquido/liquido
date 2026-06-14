@@ -50,6 +50,14 @@
             "esquema": "./delprops/autenticacao"
         }
     ],
+    "peerDependencies": {
+        "@designliquido/delegua-entidades": "^0.0.6"
+    },
+    "peerDependenciesMeta": {
+        "@designliquido/delegua-entidades": {
+            "optional": true
+        }
+    },
     "publishConfig": {
         "registry": "https://registry.npmjs.org/"
     },

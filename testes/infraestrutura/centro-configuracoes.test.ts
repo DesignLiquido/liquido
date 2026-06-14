@@ -86,6 +86,17 @@ describe('Testes das classes de configuração', () => {
             expect(config.lincones).toBeInstanceOf(ConfiguracaoLincones);
         });
 
+        it('deve ter motor como "lincones" por padrão', () => {
+            const config = new ConfiguracaoDados();
+            expect(config.motor).toBe('lincones');
+        });
+
+        it('deve aceitar motor "delegua-entidades" via definirValor', () => {
+            const config = new ConfiguracaoDados();
+            config.definirValor(config, ['dados', 'motor'], 'delegua-entidades');
+            expect(config.motor).toBe('delegua-entidades');
+        });
+
         it('deve delegar configurar para lincones', () => {
             const config = new ConfiguracaoDados();
             const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };

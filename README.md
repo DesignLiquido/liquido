@@ -278,6 +278,93 @@ Futuras versões de Liquido terão:
 - GraphQL
 - gRPC
 
+## Banco de Dados
+
+### Inicialização do banco de dados
+
+O comando `liquido banco iniciar` inicializa a estrutura e os dados de um banco de dados a partir do projeto atual. Ele lê as configurações de `configuracao.delprops` para saber qual tecnologia e caminho usar.
+
+Antes de utilizar este comando, certifique-se de que o arquivo de configuração contém as seguintes propriedades:
+
+```js
+liquido.dados.lincones.tecnologia = 'sqlite'
+liquido.dados.lincones.caminho = 'banco.db'
+```
+
+#### Usando LinConEs (padrão)
+
+Por padrão, ou quando `liquido.dados.motor = 'lincones'` estiver definido, o comando lê um script [LinConEs](https://github.com/DesignLiquido/LinConEs) na raiz do projeto. O nome padrão do arquivo é `inicializacao.lincones`, e os enunciados devem ser separados por ponto-e-vírgula (`;`):
+
+```sql
+CRIAR TABELA usuarios (
+    ID INTEIRO NAO NULO CHAVE PRIMARIA AUTO INCREMENTO,
+    NOME TEXTO NAO NULO,
+    EMAIL TEXTO NAO NULO
+);
+INSERIR EM usuarios (NOME, EMAIL) VALORES ('Administrador', 'admin@exemplo.com')
+```
+
+Para executar com o nome padrão:
+
+```sh
+npx liquido banco iniciar
+```
+
+Para usar um arquivo diferente:
+
+```sh
+npx liquido banco iniciar --arquivo meu-script.lincones
+```
+
+Para executar apenas a estrutura (enunciados DDL como `CRIAR TABELA`, `ALTERAR TABELA`, `REMOVER TABELA`):
+
+```sh
+npx liquido banco iniciar --apenas-estrutura
+```
+
+Para executar apenas dados (enunciados DML como `INSERIR`, `ATUALIZAR`, `EXCLUIR`, `SELECIONAR`):
+
+```sh
+npx liquido banco iniciar --apenas-dados
+```
+
+#### Usando delegua-entidades
+
+Se o seu projeto utiliza o pacote [`@designliquido/delegua-entidades`](https://github.com/DesignLiquido/delegua-entidades) para gerenciamento de esquema e semeadura, configure o motor no arquivo de configuração:
+
+```js
+liquido.dados.motor = 'delegua-entidades'
+liquido.dados.lincones.tecnologia = 'sqlite'
+liquido.dados.lincones.caminho = 'banco.db'
+```
+
+Instale o pacote como dependência do seu projeto:
+
+```sh
+npm install @designliquido/delegua-entidades
+```
+
+O comando `liquido banco iniciar` irá:
+
+1. Escanear o diretório `migracoes/` em ordem alfabética, importar cada arquivo e executar a migração que ele exporta como padrão;
+2. Escanear o diretório `sementes/` em ordem alfabética, importar cada arquivo e executar as sementes que ele exporta como padrão.
+
+Cada arquivo de migração deve exportar uma instância de `Migracao` como exportação padrão:
+
+```js
+// migracoes/001-criar-usuarios.js
+const { Migracao } = require('@designliquido/delegua-entidades');
+
+module.exports = new Migracao('001', 'Criar tabela de usuários')
+    .criarTabela('usuarios', [
+        { nomeColuna: 'id', tipo: 'INTEIRO', nulo: false, chavePrimaria: true, autoIncremento: true },
+        { nomeColuna: 'nome', tipo: 'TEXTO', nulo: false },
+        { nomeColuna: 'email', tipo: 'TEXTO', nulo: false }
+    ]);
+```
+
+Com `--apenas-estrutura`, apenas as migrações são executadas. Com `--apenas-dados`, apenas as sementes são executadas.
+
 ## Filosofia de Tradução para o Inglês
 
 Liquido permite a qualquer desenvolvedor que saiba português a escrever aplicações Web, e possivelmente criar um ecossistema profissional a partir dele. Procuramos traduzir o máximo possível de informações e conceitos por uma questão de acessibilidade, mas há limites para isso. Por exemplo, não traduzimos os métodos de HTTP porque entendemos que uma tradução disso implicaria em um protocolo novo de transferência.
