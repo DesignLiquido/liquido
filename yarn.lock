@@ -277,10 +277,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@designliquido/birl@^0.6.8":
-  version "0.6.8"
-  resolved "https://registry.yarnpkg.com/@designliquido/birl/-/birl-0.6.8.tgz#e112596a4ebaaa8ec20fe966710ad0bede7a2805"
-  integrity sha512-2+lQTPeuDkYPO9NGRuu1PG3gWInhdbs7gpPDrd/VUI16B5euXl0bWtM8IN9haRdjceMoWm0XP4PaBtkACXO7sg==
+"@designliquido/birl@^0.6.11":
+  version "0.6.11"
+  resolved "https://registry.yarnpkg.com/@designliquido/birl/-/birl-0.6.11.tgz#1ba903857e5b549cd0c6a469366c979a648785ba"
+  integrity sha512-DJP3/GFV39iTB40zST3rlQVjk3Xy8JY2Legl9YJuHqatnuNHLrMS6HMihxps7G4ViznhoUWLxOB2Qh0iNozebA==
   dependencies:
     lodash "^4.17.21"
 
@@ -289,28 +289,29 @@
   resolved "https://registry.npmjs.org/@designliquido/delegua-interface-grafica/-/delegua-interface-grafica-0.1.0.tgz"
   integrity sha512-AFtLTjLv/Ts4yT6YO5L/1pbgryw7Bnkg9psyJyU/cyd5qTpQK/paP4W3GIU/2wycY7Hn8EXJwux8vDssf1O8dg==
 
-"@designliquido/delegua-node@^1.20.2":
-  version "1.20.2"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-1.20.2.tgz#90d3cfdb80563c8d61d9317a9448260c4835df0f"
-  integrity sha512-pRJ7SjZutQR9vfsEW0KftFWiJkrOxwcw71rdzoYgdSW/r6LUCMrRU2WNGLdxs3+31y5I2yh6yCxGLvEEf7uZBQ==
+"@designliquido/delegua-node@^1.22.2":
+  version "1.22.2"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua-node/-/delegua-node-1.22.2.tgz#d974d01ad42699e8af204843bc65fbef4e793b62"
+  integrity sha512-5XpS0vHCwNFnR3TlNtk+7CW0S470tedS5ydi982t6dRVcYQRo3K8/NYLNvQm2KnIvkDsjWhUZAqD7zQ9g2QF0A==
   dependencies:
-    "@designliquido/birl" "^0.6.8"
-    "@designliquido/delegua" "^1.23.5"
+    "@designliquido/birl" "^0.6.11"
+    "@designliquido/delegua" "^1.24.3"
     "@designliquido/delegua-interface-grafica" "^0.1.0"
-    "@designliquido/mapler" "^0.7.8"
-    "@designliquido/portugol-studio" "^0.11.8"
-    "@designliquido/potigol" "^0.11.8"
-    "@designliquido/visualg" "^0.9.8"
+    "@designliquido/mapler" "^0.7.11"
+    "@designliquido/portugol-studio" "^0.11.11"
+    "@designliquido/potigol" "^0.11.11"
+    "@designliquido/visualg" "^0.9.11"
     canvas "^3.2.1"
     chalk "4.1.2"
     commander "^14.0.0"
     json-colorizer "^3.0.1"
+    koffi "^3.0.2"
     node-fetch "2"
 
-"@designliquido/delegua@^1.23.5":
-  version "1.23.5"
-  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.23.5.tgz#629d742bab6d4628354ac6c6803a1e8637a71f2d"
-  integrity sha512-aYjsrwNhG44SCg/g/Sp3eU9yURiUBuJ0ZWzyj+Fpw6N6/UU75+9Athwu/i/y0XuamYpft1CBCPeehtOOMQUO4A==
+"@designliquido/delegua@^1.24.3":
+  version "1.24.3"
+  resolved "https://registry.yarnpkg.com/@designliquido/delegua/-/delegua-1.24.3.tgz#228f856293c16e7a6c777a06a34ae28b6ef33a31"
+  integrity sha512-qbZM/2k9ifZIuO8kb2tynOhmroZqFQlmuxJOCBRQrT1nNEUULmy7wG6H++hV7WSTLlHLCWctZjnhwM0TfdmLeA==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
     browser-process-hrtime "^1.0.0"
@@ -352,34 +353,34 @@
     jsdom "^21.1.1"
     xslt-processor "^5.0.3"
 
-"@designliquido/mapler@^0.7.8":
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/@designliquido/mapler/-/mapler-0.7.8.tgz#f6351e9f7505cb7f8933a3ff2caeb07ac8b5babb"
-  integrity sha512-kyVL2OF/SHUXCIbMiWo9hZkYMQxntKpGIafdk1j46dAm/txbwTlleHxu7gyI3dmfJf8lVl6D3GuKgYIX4wWGAQ==
+"@designliquido/mapler@^0.7.11":
+  version "0.7.11"
+  resolved "https://registry.yarnpkg.com/@designliquido/mapler/-/mapler-0.7.11.tgz#16fc13b9ae41f10520801deaca2b7d0e82cb55d9"
+  integrity sha512-Q6Zgye4YluAZxziYPEEN6z38rzotk5B40dK7/OgwEy0S2pdxwdXlSy9WIls18YT1vbsWbWVfFGGkwRCiYqSP1Q==
   dependencies:
     lodash "^4.17.21"
     node-fetch "2"
 
-"@designliquido/portugol-studio@^0.11.8":
-  version "0.11.8"
-  resolved "https://registry.yarnpkg.com/@designliquido/portugol-studio/-/portugol-studio-0.11.8.tgz#b923ec28d22b26703b03c3191759bf24ffb2946d"
-  integrity sha512-C8wfuC6Hh1xy3qm8ELuLXx6dAF/lvoAX783ncK1DBV2amXHwIyr8De5AcEQf+ZnvOTZJCD4DhzHE+9EoRZp9QQ==
+"@designliquido/portugol-studio@^0.11.11":
+  version "0.11.11"
+  resolved "https://registry.yarnpkg.com/@designliquido/portugol-studio/-/portugol-studio-0.11.11.tgz#6bea17af220fc4dd3b1d136719e93e2c7f5fa3be"
+  integrity sha512-u8hgeIkTlA+tf964F5eweoWEt2SVENwidsmXnMgxumwE/YGiqmMjvyAQs2wE2nEEFFH2IrooVdWjGPPL7D5TRg==
   dependencies:
     lodash "^4.17.21"
     node-fetch "2"
     xml2js "^0.6.2"
 
-"@designliquido/potigol@^0.11.8":
-  version "0.11.8"
-  resolved "https://registry.yarnpkg.com/@designliquido/potigol/-/potigol-0.11.8.tgz#3edd2dee44516149bc6c632dcc6e4625f2253081"
-  integrity sha512-xaHgxfRgvZk2TU2bfs/nlUc9aAmc8T1HQ8plW36wXaymPSlY5WNQTIDU8SKwZjifrcCJME2TTKBk1uqKQZBO8Q==
+"@designliquido/potigol@^0.11.11":
+  version "0.11.11"
+  resolved "https://registry.yarnpkg.com/@designliquido/potigol/-/potigol-0.11.11.tgz#6b66812c589249420b62b7ebde178a6a16e052db"
+  integrity sha512-1RTgwcxyf33sxr4ceDPwOBxKTDtOxHl9+dU4UQLO3gi2GNdJ9tyGziNo+yiKfYzvWNcH755F1XlpzQALJjf92w==
   dependencies:
     lodash "^4.17.21"
 
-"@designliquido/visualg@^0.9.8":
-  version "0.9.8"
-  resolved "https://registry.yarnpkg.com/@designliquido/visualg/-/visualg-0.9.8.tgz#2e0254db38d2e33bd2c86b1adc8faaf4932766e0"
-  integrity sha512-zCbSA9vpImskhaoQJdVH1OYHV1BsNcAocNpMmDYbBBvQtPyktZ8SVcIYxjK9DsbspM+5j595obc94sqV5mc4Rg==
+"@designliquido/visualg@^0.9.11":
+  version "0.9.11"
+  resolved "https://registry.yarnpkg.com/@designliquido/visualg/-/visualg-0.9.11.tgz#129554bd90db8b7455c9f4d4c5503142bcd842be"
+  integrity sha512-8ou//QMDUIva4Qoy+Jklhv1hmLu2pKOR4774HfRHDJ2h4cKEnaZ/d5U/WHTL/bW94TrzNUNEXpDPYe5E8WFmIA==
   dependencies:
     lodash "^4.17.21"
 
@@ -935,6 +936,76 @@
   dependencies:
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
+
+"@koromix/koffi-darwin-arm64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-darwin-arm64/-/koffi-darwin-arm64-3.0.2.tgz#345aec52c58f3c67dca94e670675363548ca27b9"
+  integrity sha512-OaL5EViEvsdbc8Ut90zY44AKF3mq6JBqkK/xLkGaSXcLsOJUsD+XaPAZb/WOWcKVg7On31wP+4hB7MwHQPdiUg==
+
+"@koromix/koffi-darwin-x64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-darwin-x64/-/koffi-darwin-x64-3.0.2.tgz#cf871c344a053548580a387fe96e46bfc11ee00f"
+  integrity sha512-ZkBKudZkIOy5yVcp8cUTFCrE5DSgxkcH26mUxV6m8JgUtvtps4iMIGAAZLSq5aouvQQKhbKpXtZ3YdzpcytM+g==
+
+"@koromix/koffi-freebsd-arm64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-freebsd-arm64/-/koffi-freebsd-arm64-3.0.2.tgz#38b879ce3770926a70093a9237300c5f2d567213"
+  integrity sha512-eVHMjYL6yMc7GOdH0juDVEYFU4D9Az6cqyI7+ytWwovwAjHNtf96S17Ag/aI2qs7WVCoHceKDdMUATzs5grvMw==
+
+"@koromix/koffi-freebsd-ia32@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-freebsd-ia32/-/koffi-freebsd-ia32-3.0.2.tgz#e7f0dc811e9b4d2e5cce394172483a723f6bdd74"
+  integrity sha512-qiSkR5fF/oa8MIukjsXMmFPC/FWGfUtw3ee+jgURg0R+Tuhlvqlfh50W4rQ0Y0faITJcF+3wmCI6WSt7p4iCkA==
+
+"@koromix/koffi-freebsd-x64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-freebsd-x64/-/koffi-freebsd-x64-3.0.2.tgz#819903ea0b9796eb44b002bfdabc4ffb715ce295"
+  integrity sha512-RDqoD8tBiRoe1C/lZEdMWETKk2dTR298XgJ9PBXbw2ETMVpIX+ci++X+j+4e7J3kVldxHLdFCykNei6d1wmhTA==
+
+"@koromix/koffi-linux-arm64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-linux-arm64/-/koffi-linux-arm64-3.0.2.tgz#ab69e91d881687df21730d6f8fe8639c361b0007"
+  integrity sha512-zIm5NlzFuxt4f6mDjwTDgfzu8oZngcALTmOkWbp7HSeWdjQeiy8JRaSOEpfzlIlqWoPxhRUX5Yniqkt8564VnA==
+
+"@koromix/koffi-linux-ia32@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-linux-ia32/-/koffi-linux-ia32-3.0.2.tgz#2b4453a7b5a2381138df71fd0f3a1b68ce209a5f"
+  integrity sha512-Le3JxJswxBhO3OeeSWA400/v2sTPwTWz/IIc6ARc4SbTGUcz2jm6jXXQviW01r5OvCQ+w2Q2T4PxP+eaRa2+fQ==
+
+"@koromix/koffi-linux-loong64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-linux-loong64/-/koffi-linux-loong64-3.0.2.tgz#81af06aa27caafb5406cdeed3f648525b7f7e9f8"
+  integrity sha512-TiPOFy4OX0tLhKwL6oSOhDIhwd5b48x7nxCBT8u6IW+nLXMIo2j+jla1h9niQ8HVGknGOzu48k55KVl0YMsaew==
+
+"@koromix/koffi-linux-riscv64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-linux-riscv64/-/koffi-linux-riscv64-3.0.2.tgz#b5191a41f97011b2548655fadc3c789c95cf1276"
+  integrity sha512-U44szVAHW4WKTV0s6K6rjeZEURJ0CFHbZC0Ik3lpzvEidbOu8dTft7OGNr4hhBvx/XaeLMCCebPLBoYZZNW2Dg==
+
+"@koromix/koffi-linux-x64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-linux-x64/-/koffi-linux-x64-3.0.2.tgz#7e623d6b0e9544911dfa5ef8e755a86e4399d302"
+  integrity sha512-bm4qT+e59KWn4V/jK8uF1RV2k0/JJvmGPUj4qCJ3E9663H+6ZLqz1rpCdgXSEA95f5CNR3RWcgjQwxgKO9xFtQ==
+
+"@koromix/koffi-openbsd-ia32@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-openbsd-ia32/-/koffi-openbsd-ia32-3.0.2.tgz#aaa6e01e149abe499908ffff305813ff494a0e11"
+  integrity sha512-tUu2LMSyeCSe1DbJKZrjGOKRQzDhj/RAw4rVdlHXlU/B26sdyKZjEwE3GxVlYDdEBX4FiYYmoVuG3BwGWSefCw==
+
+"@koromix/koffi-openbsd-x64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-openbsd-x64/-/koffi-openbsd-x64-3.0.2.tgz#6240e428713883b8e8d7d9d21410f4f8e1ab5e2d"
+  integrity sha512-o4QZwsKIQvlMSIJaCXsu8d2sz4bbKEJrZhmnCeT/SKEU1VEiegmDn/I6DYrg5mOMDC15GWlUP1qP6AsVlrxqXA==
+
+"@koromix/koffi-win32-ia32@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-win32-ia32/-/koffi-win32-ia32-3.0.2.tgz#68ead3b240e48328e3550031ae3114e7d2ed02f7"
+  integrity sha512-Yz/iP2xLaq8t3TFy5+f2Oww7rBpXgZ4YRexdYffSm2EwcnDeCtPudQSjIiKyEBdvDsU2vQetTrxyqDHStXXocw==
+
+"@koromix/koffi-win32-x64@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@koromix/koffi-win32-x64/-/koffi-win32-x64-3.0.2.tgz#6965dae8f9232d81fd75024140115cd90b9d2fbf"
+  integrity sha512-zozoHzvSi61jch4sKqFi3ATsDC7lviFthoivzPKVk4VeJvFeSdqueKoYGHNXEzfhIXn9Y5K85l9a59nwfutkUA==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -4359,6 +4430,26 @@ kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
+
+koffi@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/koffi/-/koffi-3.0.2.tgz#89c3533f382034260b093abfcf4fff60eaffeb19"
+  integrity sha512-YS4sGzlVMhFNNkKbkB3tcLKJxH9WGP3jHTxi4Eyx+ieMRKVz4K2i+6rebYr9ngHN36jhIW6YXnxkzBeOQ51lsw==
+  optionalDependencies:
+    "@koromix/koffi-darwin-arm64" "3.0.2"
+    "@koromix/koffi-darwin-x64" "3.0.2"
+    "@koromix/koffi-freebsd-arm64" "3.0.2"
+    "@koromix/koffi-freebsd-ia32" "3.0.2"
+    "@koromix/koffi-freebsd-x64" "3.0.2"
+    "@koromix/koffi-linux-arm64" "3.0.2"
+    "@koromix/koffi-linux-ia32" "3.0.2"
+    "@koromix/koffi-linux-loong64" "3.0.2"
+    "@koromix/koffi-linux-riscv64" "3.0.2"
+    "@koromix/koffi-linux-x64" "3.0.2"
+    "@koromix/koffi-openbsd-ia32" "3.0.2"
+    "@koromix/koffi-openbsd-x64" "3.0.2"
+    "@koromix/koffi-win32-ia32" "3.0.2"
+    "@koromix/koffi-win32-x64" "3.0.2"
 
 ky@^1.2.0:
   version "1.14.3"
