@@ -9,27 +9,31 @@ export async function inicializarBancoDeleguaEntidades(
     tecnologia: string,
     caminhoBanco: string,
     apenasEstrutura: boolean,
-    apenasDados: boolean
+    apenasDados: boolean,
+    instanciaExistente?: TecnologiaLinconesInterface
 ): Promise<void> {
     let moduloDeleguaEntidades: any;
     try {
         const pacote = '@designliquido/delegua-entidades';
         moduloDeleguaEntidades = await import(pacote);
     } catch {
-        console.error(red(
+        throw new Error(
             'Pacote @designliquido/delegua-entidades não encontrado. ' +
             'Instale-o com: npm install @designliquido/delegua-entidades'
-        ));
-        process.exit(1);
-        return;
+        );
     }
 
     const { ExecutorMigracoes, Semeador } = moduloDeleguaEntidades;
 
-    const moduloTecnologia = await import(`@designliquido/lincones-${tecnologia}`);
-    const ConstrutorTecnologia = moduloTecnologia.default as ConstrutorTecnologiaLincones;
-    const lincones = new ConstrutorTecnologia();
-    await lincones.iniciar(caminhoBanco);
+    let lincones: TecnologiaLinconesInterface;
+    if (instanciaExistente) {
+        lincones = instanciaExistente;
+    } else {
+        const moduloTecnologia = await import(`@designliquido/lincones-${tecnologia}`);
+        const ConstrutorTecnologia = moduloTecnologia.default as ConstrutorTecnologiaLincones;
+        lincones = new ConstrutorTecnologia();
+        await lincones.iniciar(caminhoBanco);
+    }
 
     const deveExecutarMigracoes = !apenasDados;
     const deveExecutarSementes = !apenasEstrutura;

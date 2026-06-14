@@ -24,6 +24,7 @@ import { FolEs } from '@designliquido/foles';
 import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
 import { ProvedorLincones } from './infraestrutura/provedores';
+import { inicializarBancoLincones, inicializarBancoDeleguaEntidades } from './interface-linha-comando';
 import { MetodoRoteador, Roteador } from './infraestrutura/roteador';
 import { CorpoResposta, LiquidoInterface, RetornoConfiguracaoInterface } from './interfaces';
 import { CentroConfiguracoes } from './infraestrutura/centro-configuracoes';
@@ -88,17 +89,43 @@ export class Liquido implements LiquidoInterface {
 
         this.configurarPipelineLinguagem(linguagemSelecionada);
 
+        if (this.provedorLincones.configurado && this.interpretador) {
+            const moduloLincones = await this.provedorLincones.resolver();
+
+            const dados = this.centroConfiguracoes?.liquido?.dados;
+            if (dados?.autoInicializar) {
+                try {
+                    if (dados.motor === 'delegua-entidades') {
+                        await inicializarBancoDeleguaEntidades(
+                            dados.lincones?.tecnologia ?? '',
+                            dados.lincones?.caminho ?? '',
+                            false,
+                            false,
+                            this.provedorLincones.instancia
+                        );
+                    } else {
+                        await inicializarBancoLincones(
+                            dados.lincones?.tecnologia ?? '',
+                            dados.lincones?.caminho ?? '',
+                            dados.arquivoInicializacao,
+                            false,
+                            false,
+                            this.provedorLincones.instancia
+                        );
+                    }
+                } catch (erro: any) {
+                    console.warn(`[Liquido] Inicialização automática do banco de dados falhou: ${erro?.message ?? erro}`);
+                }
+            }
+
+            this.interpretador.pilhaEscoposExecucao.definirVariavel('lincones', moduloLincones);
+        }
+
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 
         this.roteador.iniciar();
-        if (this.provedorLincones.configurado && this.interpretador) {
-            this.interpretador.pilhaEscoposExecucao.definirVariavel(
-                'lincones',
-                await this.provedorLincones.resolver()
-            );
-        }
 
         if (this.centroConfiguracoes?.liquido?.arquetipo !== 'rest') {
             this.escreverEstilos();

@@ -20,14 +20,13 @@ export async function inicializarBancoLincones(
     caminhoBanco: string,
     arquivoScript: string,
     apenasEstrutura: boolean,
-    apenasDados: boolean
+    apenasDados: boolean,
+    instanciaExistente?: TecnologiaLinconesInterface
 ): Promise<void> {
     const caminhoScript = path.resolve(process.cwd(), arquivoScript);
 
     if (!fs.existsSync(caminhoScript)) {
-        console.error(red(`Arquivo de inicialização não encontrado: ${caminhoScript}`));
-        process.exit(1);
-        return;
+        throw new Error(`Arquivo de inicialização não encontrado: ${caminhoScript}`);
     }
 
     const conteudo = fs.readFileSync(caminhoScript, 'utf-8');
@@ -49,10 +48,15 @@ export async function inicializarBancoLincones(
         console.info(yellow(`${ignorados} enunciado(s) ignorado(s) pelo filtro ativo.`));
     }
 
-    const moduloTecnologia = await import(`@designliquido/lincones-${tecnologia}`);
-    const ConstrutorTecnologia = moduloTecnologia.default as ConstrutorTecnologiaLincones;
-    const lincones = new ConstrutorTecnologia();
-    await lincones.iniciar(caminhoBanco);
+    let lincones: TecnologiaLinconesInterface;
+    if (instanciaExistente) {
+        lincones = instanciaExistente;
+    } else {
+        const moduloTecnologia = await import(`@designliquido/lincones-${tecnologia}`);
+        const ConstrutorTecnologia = moduloTecnologia.default as ConstrutorTecnologiaLincones;
+        lincones = new ConstrutorTecnologia();
+        await lincones.iniciar(caminhoBanco);
+    }
 
     let sucessos = 0;
     let falhas = 0;
@@ -74,4 +78,3 @@ export async function inicializarBancoLincones(
 
     console.info(yellow(`\nTotal: ${enunciadosFiltrados.length} enunciado(s) — ${sucessos} executado(s), ${falhas} falha(s).`));
 }
-

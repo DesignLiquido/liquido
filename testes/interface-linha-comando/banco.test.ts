@@ -54,13 +54,14 @@ describe('Testes dos inicializadores de banco de dados', () => {
     });
 
     describe('inicializarBancoLincones', () => {
-        it('deve chamar process.exit(1) quando o arquivo de script não é encontrado', async () => {
+        it('deve lançar erro quando o arquivo de script não é encontrado', async () => {
             (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(false);
 
-            await inicializarBancoLincones('sqlite', ':memory:', 'inicializacao.lincones', false, false);
+            await expect(
+                inicializarBancoLincones('sqlite', ':memory:', 'inicializacao.lincones', false, false)
+            ).rejects.toThrow();
 
-            expect(mockExit).toHaveBeenCalledWith(1);
-            expect(console.error).toHaveBeenCalled();
+            expect(mockExit).not.toHaveBeenCalled();
         });
 
         it('deve executar todos os enunciados quando nenhum filtro está ativo', async () => {
@@ -182,6 +183,25 @@ describe('Testes dos inicializadores de banco de dados', () => {
 
             expect(console.info).toHaveBeenCalledWith(expect.stringContaining('ignorado'));
         });
+
+        it('deve usar instanciaExistente sem criar nova instância', async () => {
+            (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(true);
+            (sistemaArquivos.readFileSync as jest.Mock).mockReturnValue('CRIAR TABELA t (ID INTEIRO)');
+
+            const instanciaExistente = {
+                iniciar: jest.fn(),
+                executar: jest.fn().mockResolvedValue([{ linhasAfetadas: 1 }]),
+                executarComando: jest.fn()
+            } as any;
+
+            const construtorAntes = obterConstrutorLincones().mock.instances.length;
+
+            await inicializarBancoLincones('sqlite', ':memory:', 'inicializacao.lincones', false, false, instanciaExistente);
+
+            expect(obterConstrutorLincones().mock.instances.length).toBe(construtorAntes);
+            expect(instanciaExistente.iniciar).not.toHaveBeenCalled();
+            expect(instanciaExistente.executar).toHaveBeenCalledWith(null, 'CRIAR TABELA t (ID INTEIRO)', []);
+        });
     });
 
     describe('inicializarBancoDeleguaEntidades', () => {
@@ -251,6 +271,23 @@ describe('Testes dos inicializadores de banco de dados', () => {
 
             const instancia = obterUltimaInstanciaLincones();
             expect(instancia.iniciar).toHaveBeenCalledWith('banco.db');
+        });
+
+        it('deve usar instanciaExistente sem criar nova instância de lincones', async () => {
+            (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(false);
+
+            const instanciaExistente = {
+                iniciar: jest.fn(),
+                executar: jest.fn(),
+                executarComando: jest.fn()
+            } as any;
+
+            const construtorAntes = obterConstrutorLincones().mock.instances.length;
+
+            await inicializarBancoDeleguaEntidades('sqlite', ':memory:', false, false, instanciaExistente);
+
+            expect(obterConstrutorLincones().mock.instances.length).toBe(construtorAntes);
+            expect(instanciaExistente.iniciar).not.toHaveBeenCalled();
         });
     });
 });

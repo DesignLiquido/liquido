@@ -97,6 +97,28 @@ describe('Testes das classes de configuração', () => {
             expect(config.motor).toBe('delegua-entidades');
         });
 
+        it('deve ter autoInicializar como false por padrão', () => {
+            const config = new ConfiguracaoDados();
+            expect(config.autoInicializar).toBe(false);
+        });
+
+        it('deve aceitar autoInicializar verdadeiro via definirValor', () => {
+            const config = new ConfiguracaoDados();
+            config.definirValor(config, ['dados', 'autoInicializar'], true);
+            expect(config.autoInicializar).toBe(true);
+        });
+
+        it('deve ter arquivoInicializacao com valor padrão "inicializacao.lincones"', () => {
+            const config = new ConfiguracaoDados();
+            expect(config.arquivoInicializacao).toBe('inicializacao.lincones');
+        });
+
+        it('deve aceitar arquivoInicializacao personalizado via definirValor', () => {
+            const config = new ConfiguracaoDados();
+            config.definirValor(config, ['dados', 'arquivoInicializacao'], 'banco-inicial.lincones');
+            expect(config.arquivoInicializacao).toBe('banco-inicial.lincones');
+        });
+
         it('deve delegar configurar para lincones', () => {
             const config = new ConfiguracaoDados();
             const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };

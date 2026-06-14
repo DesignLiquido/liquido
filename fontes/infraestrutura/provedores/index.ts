@@ -8,6 +8,7 @@ type ConstrutorTecnologiaLincones = new () => TecnologiaLinconesInterface;
 export class ProvedorLincones implements ProvedorInterface {
     tecnologia: string;
     caminho: string;
+    instancia?: TecnologiaLinconesInterface;
 
     constructor() {
         this.tecnologia = "";
@@ -38,7 +39,8 @@ export class ProvedorLincones implements ProvedorInterface {
         const tecnologiaLincones = moduloTecnologiaLincones.default as ConstrutorTecnologiaLincones;
         
         const lincones = new tecnologiaLincones();
-        lincones.iniciar(this.caminho);
+        await lincones.iniciar(this.caminho);
+        this.instancia = lincones;
         const linconesComoModulo = new DeleguaModulo('lincones');
         linconesComoModulo.componentes['executar'] = 
             new FuncaoPadrao(lincones.executar.length, lincones.executar.bind(lincones));

@@ -236,23 +236,29 @@ class LiquidoPontoEntrada {
             console.error(red('Configuração de banco de dados não encontrada em configuracao.delprops.'));
             console.error(red('Adicione liquido.dados.lincones.tecnologia e liquido.dados.lincones.caminho'));
             process.exit(1);
+            return;
         }
 
-        if (motor === 'delegua-entidades') {
-            await inicializarBancoDeleguaEntidades(
-                tecnologia,
-                caminhoBanco,
-                args.apenasEstrutura,
-                args.apenasDados
-            );
-        } else {
-            await inicializarBancoLincones(
-                tecnologia,
-                caminhoBanco,
-                args.arquivo,
-                args.apenasEstrutura,
-                args.apenasDados
-            );
+        try {
+            if (motor === 'delegua-entidades') {
+                await inicializarBancoDeleguaEntidades(
+                    tecnologia,
+                    caminhoBanco,
+                    args.apenasEstrutura,
+                    args.apenasDados
+                );
+            } else {
+                await inicializarBancoLincones(
+                    tecnologia,
+                    caminhoBanco,
+                    args.arquivo,
+                    args.apenasEstrutura,
+                    args.apenasDados
+                );
+            }
+        } catch (erro: any) {
+            console.error(red(`Erro na inicialização do banco: ${erro?.message ?? erro}`));
+            process.exit(1);
         }
     }
 

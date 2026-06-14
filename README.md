@@ -365,6 +365,27 @@ module.exports = new Migracao('001', 'Criar tabela de usuários')
 
 Com `--apenas-estrutura`, apenas as migrações são executadas. Com `--apenas-dados`, apenas as sementes são executadas.
 
+### Inicialização automática na inicialização do servidor
+
+Quando o banco de dados usa `:memory:` (ou qualquer outro caminho), é possível inicializá-lo automaticamente toda vez que o servidor Líquido é iniciado. Para isso, defina `liquido.dados.autoInicializar = verdadeiro` no arquivo `configuracao.delprops`:
+
+```js
+liquido.dados.lincones.tecnologia = 'sqlite'
+liquido.dados.lincones.caminho = ':memory:'
+liquido.dados.autoInicializar = verdadeiro
+```
+
+Com essa configuração, ao executar `npx liquido`, o script `inicializacao.lincones` será executado automaticamente antes de o servidor começar a aceitar requisições. Se a inicialização falhar, uma advertência é exibida no console e o servidor continua funcionando normalmente.
+
+Por padrão, o arquivo de script utilizado é `inicializacao.lincones`. Para usar um arquivo diferente, defina a chave `arquivoInicializacao`:
+
+```js
+liquido.dados.autoInicializar = verdadeiro
+liquido.dados.arquivoInicializacao = 'banco-inicial.lincones'
+```
+
+> **Importante:** Quando `autoInicializar` está ativo, o Líquido reutiliza a mesma conexão com o banco de dados tanto para a inicialização quanto para as requisições. Isso é necessário para que bancos em memória (`:memory:`) compartilhem os dados entre inicialização e rotas.
+
 ## Filosofia de Tradução para o Inglês
 
 Liquido permite a qualquer desenvolvedor que saiba português a escrever aplicações Web, e possivelmente criar um ecossistema profissional a partir dele. Procuramos traduzir o máximo possível de informações e conceitos por uma questão de acessibilidade, mas há limites para isso. Por exemplo, não traduzimos os métodos de HTTP porque entendemos que uma tradução disso implicaria em um protocolo novo de transferência.
