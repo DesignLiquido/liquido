@@ -101,6 +101,8 @@ export async function detectarGerenciadorDePacotes(
     gerenciadorDePacotes: string,
     diretorioProjeto: string
 ) {
+    const caminhoPackageJson = caminho.join(diretorioProjeto, 'package.json');
+
     switch (gerenciadorDePacotes) {
         case 'npm': {
             execSync('npm init -y', { cwd: diretorioProjeto });
@@ -113,7 +115,20 @@ export async function detectarGerenciadorDePacotes(
             break;
         }
         case 'bun': {
-            execSync('bun init -y', { cwd: diretorioProjeto });
+            if (!sistemaArquivos.existsSync(caminhoPackageJson)) {
+                const conteudoPackageJson = {
+                    name: caminho.basename(diretorioProjeto),
+                    version: '1.0.0',
+                    private: true,
+                    dependencies: {}
+                };
+
+                await sistemaArquivos.promises.writeFile(
+                    caminhoPackageJson,
+                    JSON.stringify(conteudoPackageJson, null, 2) + '\n'
+                );
+            }
+
             execSync('bun add liquido@latest', { cwd: diretorioProjeto });
             break;
         }

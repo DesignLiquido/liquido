@@ -370,6 +370,70 @@ describe('Liquido', () => {
                 );
     
             });
+
+            it('Deve inicializar projeto com Bun sem criar arquivos desnecessários', async () => {
+                jest.clearAllMocks();
+                const caminhoDiretorioBun = caminho.join(
+                    process.cwd(),
+                    'teste-comando-novo-bun'
+                );
+
+                (ChildProcess.execSync as jest.Mock).mockImplementation(
+                    () => Buffer.from('')
+                );
+
+                await sistemaArquivos.promises.rm(
+                    caminhoDiretorioBun,
+                    { recursive: true, force: true }
+                );
+                await sistemaArquivos.promises.mkdir(caminhoDiretorioBun);
+
+                try {
+                    await detectarGerenciadorDePacotes(
+                        'bun',
+                        caminhoDiretorioBun
+                    );
+
+                    const conteudoPackageJson = JSON.parse(
+                        await sistemaArquivos.promises.readFile(
+                            `${caminhoDiretorioBun}/package.json`,
+                            'utf-8'
+                        )
+                    );
+
+                    expect(ChildProcess.execSync).not.toHaveBeenCalledWith(
+                        'bun init -y',
+                        { cwd: caminhoDiretorioBun }
+                    );
+                    expect(ChildProcess.execSync).toHaveBeenCalledWith(
+                        'bun add liquido@latest',
+                        { cwd: caminhoDiretorioBun }
+                    );
+                    expect(conteudoPackageJson).toMatchObject({
+                        name: 'teste-comando-novo-bun',
+                        version: '1.0.0',
+                        private: true,
+                        dependencies: {}
+                    });
+                    expect(conteudoPackageJson).not.toHaveProperty(
+                        'peerDependencies.typescript'
+                    );
+                    expect(
+                        sistemaArquivos.existsSync(`${caminhoDiretorioBun}/tsconfig.json`)
+                    ).toBeFalsy();
+                    expect(
+                        sistemaArquivos.existsSync(`${caminhoDiretorioBun}/index.ts`)
+                    ).toBeFalsy();
+                    expect(
+                        sistemaArquivos.existsSync(`${caminhoDiretorioBun}/README.md`)
+                    ).toBeFalsy();
+                } finally {
+                    await sistemaArquivos.promises.rm(
+                        caminhoDiretorioBun,
+                        { recursive: true, force: true }
+                    );
+                }
+            });
         
 
             it('Deve usar o nome da pasta quando o nome do projeto é criado com "." ou "./"', async () => {
