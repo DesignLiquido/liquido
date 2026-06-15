@@ -140,10 +140,19 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         const codigo = atributos['codigo'] || atributos['código'];
         const retorno: RespostaOpenApi = {};
         for (const [nomeAtributo, valorAtributo] of Object.entries(atributos)) {
-            retorno.content![decoradoresValidosResposta[nomeAtributo] as any] = valorAtributo;
+            const nomeOpenApi = decoradoresValidosResposta[nomeAtributo];
+            if (nomeOpenApi === 'statusCode') {
+                continue;
+            }
+
+            if (nomeOpenApi === 'content') {
+                retorno.content = valorAtributo;
+                continue;
+            }
+
+            (retorno as Record<string, any>)[nomeOpenApi] = valorAtributo;
         }
 
-        // delete retorno['statusCode'];
         return [codigo, retorno];
     }
 
