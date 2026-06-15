@@ -12,8 +12,7 @@ import prompts from 'prompts';
 import { cwd } from 'process';
 import path from 'path';
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { version } = require('./package.json');
+import { version } from '../package.json';
 
 import { Liquido } from './liquido';
 import {
