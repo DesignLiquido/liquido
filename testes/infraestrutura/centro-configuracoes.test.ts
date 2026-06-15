@@ -97,25 +97,25 @@ describe('Testes das classes de configuração', () => {
             expect(config.motor).toBe('delegua-entidades');
         });
 
-        it('deve ter autoInicializar como false por padrão', () => {
-            const config = new ConfiguracaoDados();
+        it('deve ter autoInicializar como false por padrão via lincones', () => {
+            const config = new ConfiguracaoLincones();
             expect(config.autoInicializar).toBe(false);
         });
 
-        it('deve aceitar autoInicializar verdadeiro via definirValor', () => {
-            const config = new ConfiguracaoDados();
-            config.definirValor(config, ['dados', 'autoInicializar'], true);
+        it('deve aceitar autoInicializar verdadeiro via definirValor em lincones', () => {
+            const config = new ConfiguracaoLincones();
+            config.definirValor(config, ['lincones', 'autoInicializar'], true);
             expect(config.autoInicializar).toBe(true);
         });
 
-        it('deve ter arquivoInicializacao com valor padrão "inicializacao.lincones"', () => {
-            const config = new ConfiguracaoDados();
+        it('deve ter arquivoInicializacao com valor padrão "inicializacao.lincones" via lincones', () => {
+            const config = new ConfiguracaoLincones();
             expect(config.arquivoInicializacao).toBe('inicializacao.lincones');
         });
 
-        it('deve aceitar arquivoInicializacao personalizado via definirValor', () => {
-            const config = new ConfiguracaoDados();
-            config.definirValor(config, ['dados', 'arquivoInicializacao'], 'banco-inicial.lincones');
+        it('deve aceitar arquivoInicializacao personalizado via definirValor em lincones', () => {
+            const config = new ConfiguracaoLincones();
+            config.definirValor(config, ['lincones', 'arquivoInicializacao'], 'banco-inicial.lincones');
             expect(config.arquivoInicializacao).toBe('banco-inicial.lincones');
         });
 

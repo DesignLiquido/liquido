@@ -367,12 +367,12 @@ Com `--apenas-estrutura`, apenas as migrações são executadas. Com `--apenas-d
 
 ### Inicialização automática na inicialização do servidor
 
-Quando o banco de dados usa `:memory:` (ou qualquer outro caminho), é possível inicializá-lo automaticamente toda vez que o servidor Líquido é iniciado. Para isso, defina `liquido.dados.autoInicializar = verdadeiro` no arquivo `configuracao.delprops`:
+Quando o banco de dados usa `:memory:` (ou qualquer outro caminho), é possível inicializá-lo automaticamente toda vez que o servidor Líquido é iniciado. Para isso, defina `liquido.dados.lincones.autoInicializar = verdadeiro` no arquivo `configuracao.delprops`:
 
 ```js
 liquido.dados.lincones.tecnologia = 'sqlite'
 liquido.dados.lincones.caminho = ':memory:'
-liquido.dados.autoInicializar = verdadeiro
+liquido.dados.lincones.autoInicializar = verdadeiro
 ```
 
 Com essa configuração, ao executar `npx liquido`, o script `inicializacao.lincones` será executado automaticamente antes de o servidor começar a aceitar requisições. Se a inicialização falhar, uma advertência é exibida no console e o servidor continua funcionando normalmente.
@@ -380,8 +380,8 @@ Com essa configuração, ao executar `npx liquido`, o script `inicializacao.linc
 Por padrão, o arquivo de script utilizado é `inicializacao.lincones`. Para usar um arquivo diferente, defina a chave `arquivoInicializacao`:
 
 ```js
-liquido.dados.autoInicializar = verdadeiro
-liquido.dados.arquivoInicializacao = 'banco-inicial.lincones'
+liquido.dados.lincones.autoInicializar = verdadeiro
+liquido.dados.lincones.arquivoInicializacao = 'banco-inicial.lincones'
 ```
 
 > **Importante:** Quando `autoInicializar` está ativo, o Líquido reutiliza a mesma conexão com o banco de dados tanto para a inicialização quanto para as requisições. Isso é necessário para que bancos em memória (`:memory:`) compartilhem os dados entre inicialização e rotas.

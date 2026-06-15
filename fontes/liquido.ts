@@ -94,21 +94,21 @@ export class Liquido implements LiquidoInterface {
             const moduloLincones = await this.provedorLincones.resolver();
 
             const dados = this.centroConfiguracoes?.liquido?.dados;
-            if (dados?.autoInicializar) {
+            if (dados?.lincones?.autoInicializar) {
                 try {
                     if (dados.motor === 'delegua-entidades') {
                         await inicializarBancoDeleguaEntidades(
-                            dados.lincones?.tecnologia ?? '',
-                            dados.lincones?.caminho ?? '',
+                            dados.lincones.tecnologia ?? '',
+                            dados.lincones.caminho ?? '',
                             false,
                             false,
                             this.provedorLincones.instancia
                         );
                     } else {
                         await inicializarBancoLincones(
-                            dados.lincones?.tecnologia ?? '',
-                            dados.lincones?.caminho ?? '',
-                            dados.arquivoInicializacao,
+                            dados.lincones.tecnologia ?? '',
+                            dados.lincones.caminho ?? '',
+                            dados.lincones.arquivoInicializacao,
                             false,
                             false,
                             this.provedorLincones.instancia

@@ -4,6 +4,8 @@ import { ConfiguracaoComum } from "./configuracao-comum";
 export class ConfiguracaoLincones extends ConfiguracaoComum {
     tecnologia?: string = undefined;
     caminho?: string = undefined;
+    autoInicializar: boolean = false;
+    arquivoInicializacao: string = 'inicializacao.lincones';
 
     constructor(valoresIniciais?: Partial<ConfiguracaoLincones>) {
         super();
