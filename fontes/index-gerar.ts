@@ -3,7 +3,7 @@ import prompts from 'prompts';
 import { Classe } from '@designliquido/delegua/declaracoes';
 import { pluralizar } from '@designliquido/flexoes';
 
-import { criarDiretorioSeNaoExiste, importarModelos, obterTodosModelos } from './interface-linha-comando/gerar';
+import { criarDiretorioSeNaoExiste, importarModelos, lerMotorConfigurado, obterTodosModelos } from './interface-linha-comando/gerar';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
 import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
 
@@ -30,7 +30,7 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
     criarDiretorioSeNaoExiste('rotas');
 
     const geradorVisoes = new GeradorVisoes();
-    const geradorRotas = new GeradorRotas();
+    const geradorRotas = new GeradorRotas(lerMotorConfigurado());
 
     // Aqui apenas aceitamos declarações de classes. Pode ser mais de uma.
     for (const declaracao of declaracoes.filter((d) => d instanceof Classe)) {

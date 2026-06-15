@@ -26,7 +26,7 @@
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}${pathSeparator}index.ts",
+                "${workspaceFolder}${pathSeparator}fontes${pathSeparator}index.ts",
 				"gerar"
             ],
             "runtimeExecutable": "node",

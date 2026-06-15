@@ -49,6 +49,7 @@ export class Liquido implements LiquidoInterface {
     foles: FolEs;
     centroConfiguracoes!: CentroConfiguracoes;
     autoDocumentador: AutoDocumentador;
+    private classeContextoEntidades: any = null;
 
     arquivosDelegua: string[];
     arquivosPitugues: string[];
@@ -119,6 +120,16 @@ export class Liquido implements LiquidoInterface {
             }
 
             this.interpretador.pilhaEscoposExecucao.definirVariavel('lincones', moduloLincones);
+
+            if (dados?.motor === 'delegua-entidades') {
+                try {
+                    const pacote = '@designliquido/delegua-entidades';
+                    const modulo = await import(pacote);
+                    this.classeContextoEntidades = modulo.ContextoEntidades;
+                } catch {
+                    console.warn('[Liquido] @designliquido/delegua-entidades não encontrado. Instale com: npm install @designliquido/delegua-entidades');
+                }
+            }
         }
 
         this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
@@ -171,7 +182,8 @@ export class Liquido implements LiquidoInterface {
                 lincones: 'módulo',
                 liquido: 'módulo',
                 requisicao: 'módulo',
-                resposta: 'módulo'
+                resposta: 'módulo',
+                contexto: 'módulo'
             }
         };
     }
@@ -566,6 +578,11 @@ export class Liquido implements LiquidoInterface {
             'resposta',
             new ObjetoDeleguaClasse(descritorClasseResposta)
         );
+
+        if (this.classeContextoEntidades && this.provedorLincones.instancia) {
+            const contexto = new this.classeContextoEntidades(this.provedorLincones.instancia);
+            this.interpretador?.pilhaEscoposExecucao.definirVariavel('contexto', contexto);
+        }
 
         const funcaoRetorno = new DeleguaFuncao(nomeFuncao, funcaoConstruto);
         this.interpretador?.pilhaEscoposExecucao.definirVariavel(nomeFuncao, funcaoRetorno);

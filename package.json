@@ -51,7 +51,7 @@
         }
     ],
     "peerDependencies": {
-        "@designliquido/delegua-entidades": "^0.0.6"
+        "@designliquido/delegua-entidades": "^0.1.0"
     },
     "peerDependenciesMeta": {
         "@designliquido/delegua-entidades": {

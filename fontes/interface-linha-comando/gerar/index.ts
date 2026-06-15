@@ -1,6 +1,14 @@
 import * as sistemaArquivos from 'fs';
 import * as caminho from 'path';
 
+export function lerMotorConfigurado(): 'lincones' | 'delegua-entidades' {
+    const caminhoConfig = caminho.join(process.cwd(), 'configuracao.delprops');
+    if (!sistemaArquivos.existsSync(caminhoConfig)) return 'lincones';
+    return sistemaArquivos.readFileSync(caminhoConfig, 'utf-8').includes('delegua-entidades')
+        ? 'delegua-entidades'
+        : 'lincones';
+}
+
 import { Lexador } from '@designliquido/delegua/lexador';
 import { Importador } from '@designliquido/delegua-node/importador';
 import { Declaracao } from '@designliquido/delegua/declaracoes';
@@ -12,7 +20,7 @@ import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/ava
  */
 export function obterTodosModelos(): { title: string, value: string }[] {
     const diretorioModelos = caminho.join(process.cwd(), 'modelos');
-    const opcoesModelos = [];
+    const opcoesModelos: { title: string; value: string }[] = [];
 
     sistemaArquivos.readdirSync(diretorioModelos).forEach((arquivo) => {
         if (arquivo.endsWith('.delegua')) {

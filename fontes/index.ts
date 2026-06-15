@@ -26,6 +26,7 @@ import {
     importarModelos,
     inicializarBancoDeleguaEntidades,
     inicializarBancoLincones,
+    lerMotorConfigurado,
     obterTodosModelos
 } from './interface-linha-comando';
 import { ComandoBancoIniciarInterface, ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
@@ -73,7 +74,7 @@ class LiquidoPontoEntrada {
         criarDiretorioAplicacao('rotas');
 
         const geradorVisoes = new GeradorVisoes();
-        const geradorRotas = new GeradorRotas();
+        const geradorRotas = new GeradorRotas(lerMotorConfigurado());
 
         for (const declaracao of declaracoes) {
             const declaracaoModelo = <Classe>declaracao
