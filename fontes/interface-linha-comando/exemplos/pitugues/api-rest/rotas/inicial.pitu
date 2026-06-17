@@ -9,19 +9,19 @@
     descricao = "Devolvido com sucesso",
     formatos = ["application/json", "application/xml"]
 )
-funcao rotaGet(requisicao, resposta):
+funcao rota_get(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
 
-funcao rotaPost(requisicao, resposta):
+funcao rota_post(requisicao, resposta):
     resposta.json([{
         "id": 2,
         "titulo": "teste 2",
         "descricao": "descricao 2"
     }])
     
-liquido.rotaGet(rotaGet)
-liquido.rotaPost(rotaPost)
+liquido.rotaGet(rota_get)
+liquido.rotaPost(rota_post)

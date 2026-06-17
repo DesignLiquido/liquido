@@ -239,6 +239,13 @@ describe('Testes das classes de configuração', () => {
     });
 
     describe('ConfiguracaoLiquido', () => {
+        it('deve ler e definir a linguagem via getter e setter', () => {
+            const config = new ConfiguracaoLiquido();
+            expect(config.linguagem).toBe('delegua');
+            config.linguagem = 'pitugues';
+            expect(config.linguagem).toBe('pitugues');
+        });
+
         it('deve criar uma instância com as três configurações aninhadas', () => {
             const config = new ConfiguracaoLiquido();
             expect(config.aplicacao).toBeInstanceOf(ConfiguracaoAplicacao);

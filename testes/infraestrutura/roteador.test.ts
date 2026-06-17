@@ -120,4 +120,59 @@ describe('Testes do roteador', () => {
     roteador.rotaPropfind('teste', () => null);
     expect(roteador.aplicacao.propfind).toHaveBeenCalled();
   });
+
+  it('deve definir cors via ativarDesativarCors', () => {
+    roteador.ativarDesativarCors(true);
+    expect(roteador.cors).toBe(true);
+  });
+
+  it('deve definir passport via ativarDesativarPassport', () => {
+    roteador.ativarDesativarPassport(true);
+    expect(roteador.passport).toBe(true);
+  });
+
+  it('deve definir cookieParser via ativarDesativarCookieParser', () => {
+    roteador.ativarDesativarCookieParser(true);
+    expect(roteador.cookieParser).toBe(true);
+  });
+
+  it('deve definir expressJson via ativarDesativarExpressJson', () => {
+    roteador.ativarDesativarExpressJson(true);
+    expect(roteador.expressJson).toBe(true);
+  });
+
+  it('deve definir bodyParser via ativarDesativarBodyParser', () => {
+    roteador.ativarDesativarBodyParser(true);
+    expect(roteador.bodyParser).toBe(true);
+  });
+
+  it('deve definir helmet via ativarDesativarHelmet', () => {
+    roteador.ativarDesativarHelmet(true);
+    expect(roteador.helmet).toBe(true);
+  });
+
+  it('deve definir morgan via ativarDesativarMorgan', () => {
+    roteador.ativarDesativarMorgan(true);
+    expect(roteador.morgan).toBe(true);
+  });
+
+  describe('validarToken', () => {
+    it('deve retornar 401 quando token não está presente no cabeçalho', () => {
+      const req = { headers: {} } as any;
+      const res = { sendStatus: jest.fn() } as any;
+      const next = jest.fn();
+      roteador.validarToken(req, res, next);
+      expect(res.sendStatus).toHaveBeenCalledWith(401);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('deve retornar 401 quando token é inválido', () => {
+      const req = { headers: { authorization: 'token-invalido' } } as any;
+      const res = { sendStatus: jest.fn() } as any;
+      const next = jest.fn();
+      roteador.validarToken(req, res, next);
+      expect(res.sendStatus).toHaveBeenCalledWith(401);
+      expect(next).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -1,3 +1,5 @@
+import * as caminho from 'path';
+
 import { Chamada, Decorador, Literal, Vetor } from '@designliquido/delegua/construtos';
 import { Expressao } from '@designliquido/delegua/declaracoes';
 import { ConstrutoInterface } from '@designliquido/delegua/interfaces';
@@ -167,6 +169,13 @@ describe('AutoDocumentador', () => {
                 }
             }
         ]);
+    });
+
+    it('deve obter estruturas de declarações de um controlador real', async () => {
+        const autoDocumentador = new AutoDocumentador();
+        const caminhoRota = caminho.join(process.cwd(), 'testes', 'exemplos', 'rotas', 'inicial.delegua');
+        const declaracoes = await (autoDocumentador as any).obterEstruturasDeAltoNivelDeControlador(caminhoRota);
+        expect(Array.isArray(declaracoes)).toBe(true);
     });
 
     it('deve montar o documento OpenAPI com metadados e rotas encontradas', async () => {

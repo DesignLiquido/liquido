@@ -16,4 +16,21 @@ describe('Testes do formatador LMHT', () => {
     const esperado = ``;
     expect(resultado).toBe(esperado);
   });
+
+  it('Deve formatar um arquivo com valores não vazios', async () => {
+    const resultado = await formatador.formatar('teste', { titulo: 'Teste' });
+    expect(resultado).toBe('');
+  });
+
+  it('Deve rejeitar quando visão não existe para rota inexistente', async () => {
+    await expect(
+      formatador.formatar('/rota-inexistente', {})
+    ).rejects.toContain('Visão correspondente');
+  });
+
+  it('Deve rejeitar quando visão não existe para rota com parâmetro', async () => {
+    await expect(
+      formatador.formatar('/usuarios/:id', {})
+    ).rejects.toContain('Visão correspondente');
+  });
 });
