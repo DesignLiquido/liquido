@@ -50,13 +50,13 @@ export class FormatadorLmht {
         if (valores) {
             // Preprocessamento: Parciais
             const parciaisResolvidas: string[] = [];
-            let parciais: string[] = [];
+            let parciais: string[] | undefined = [];
             if (this.verificarEstruturaParcial(textoBase)) {
                 parciais = this.devolverParciais(textoBase);
-                const textoParcial = parciais.map((parcial) => {
+                const textoParcial = parciais?.map((parcial) => {
                     return `<lmht><corpo>${parcial}</corpo></lmht>`;
                 });
-                textoParcial.map((parcial) => {
+                textoParcial?.map((parcial) => {
                     const result = this.preprocessadorLmhtParciais.processarParciais(parcial);
                     if (result instanceof Error) {
                         throw result;
@@ -65,7 +65,7 @@ export class FormatadorLmht {
                 });
             }
 
-            textoBase = this.formatarTextoBase(textoBase, parciais, parciaisResolvidas);
+            textoBase = this.formatarTextoBase(textoBase, parciais as string[], parciaisResolvidas);
 
             // Preprocessamento: Handlebars
             textoBase = this.preprocessadorHandlebars.processar(textoBase);
@@ -83,17 +83,18 @@ export class FormatadorLmht {
     private resolverVisaoCorrespondente(
         caminhoRota: string
     ): { visaoCorrespondente: string | undefined, caminhosTentados: string[] } {
-        const caminhoRotaParametrosResolvidos = caminhoRota.replace(/:([\w]+)(\/)?/i, `[$1]`);
+        const caminhoRotaNormalizado = caminhoRota.replace(/^\//, '');
+        const caminhoRotaParametrosResolvidos = caminhoRotaNormalizado.replace(/:([\w]+)(\/)?/i, `[$1]`);
         const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaParametrosResolvidos);
-        const retorno = {
-            visaoCorrespondente: '',
+        const retorno: { visaoCorrespondente: string | undefined, caminhosTentados: string[] } = {
+            visaoCorrespondente: undefined,
             caminhosTentados: [
                 diretorioOuArquivo,
                 diretorioOuArquivo + '.lmht'
             ]
         }
 
-        let visaoCorrespondente: string;
+        let visaoCorrespondente: string | undefined;
         if (caminhoRotaParametrosResolvidos.endsWith(']')) {
             // Quando o caminho termina em um símbolo de parâmetro, significa que a visão correspondente
             // é a de detalhes.
@@ -134,7 +135,7 @@ export class FormatadorLmht {
      * @returns Todos os valores normalizados como dicionários, ou ainda dicionários de dicionários.
      */
     private resolverValores(valores: {[nome: string]: any}) {
-        const valoresResolvidos = {};
+        const valoresResolvidos = {} as {[nome: string]: any};
         for (const [nome, valor] of Object.entries(valores)) {
             // eslint-disable-next-line no-prototype-builtins
             let valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
@@ -149,7 +150,7 @@ export class FormatadorLmht {
     }
 
     private obterPropriedadesDeObjetoComoDicionario(objeto: ObjetoDeleguaClasse) {
-        const dicionarioPropriedades = {};
+        const dicionarioPropriedades = {} as {[nome: string]: any};
         for (const [nome, valor] of Object.entries(objeto.propriedades)) {
             dicionarioPropriedades[nome] = valor;
         }
@@ -168,14 +169,14 @@ export class FormatadorLmht {
         return textoBase;
     }
 
-    private devolverParciais(textoLmht: string): string[] {
-        return textoLmht.match(this.regexParcial).map((parcial) => {
+    private devolverParciais(textoLmht: string): string[] | undefined {
+        return textoLmht.match(this.regexParcial)?.map((parcial) => {
             return parcial.toString();
         });
     }
 
     private verificarEstruturaParcial(textoLmht: string): boolean {
         const matches = textoLmht.match(this.regexParcial);
-        return matches?.length > 0 ? true : false;
+        return (matches?.length ?? 0) > 0;
     }
 }
