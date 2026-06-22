@@ -32,6 +32,7 @@ import {
 import { ComandoBancoIniciarInterface, ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
 import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
+import { GeradorInicializacaoLincones } from './interface-linha-comando/gerar/gerador-inicializacao-lincones';
 
 /**
  * Classe que representa o ponto de entrada da aplicação Liquido.
@@ -73,8 +74,22 @@ class LiquidoPontoEntrada {
         const declaracoes = await importarModelos(nomeModelo);
         criarDiretorioAplicacao('rotas');
 
+        const motor = lerMotorConfigurado();
         const geradorVisoes = new GeradorVisoes();
-        const geradorRotas = new GeradorRotas(lerMotorConfigurado());
+        const geradorRotas = new GeradorRotas(motor);
+
+        let geradorInicializacao: GeradorInicializacaoLincones | null = null;
+        let caminhoArquivoInicializacao: string | null = null;
+
+        if (motor === 'lincones') {
+            const liquido = new Liquido(process.cwd());
+            await liquido.importarArquivoConfiguracao();
+            const arquivoInicializacao =
+                liquido.centroConfiguracoes?.liquido?.dados?.lincones?.arquivoInicializacao
+                ?? 'inicializacao.lincones';
+            caminhoArquivoInicializacao = path.join(process.cwd(), arquivoInicializacao);
+            geradorInicializacao = new GeradorInicializacaoLincones();
+        }
 
         for (const declaracao of declaracoes) {
             const declaracaoModelo = <Classe>declaracao
@@ -98,6 +113,11 @@ class LiquidoPontoEntrada {
             console.info(blue(`Visão ${visaoEditar}`));
             const visaoExcluir = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'excluir');
             console.info(blue(`Visão ${visaoExcluir}`));
+
+            if (geradorInicializacao && caminhoArquivoInicializacao) {
+                geradorInicializacao.acrescentarCriarTabela(declaracaoModelo, caminhoArquivoInicializacao);
+                console.info(blue(`Inicialização ${caminhoArquivoInicializacao}`));
+            }
         }
     }
 

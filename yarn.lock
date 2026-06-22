@@ -336,6 +336,11 @@
     commander "^14.0.0"
     vlq "^2.0.4"
 
+"@designliquido/lincones-js@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@designliquido/lincones-js/-/lincones-js-0.2.4.tgz#4dcf25a274a11d244f02a06d0d297735a096bd0a"
+  integrity sha512-CCNIUPKCco2jhbcLGelhsxG3Co2oJd28lE1D6Se/6QI6H6rzlhkDx6o4Ft6A/1wnYrC1XEjnKzDBdjcZ5LDvAw==
+
 "@designliquido/lincones-sqlite@^0.3.2":
   version "0.3.2"
   resolved "https://registry.npmjs.org/@designliquido/lincones-sqlite/-/lincones-sqlite-0.3.2.tgz"

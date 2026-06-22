@@ -87,6 +87,7 @@
         "@designliquido/delprops": "^0.0.2",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.15.1",
+        "@designliquido/lincones-js": "^0.2.4",
         "@designliquido/lincones-sqlite": "^0.3.2",
         "@designliquido/lmht-js": "^0.6.2",
         "body-parser": "^1.20.3",
