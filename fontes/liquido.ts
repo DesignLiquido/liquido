@@ -491,37 +491,9 @@ export class Liquido implements LiquidoInterface {
             const declaracoes = await this.analisarArquivo(arquivo);
             if (!declaracoes) continue;
 
-            // Primeiro passo: coletar todas as declarações de funções (middlewares/handlers)
             const funcaoDeclaracoes = this.coletarFuncoesDaRota(declaracoes);
 
-            // Segundo passo: processar registros de rotas e resolver referências a funções
             for (const declaracao of declaracoes) {
-                // Decoradores em Funções (@liquido.rotaGet)
-                if (
-                    declaracao instanceof FuncaoDeclaracao && declaracao.decoradores?.length > 0
-                ) {
-                    for (const decorador of declaracao.decoradores) {
-                        const nomeDecorador = decorador.nome.toLowerCase();
-
-                        if (nomeDecorador.startsWith('liquido.rota')) {
-                            const partes = decorador.nome.split('.');
-                            const nomeMetodo = partes[partes.length - 1];
-
-                            if (metodosRotaPermitidos.has(nomeMetodo)) {
-                                await this.adicionarRota(
-                                    nomeMetodo,
-                                    this.resolverCaminhoRota(
-                                        arquivo,
-                                        linguagemSelecionada
-                                    ),
-                                    [declaracao.funcao]
-                                );
-                            }
-                        }
-                    }
-                }
-
-                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
                 const chamadaLiquido = this.extrairChamadaLiquido(declaracao);
                 if (chamadaLiquido) {
                     const { nomeMetodo, argumentos } = chamadaLiquido;
