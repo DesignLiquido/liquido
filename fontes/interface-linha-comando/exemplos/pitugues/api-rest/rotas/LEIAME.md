@@ -5,21 +5,23 @@ Neste diretório temos uma série de controladores que implementam uma ou mais r
 Rotas seguem uma convenção de diretórios. Por exemplo, se queremos implementar uma rota que responda em `http://localhost:3000` (ou seja, a rota raiz), devemos criar neste diretório um arquivo com o nome `inicial.pitu`. Um exemplo de arquivo inicial contém o seguinte:
 
 ```js
-@liquido.rotaGet("/")
 funcao rota_get(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
+
+liquido.rotaGet(rota_get)
 ```
 
 No entanto, o normal de uma rota REST é servir JSON, XML, ou outros formatos que chamamos de serializáveis. No caso de JSON, usamos o seguinte:
 
 ```js
-@liquido.rotaGet("/")
 funcao rota_get(requisicao, resposta):
     resposta.json({
         "id": 1,
         "titulo": "Meu primeiro artigo",
         "descricao": "Este é meu primeiro artigo."
     }).status(200)
+
+liquido.rotaGet(rota_get)
 ```
 
 Se executarmos Liquido em modo servidor e tentarmos acessar `http://localhost:3000` no nosso navegador, se tudo foi feito da maneira certa, teremos uma página com o texto "Olá mundo".
