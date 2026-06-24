@@ -144,7 +144,8 @@ export class Liquido implements LiquidoInterface {
     }
 
     private configurarPipelineLinguagem(linguagem: string = 'delegua'): void {
-        const lexador = linguagem === 'delegua'
+        const linguagemNorm = this.normalizarLinguagem(linguagem);
+        const lexador = linguagemNorm === 'delegua'
             ? new Lexador()
             : new LexadorPitugues();
 
@@ -155,7 +156,7 @@ export class Liquido implements LiquidoInterface {
             false
         );
 
-        if (linguagem === 'delegua') {
+        if (linguagemNorm === 'delegua') {
             this.interpretador = new InterpretadorLiquido(
                 this.importador,
                 process.cwd(),
@@ -266,11 +267,16 @@ export class Liquido implements LiquidoInterface {
         return { caminho: null, valor: false } as RetornoConfiguracaoInterface;
     }
 
+    private normalizarLinguagem(linguagem: string): string {
+        return linguagem.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
     /**
      * Método de descoberta de rotas. Recursivo.
      * @param diretorio O diretório a ser pesquisado.
      */
     descobrirRotas(diretorio: string, linguagem: string): void {
+        const linguagemNorm = this.normalizarLinguagem(linguagem);
         const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
         const diretorioDescobertos: string[] = [];
@@ -278,12 +284,12 @@ export class Liquido implements LiquidoInterface {
         listaDeRotas.forEach((diretorioOuArquivo) => {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
 
-            if (linguagem === 'delegua') {
+            if (linguagemNorm === 'delegua') {
                 if (caminhoAbsoluto.endsWith('.delegua')) {
                     this.arquivosDelegua.push(caminhoAbsoluto);
                     return;
                 }
-            } else if (linguagem === 'pitugues') {
+            } else if (linguagemNorm === 'pitugues') {
                 if (caminhoAbsoluto.endsWith('.pitu')) {
                     this.arquivosPitugues.push(caminhoAbsoluto);
                     return;
@@ -296,7 +302,7 @@ export class Liquido implements LiquidoInterface {
         });
 
         diretorioDescobertos.forEach((diretorioDescoberto) => {
-            this.descobrirRotas(diretorioDescoberto, linguagem);
+            this.descobrirRotas(diretorioDescoberto, linguagemNorm);
         });
     }
 
@@ -350,7 +356,7 @@ export class Liquido implements LiquidoInterface {
      * @returns A rota resolvida.
      */
     resolverCaminhoRota(caminhoArquivo: string, linguagem: string): string {
-        const extensaoLinguagem = linguagem === 'delegua'
+        const extensaoLinguagem = this.normalizarLinguagem(linguagem) === 'delegua'
             ? 'delegua'
             : 'pitu';
 
@@ -475,8 +481,9 @@ export class Liquido implements LiquidoInterface {
             'rotaPropfind'
         ]);
 
-        const linguagemSelecionada = this
-            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
+        const linguagemSelecionada = this.normalizarLinguagem(
+            this.centroConfiguracoes?.liquido?.linguagem || 'delegua'
+        );
 
         this.descobrirRotas(
             caminho.join(this.diretorioBase, 'rotas'),
@@ -936,7 +943,9 @@ export class Liquido implements LiquidoInterface {
             return;
         }
 
-        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem || 'delegua';
+        const linguagemSelecionada = this.normalizarLinguagem(
+            this.centroConfiguracoes.liquido.linguagem || 'delegua'
+        );
         if (linguagemSelecionada === 'delegua') {
             this.rotasDelegua.push(caminhoRota);
         } else {
