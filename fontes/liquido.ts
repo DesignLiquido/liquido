@@ -325,15 +325,15 @@ export class Liquido implements LiquidoInterface {
     escreverEstilos() {
         const arquivosEstilos = this.descobrirEstilos();
 
-        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
-            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
+        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}`)) {
+            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}`, { recursive: true });
         }
 
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
             const arquivoDestino = caminho.join(
                 process.cwd(),
-                `./${this.diretorioEstatico}/css`,
+                `./${this.diretorioEstatico}`,
                 arquivo.replace('estilos', '').replace('.foles', '.css')
             );
             sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
