@@ -517,7 +517,10 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of arquivosParaLer) {
             const declaracoes = await this.analisarArquivo(arquivo);
-            if (!declaracoes) continue;
+            if (!declaracoes) {
+                console.error(`[Liquido] Arquivo de rota ignorado por erros de análise: ${arquivo}`);
+                continue;
+            }
 
             const funcaoDeclaracoes = this.coletarFuncoesDaRota(declaracoes);
 
@@ -646,6 +649,7 @@ export class Liquido implements LiquidoInterface {
                     pilha: string;
                 } = erro.erroInterno;
 
+                console.error(`[Liquido] ${tipoErro}: ${erroInternoTipado.message}`);
                 listaErros.push(
                     `
                     Código: ${tipoErro}\n
@@ -654,6 +658,7 @@ export class Liquido implements LiquidoInterface {
                     `
                 );
             } else {
+                console.error(`[Liquido] ${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`);
                 listaErros.push(
                     `${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`
                 );
@@ -1011,11 +1016,21 @@ export class Liquido implements LiquidoInterface {
             // Envia a resposta
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
+                console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento}`);
             } else {
                 const statusResposta = corpoEStatus.statusHttp ?? 200;
                 res.status(statusResposta).send(corpoEStatus.corpoRetorno);
+                if (statusResposta >= 500) {
+                    console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta})`);
+                } else {
+                    console.log(`[Liquido] ${req.method} ${req.path} → aceito (${statusResposta})`);
+                }
             }
         });
+
+        if (this.centroConfiguracoes?.liquido?.verboso) {
+            console.log(`[Liquido] Rota registrada: ${metodoResolvido.toUpperCase()} ${caminhoRota}`);
+        }
     }
 
     private limparObjeto(item: any): any {

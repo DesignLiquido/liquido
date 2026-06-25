@@ -39,8 +39,5 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
         this.autenticacao.configurar(componentes);
         this.dados.configurar(componentes);
         this.roteador.configurar(componentes);
-        if (componentes['liquido.verboso'] !== undefined) {
-            this.verboso = componentes['liquido.verboso'];
-        }
     }
 }
