@@ -11,9 +11,7 @@ import yargs from 'yargs'
 import prompts from 'prompts';
 import { cwd } from 'process';
 import path from 'path';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { version } = require('./package.json');
+import fs from 'fs';
 
 import { Liquido } from './liquido';
 import {
@@ -291,7 +289,17 @@ class LiquidoPontoEntrada {
     opcoes() {
         return yargs
         .scriptName('liquido')
-        .version(version)
+        .version(false)
+        .option('versao', { type: 'boolean', description: 'Exibe a versão do Líquido.' })
+        .middleware((argv: any) => {
+            if (argv.versao) {
+                const pkgPath = fs.existsSync(path.join(__dirname, 'package.json'))
+                    ? path.join(__dirname, 'package.json')
+                    : path.join(__dirname, '..', 'package.json');
+                console.log(require(pkgPath).version);
+                process.exit(0);
+            }
+        })
         .usage('Uso: $0 <comando> [opções]')
         .help('ajuda')
         .alias('ajuda', '?')

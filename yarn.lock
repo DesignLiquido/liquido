@@ -318,10 +318,10 @@
     esprima "^4.0.1"
     lodash.clonedeep "^4.5.0"
 
-"@designliquido/delprops@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/@designliquido/delprops/-/delprops-0.0.2.tgz"
-  integrity sha512-BZ1D+Mil60Sn0XH9y9QjurjN9TpY5qnGhpUx8T7fuqjYU8MI/LDLFDzI9wLzyXRpqh5u7IoKngKS8qftOJf41Q==
+"@designliquido/delprops@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@designliquido/delprops/-/delprops-0.1.0.tgz#bffb1f1c5ee30f687a20263cbbf0ff08e71d0f2e"
+  integrity sha512-ri6poVLnTxMvUI1X25tCZFMROI7Yatjg1nhBskRSre3K1TU/Ql3aRdAU6afK9PFXG70hJVc/euX9aGV0apEwMA==
 
 "@designliquido/flexoes@^0.1.0":
   version "0.1.0"
