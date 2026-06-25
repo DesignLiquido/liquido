@@ -132,7 +132,9 @@ export class Liquido implements LiquidoInterface {
             }
         }
 
-        this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
+        const diretorioEstatico = this.centroConfiguracoes?.liquido?.roteador?.diretorioEstatico || this.diretorioEstatico;
+        const caminhoAbsolutoEstatico = caminho.join(this.diretorioBase, diretorioEstatico);
+        this.roteador.configurarArquivosEstaticos(caminhoAbsolutoEstatico);
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 

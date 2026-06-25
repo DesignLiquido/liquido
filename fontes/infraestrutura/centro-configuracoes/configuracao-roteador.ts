@@ -25,8 +25,6 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
         roteador.ativarDesativarHelmet(this.helmet);
         roteador.ativarDesativarMorgan(this.morgan);
         roteador.ativarDesativarPassport(this.passport);
-        if (this.diretorioEstatico) {
-            roteador.configurarArquivosEstaticos(this.diretorioEstatico);
-        }
+        // Nota: configurarArquivosEstaticos é chamado em liquido.ts com caminho absoluto
     }
 }
