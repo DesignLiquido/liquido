@@ -1,15 +1,118 @@
 import { Simbolo } from '@designliquido/delegua/lexador';
 import { DefinirValor, FuncaoConstruto, Isto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, PropriedadeClasse, Retorna } from '@designliquido/delegua/declaracoes';
-import { DeleguaFuncao, DescritorTipoClasse } from '@designliquido/delegua/interpretador/estruturas';
-import { ParametroInterface } from '@designliquido/delegua/interfaces';
+import { DeleguaFuncao, DeleguaFuncaoNativa, DescritorTipoClasse, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
+import { InterpretadorInterface, ParametroInterface } from '@designliquido/delegua/interfaces';
+import { ReferenciaMontao } from '@designliquido/delegua/interpretador/estruturas/referencia-montao';
 
 import { GeradorExpressoes } from './utilidades/gerador-expressoes';
 
 /**
- * A classe de Resposta é usada por Delégua para instrumentação do Express.
- * Cada método dessa classe (implementado numa estrutura declarativa) direciona
- * um aspecto da resposta a ser enviada para o Express.
+ * Resolve profundamente um valor do montão durante a execução do interpretador,
+ * enquanto os escopos ainda estão ativos e as entradas do montão são válidas.
+ *
+ * Contexto: vetores e dicionários em Delégua são armazenados no montão como
+ * `ReferenciaMontao`. Quando o escopo de execução de rota termina, `executarBloco`
+ * chama `excluirReferencias` e remove essas entradas. Qualquer leitura posterior
+ * via `resolverValor` falha com "Referência para montão não existe".
+ *
+ * Esta função deve ser chamada DURANTE a execução (ex: dentro de `chamar`),
+ * antes do escopo ser desmontado.
+ */
+function resolverProfundo(visitante: InterpretadorInterface, objeto: any): any {
+    if (objeto === null || objeto === undefined || typeof objeto !== 'object') return objeto;
+    if (objeto instanceof ReferenciaMontao) {
+        return resolverProfundo(visitante, visitante.resolverValor(objeto));
+    }
+    if (Array.isArray(objeto)) {
+        return objeto.map(el => resolverProfundo(visitante, el));
+    }
+    if ('propriedades' in objeto && objeto.propriedades) {
+        const resultado: { [k: string]: any } = {};
+        for (const [k, v] of Object.entries(objeto.propriedades)) {
+            resultado[k] = resolverProfundo(visitante, v);
+        }
+        return resultado;
+    }
+    if ('valor' in objeto && objeto.valor !== undefined) {
+        return resolverProfundo(visitante, objeto.valor);
+    }
+    return objeto;
+}
+
+/**
+ * Implementação nativa do método `json()` da classe `Resposta`.
+ *
+ * Não pode ser declarado como método Delégua comum (via `GeradorExpressoes`)
+ * porque um método declarativo apenas copia a `ReferenciaMontao` do argumento
+ * para `respostaJson`. Quando o escopo de execução de rota termina, o montão é limpo e
+ * a referência se torna inválida — Liquido não consegue mais ler o valor.
+ *
+ * Ao sobrescrever `chamar`, temos acesso ao `visitante` (interpretador) enquanto
+ * o escopo ainda está ativo. Chamamos `resolverProfundo` aqui para materializar
+ * todo o grafo de `ReferenciaMontao` em valores JS simples antes da limpeza.
+ */
+class MetodoJson extends DeleguaFuncaoNativa {
+    constructor() {
+        super('json', 1, (_instancia: ObjetoDeleguaClasse | undefined, _args: any[]) => null);
+        this.declaracao = new FuncaoConstruto(-1, -1, [
+            {
+                abrangencia: 'padrao',
+                tipoDado: 'dicionário',
+                nome: new Simbolo('IDENTIFICADOR', 'json', null, -1, -1)
+            } as ParametroInterface
+        ], []);
+    }
+
+    async chamar(visitante: InterpretadorInterface, argumentos: any[]): Promise<any> {
+        const argBruto = visitante.resolverValor(argumentos[0]);
+        const valorResolvido = resolverProfundo(visitante, argBruto);
+        const instancia = this.instancia as ObjetoDeleguaClasse | undefined;
+        if (instancia) {
+            instancia.propriedades['respostaJson'] = valorResolvido;
+        }
+        return instancia;
+    }
+
+    funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): MetodoJson {
+        const copia = new MetodoJson();
+        copia.instancia = instancia;
+        return copia;
+    }
+}
+
+/**
+ * Classe de resposta exposta às funções de rota em Delégua/Pituguês.
+ *
+ * Cada método define propriedades na instância e retorna `isto` para encadeamento.
+ * O framework lê essas propriedades em `processarPropriedadesResposta` para montar
+ * a resposta HTTP final.
+ *
+ * Funções de rota **não precisam** usar `retorna` explicitamente. Chamar qualquer
+ * método desta classe como efeito colateral é suficiente — o _framework_ recupera o
+ * objeto do escopo do interpretador quando o valor de retorno da função é nulo.
+ *
+ * Exemplo válido em Delégua:
+ * ```
+ * liquido.rotaGet(funcao (requisicao, resposta) {
+ *     resposta.json([{ "id": 1 }])
+ * })
+ * ```
+ * 
+ * Exemplo válido em Pituguês:
+ * ```
+ * funcao rotaGet(requisicao, resposta):
+ *     resposta.json([{ "id": 1 }])
+ * 
+ * liquido.rotaGet(rotaGet)
+ * ```
+ *
+ * Propriedades lidas pelo framework (em ordem de precedência):
+ * - `destino`      → redirecionamento HTTP
+ * - `lmht`         → renderização de visão LMHT
+ * - `respostaJson` → resposta JSON
+ * - `mensagem`     → resposta em texto puro
+ * - `statusHttp`   → código de status (padrão: 200)
  */
 export class Resposta extends DescritorTipoClasse {
     constructor() {
@@ -199,16 +302,9 @@ export class Resposta extends DescritorTipoClasse {
             )
         );
 
-        metodos['json'] = geradorExpressoes.gerarMetodo('json', geradorExpressoes.gerarConstrutoFuncao(
-            [geradorExpressoes.gerarParametro('json', 'dicionário', 'multiplo')],
-            [
-                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                    'respostaJson', 
-                    geradorExpressoes.gerarReferenciaVariavel('json')
-                ),
-                geradorExpressoes.gerarRetornoDeFuncao('isto')
-            ]
-        ));
+        // Há também esta forma de declaração, necessária quando o método precisa sobrescrever `chamar` para acessar o interpretador.
+        // Ler motivos mais detalhados na documentação de `MetodoJson` deste fonte.
+        metodos['json'] = new MetodoJson();
         
         super(
             new Simbolo('IDENTIFICADOR', 'Resposta', null, -1, -1), 

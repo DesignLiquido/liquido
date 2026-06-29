@@ -118,13 +118,14 @@ O método `.json()` do objeto `resposta` serializa um dicionário em Pituguês p
 Para usar, basta passar qualquer dicionário, seja literal ou variável, como argumento de `resposta.json()`:
 
 ```js
-@liquido.rotaGet("/")
-funcao minha_rota(requisicao, resposta):
+funcao minha_rota_get(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
+
+liquido.rotaGet(minha_rota_get)
 ```
 
 ## Auto-documentação
@@ -136,13 +137,14 @@ Uma boa parte dos elementos são depreendidos pelo método de rota usado, o tipo
 Do exemplo anterior:
 
 ```js
-@liquido.rotaGet("/")
-funcao minha_rota(requisicao, resposta):
+funcao minha_rota_get(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
+
+liquido.rotaGet(minha_rota_get)
 ```
 
 - Sabemos a rota pela posição do arquivo controlador na estrutura de diretórios;
@@ -170,11 +172,12 @@ Os decoradores suportados atualmente estão como no exemplo abaixo:
     descricao = "Devolvido com sucesso",
     formatos = ["application/json", "application/xml"]
 )
-@liquido.rotaGet("/")
-funcao minha_rota(requisicao, resposta):
+funcao minha_rota_get(requisicao, resposta):
     resposta.json([{
         "id": 1,
         "titulo": "teste 1",
         "descricao": "descricao 1"
     }])
+
+liquido.rotaGet(minha_rota_get)
 ```

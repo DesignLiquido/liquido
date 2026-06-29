@@ -9,11 +9,10 @@ import {
 } from "chalk";
 import yargs from 'yargs'
 import prompts from 'prompts';
-import { cwd } from 'process';
+import { spawn } from 'child_process';
+import { argv, cwd, env, execPath } from 'process';
 import path from 'path';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { version } = require('./package.json');
+import fs from 'fs';
 
 import { Liquido } from './liquido';
 import {
@@ -45,6 +44,9 @@ class LiquidoPontoEntrada {
     }
 
     mostrarLogo() {
+    if (process.env.LIQUIDO_OBSERVANDO === '1') {
+        return;
+    }
         console.log(blue(this.logo + '\n'))
     }
 
@@ -283,7 +285,47 @@ class LiquidoPontoEntrada {
         }
     }
 
+    private resolverCaminhosObservados(): string[] {
+        return ['rotas', 'visoes', 'estilos']
+            .map((diretorio) => path.join(process.cwd(), diretorio))
+            .filter((diretorio) => fs.existsSync(diretorio));
+    }
+
+    private iniciarServidorComObservacao(): void {
+        const caminhosObservados = this.resolverCaminhosObservados();
+
+        if (caminhosObservados.length === 0) {
+            console.warn(yellow('Nenhum diretório de rotas, visões ou estilos encontrado para observar.'));
+        }
+
+        const argumentos = [
+            '--watch',
+            ...caminhosObservados.map((diretorio) => `--watch-path=${diretorio}`),
+            argv[1],
+            ...argv.slice(2)
+        ];
+
+        console.info(blue('Observando mudanças em rotas, visões e estilos...'));
+
+        const processo = spawn(execPath, argumentos, {
+            stdio: 'inherit',
+            env: {
+                ...env,
+                LIQUIDO_OBSERVANDO: '1'
+            }
+        });
+
+        processo.on('exit', (codigo) => {
+            process.exit(codigo ?? 0);
+        });
+    }
+
     comandoServidor() {
+        if (env.LIQUIDO_OBSERVANDO !== '1') {
+            this.iniciarServidorComObservacao();
+            return;
+        }
+
         const liquido = new Liquido(process.cwd());
         liquido.iniciar();
     }
@@ -291,11 +333,21 @@ class LiquidoPontoEntrada {
     opcoes() {
         return yargs
         .scriptName('liquido')
-        .version(version)
+        .version(false)
+        .option('versao', { type: 'boolean', description: 'Exibe a versão do Líquido.' })
+        .middleware((argv: any) => {
+            if (argv.versao) {
+                const pkgPath = fs.existsSync(path.join(__dirname, 'package.json'))
+                    ? path.join(__dirname, 'package.json')
+                    : path.join(__dirname, '..', 'package.json');
+                console.log(require(pkgPath).version);
+                process.exit(0);
+            }
+        })
         .usage('Uso: $0 <comando> [opções]')
         .help('ajuda')
         .alias('ajuda', '?')
-        .command(['*', 'servidor'], 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor)
+        .command(['*', 'servidor'], 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor.bind(this))
         .command('documentar', 'Lê o projeto e gera uma documentação OpenAPI correspondente', {}, this.comandoDocumentar)
         .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', { nome: { type: 'string' as const, default: '' } }, this.comandoNovo)
         .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', { modelo: { type: 'string' as const, default: '' } }, this.comandoGerar)

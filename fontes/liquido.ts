@@ -2,9 +2,10 @@ import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
 import { AvaliadorSintaticoLiquido, AvaliadorSintaticoLiquidoPitugues } from './infraestrutura/avaliadores-sintaticos';
-import { AcessoMetodo, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
+import { AcessoMetodo, AcessoMetodoOuPropriedade, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
+import { ReferenciaMontao } from '@designliquido/delegua/interpretador/estruturas/referencia-montao';
 import { 
     ErroInterpretadorInterface, 
     InterpretadorInterface, 
@@ -146,7 +147,8 @@ export class Liquido implements LiquidoInterface {
     }
 
     private configurarPipelineLinguagem(linguagem: string = 'delegua'): void {
-        const lexador = linguagem === 'delegua'
+        const linguagemNorm = this.normalizarLinguagem(linguagem);
+        const lexador = linguagemNorm === 'delegua'
             ? new Lexador()
             : new LexadorPitugues();
 
@@ -157,7 +159,7 @@ export class Liquido implements LiquidoInterface {
             false
         );
 
-        if (linguagem === 'delegua') {
+        if (linguagemNorm === 'delegua') {
             this.interpretador = new InterpretadorLiquido(
                 this.importador,
                 process.cwd(),
@@ -268,38 +270,45 @@ export class Liquido implements LiquidoInterface {
         return { caminho: null, valor: false } as RetornoConfiguracaoInterface;
     }
 
+    private normalizarLinguagem(linguagem: string): string {
+        return linguagem.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
     /**
      * Método de descoberta de rotas. Recursivo.
      * @param diretorio O diretório a ser pesquisado.
      */
     descobrirRotas(diretorio: string, linguagem: string): void {
+        const linguagemNorm = this.normalizarLinguagem(linguagem);
         const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
         const diretorioDescobertos: string[] = [];
 
-        listaDeRotas.forEach((diretorioOuArquivo) => {
+        for (const diretorioOuArquivo of listaDeRotas) {
             const caminhoAbsoluto = caminho.join(diretorio, diretorioOuArquivo);
 
-            if (linguagem === 'delegua') {
+            if (linguagemNorm === 'delegua') {
                 if (caminhoAbsoluto.endsWith('.delegua')) {
                     this.arquivosDelegua.push(caminhoAbsoluto);
-                    return;
+                    continue;
                 }
-            } else if (linguagem === 'pitugues') {
+            } 
+            
+            if (linguagemNorm === 'pitugues') {
                 if (caminhoAbsoluto.endsWith('.pitu')) {
                     this.arquivosPitugues.push(caminhoAbsoluto);
-                    return;
+                    continue;
                 }
             }
 
             if (sistemaDeArquivos.lstatSync(caminhoAbsoluto).isDirectory()) {
                 diretorioDescobertos.push(caminhoAbsoluto);
             }
-        });
+        }
 
-        diretorioDescobertos.forEach((diretorioDescoberto) => {
-            this.descobrirRotas(diretorioDescoberto, linguagem);
-        });
+        for (const diretorioDescoberto of diretorioDescobertos) {
+            this.descobrirRotas(diretorioDescoberto, linguagemNorm);
+        }
     }
 
     descobrirEstilos(): string[] {
@@ -352,7 +361,7 @@ export class Liquido implements LiquidoInterface {
      * @returns A rota resolvida.
      */
     resolverCaminhoRota(caminhoArquivo: string, linguagem: string): string {
-        const extensaoLinguagem = linguagem === 'delegua'
+        const extensaoLinguagem = this.normalizarLinguagem(linguagem) === 'delegua'
             ? 'delegua'
             : 'pitu';
 
@@ -427,7 +436,7 @@ export class Liquido implements LiquidoInterface {
                     console.error(`Função '${nomeFuncao}' referenciada mas não encontrada em ${arquivo}`);
                 }
             } else if (argumento instanceof FuncaoConstruto) {
-                // Função inline/anônima
+                // Função em linha/anônima
                 argumentosResolvidos.push(argumento);
             } else {
                 console.error(
@@ -446,16 +455,34 @@ export class Liquido implements LiquidoInterface {
             ? declaracao.expressao
             : null;
 
-        if (
-            expressao instanceof Chamada &&
-            expressao.entidadeChamada instanceof AcessoMetodo &&
-            expressao.entidadeChamada.objeto instanceof Variavel &&
-            expressao.entidadeChamada.objeto.simbolo.lexema.toLowerCase() === 'liquido'
-        ) {
-            return {
-                nomeMetodo: expressao.entidadeChamada.nomeMetodo,
-                argumentos: expressao.argumentos
-            };
+        if (!expressao) return null;
+        if (expressao instanceof Chamada) {
+            const expressaoChamada = expressao.entidadeChamada;
+            if (expressaoChamada instanceof AcessoMetodo) {
+                // Normalmente é o caso de uma chamada como `liquido.rotaGet(...)`
+                const objeto = expressaoChamada.objeto as Variavel;
+                if (!objeto.simbolo || objeto.simbolo.lexema.toLowerCase() !== 'liquido') {
+                    return null;
+                }
+
+                return {
+                    nomeMetodo: expressaoChamada.nomeMetodo,
+                    argumentos: expressao.argumentos
+                };
+            }
+
+            // Pituguês não converte para `AcessoMetodo`, então precisamos lidar com `AcessoMetodoOuPropriedade`.
+            if (expressaoChamada instanceof AcessoMetodoOuPropriedade) {
+                const objeto = expressaoChamada.objeto as Variavel;
+                if (!objeto.simbolo || objeto.simbolo.lexema.toLowerCase() !== 'liquido') {
+                    return null;
+                }
+
+                return {
+                    nomeMetodo: expressaoChamada.simbolo.lexema,
+                    argumentos: expressao.argumentos
+                };
+            }
         }
 
         return null;
@@ -477,8 +504,9 @@ export class Liquido implements LiquidoInterface {
             'rotaPropfind'
         ]);
 
-        const linguagemSelecionada = this
-            .centroConfiguracoes?.liquido?.linguagem || 'delegua';
+        const linguagemSelecionada = this.normalizarLinguagem(
+            this.centroConfiguracoes?.liquido?.linguagem || 'delegua'
+        );
 
         this.descobrirRotas(
             caminho.join(this.diretorioBase, 'rotas'),
@@ -491,39 +519,14 @@ export class Liquido implements LiquidoInterface {
 
         for (const arquivo of arquivosParaLer) {
             const declaracoes = await this.analisarArquivo(arquivo);
-            if (!declaracoes) continue;
+            if (!declaracoes) {
+                console.error(`[Liquido] Arquivo de rota ignorado por erros de análise: ${arquivo}`);
+                continue;
+            }
 
-            // Primeiro passo: coletar todas as declarações de funções (middlewares/handlers)
             const funcaoDeclaracoes = this.coletarFuncoesDaRota(declaracoes);
 
-            // Segundo passo: processar registros de rotas e resolver referências a funções
             for (const declaracao of declaracoes) {
-                // Decoradores em Funções (@liquido.rotaGet)
-                if (
-                    declaracao instanceof FuncaoDeclaracao && declaracao.decoradores?.length > 0
-                ) {
-                    for (const decorador of declaracao.decoradores) {
-                        const nomeDecorador = decorador.nome.toLowerCase();
-
-                        if (nomeDecorador.startsWith('liquido.rota')) {
-                            const partes = decorador.nome.split('.');
-                            const nomeMetodo = partes[partes.length - 1];
-
-                            if (metodosRotaPermitidos.has(nomeMetodo)) {
-                                await this.adicionarRota(
-                                    nomeMetodo,
-                                    this.resolverCaminhoRota(
-                                        arquivo,
-                                        linguagemSelecionada
-                                    ),
-                                    [declaracao.funcao]
-                                );
-                            }
-                        }
-                    }
-                }
-
-                // Ignora declarações que não são expressões (ex: Funcao para middlewares)
                 const chamadaLiquido = this.extrairChamadaLiquido(declaracao);
                 if (chamadaLiquido) {
                     const { nomeMetodo, argumentos } = chamadaLiquido;
@@ -648,6 +651,7 @@ export class Liquido implements LiquidoInterface {
                     pilha: string;
                 } = erro.erroInterno;
 
+                console.error(`[Liquido] ${tipoErro}: ${erroInternoTipado.message}`);
                 listaErros.push(
                     `
                     Código: ${tipoErro}\n
@@ -656,6 +660,7 @@ export class Liquido implements LiquidoInterface {
                     `
                 );
             } else {
+                console.error(`[Liquido] ${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`);
                 listaErros.push(
                     `${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`
                 );
@@ -817,48 +822,24 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private async logicaComumResultadoInterpretador(
+    private obterObjetoRespostaDoEscopo(): ObjetoDeleguaClasse | null {
+        try {
+            const variavel = this.interpretador?.pilhaEscoposExecucao.obterVariavelPorNome('resposta');
+            if (!variavel?.valor) return null;
+            const valor = variavel.valor;
+            if (valor instanceof ObjetoDeleguaClasse) return valor;
+            if (valor?.valor instanceof ObjetoDeleguaClasse) return valor.valor;
+        } catch {
+            // resposta não encontrada no escopo
+        }
+        return null;
+    }
+
+    private async processarPropriedadesResposta(
         caminhoRota: string,
-        retornoInterpretador: RetornoInterpretadorInterface
+        objetoResposta: ObjetoDeleguaClasse
     ): Promise<CorpoResposta> {
-        if (retornoInterpretador.erros.length > 0) {
-            return this.logicaComumErrosInterpretacao(retornoInterpretador);
-        }
-
-        // Verifica se há resultado da interpretação
-        if (!retornoInterpretador.resultado || retornoInterpretador.resultado.length === 0) {
-            // Middleware não retornou nada - continuar para próximo middleware
-            return {};
-        }
-
-        // O resultado que interessa é sempre o último.
-        // Pela natureza de Delégua, este resultado precisa ser desenvelopado
-        // até obtermos o objeto de resposta, que contém as instruções para
-        // resolver a requisição.
-        const representacaoObjeto = retornoInterpretador.resultado.pop() as ResultadoParcialInterpretadorInterface;
-
-        // Valida se o objeto de representação existe e tem valorRetornado
-        if (!representacaoObjeto || !representacaoObjeto.valorRetornado) {
-            // Middleware não retornou resposta - continuar para próximo middleware
-            return {};
-        }
-
-        const valorRetornado: RetornoQuebra = representacaoObjeto.valorRetornado;
-
-        // Valida se valorRetornado tem valor
-        if (!valorRetornado || !valorRetornado.valor) {
-            // Middleware não retornou resposta - continuar para próximo middleware
-            return {};
-        }
-
-        const informacoesObjeto: VariavelInterface | any = valorRetornado.valor;
-        const objetoResposta: ObjetoDeleguaClasse = informacoesObjeto.hasOwnProperty('valor') ?
-            informacoesObjeto.valor :
-            informacoesObjeto;
-
-        // Valida se objetoResposta tem propriedades
-        if (!objetoResposta || !objetoResposta.propriedades) {
-            // Middleware não retornou resposta - continuar para próximo middleware
+        if (!objetoResposta?.propriedades) {
             return {};
         }
 
@@ -868,7 +849,6 @@ export class Liquido implements LiquidoInterface {
         }
 
         if (objetoResposta.propriedades.destino) {
-            // Redirecionamento
             return { redirecionamento: objetoResposta.propriedades.destino };
         }
 
@@ -877,7 +857,6 @@ export class Liquido implements LiquidoInterface {
         }
 
         if (objetoResposta.propriedades.respostaJson) {
-            // TODO: Por que valor é sempre um array aqui?
             const jsonBruto = objetoResposta.propriedades.respostaJson;
 
             const dadoParaLimpar = (
@@ -899,8 +878,48 @@ export class Liquido implements LiquidoInterface {
             return { corpoRetorno: objetoResposta.propriedades.mensagem, statusHttp: statusHttp };
         }
 
-        // Middleware não enviou resposta (apenas executou lógica) - continuar para próximo middleware
         return {};
+    }
+
+    private async logicaComumResultadoInterpretador(
+        caminhoRota: string,
+        retornoInterpretador: RetornoInterpretadorInterface
+    ): Promise<CorpoResposta> {
+        if (retornoInterpretador.erros.length > 0) {
+            return this.logicaComumErrosInterpretacao(retornoInterpretador);
+        }
+
+        let objetoResposta: ObjetoDeleguaClasse | null = null;
+
+        // Tenta obter resposta a partir do valor retornado pela função
+        if (retornoInterpretador.resultado && retornoInterpretador.resultado.length > 0) {
+            const representacaoObjeto = retornoInterpretador.resultado.pop() as ResultadoParcialInterpretadorInterface;
+            const valorRetornado: RetornoQuebra = representacaoObjeto?.valorRetornado;
+
+            if (valorRetornado?.valor) {
+                const informacoesObjeto: VariavelInterface | any = valorRetornado.valor;
+                const candidato = informacoesObjeto?.hasOwnProperty('valor')
+                    ? informacoesObjeto.valor
+                    : informacoesObjeto;
+
+                if (candidato?.propriedades) {
+                    objetoResposta = candidato;
+                }
+            }
+        }
+
+        // Fallback: lê o objeto `resposta` do escopo do interpretador.
+        // Necessário quando a função de rota não usa `retorna` explicitamente
+        // mas chama métodos como `resposta.json(...)` como efeito colateral.
+        if (!objetoResposta) {
+            objetoResposta = this.obterObjetoRespostaDoEscopo();
+        }
+
+        if (!objetoResposta) {
+            return {};
+        }
+
+        return this.processarPropriedadesResposta(caminhoRota, objetoResposta);
     }
 
     /**
@@ -966,7 +985,9 @@ export class Liquido implements LiquidoInterface {
             return;
         }
 
-        const linguagemSelecionada = this.centroConfiguracoes.liquido.linguagem || 'delegua';
+        const linguagemSelecionada = this.normalizarLinguagem(
+            this.centroConfiguracoes.liquido.linguagem || 'delegua'
+        );
         if (linguagemSelecionada === 'delegua') {
             this.rotasDelegua.push(caminhoRota);
         } else {
@@ -997,16 +1018,37 @@ export class Liquido implements LiquidoInterface {
             // Envia a resposta
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
+                console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento}`);
             } else {
                 const statusResposta = corpoEStatus.statusHttp ?? 200;
                 res.status(statusResposta).send(corpoEStatus.corpoRetorno);
+                if (statusResposta >= 500) {
+                    console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta})`);
+                } else {
+                    console.log(`[Liquido] ${req.method} ${req.path} → aceito (${statusResposta})`);
+                }
             }
         });
+
+        if (this.centroConfiguracoes?.liquido?.verboso) {
+            console.log(`[Liquido] Rota registrada: ${metodoResolvido.toUpperCase()} ${caminhoRota}`);
+        }
     }
 
     private limparObjeto(item: any): any {
         if (item === null || item === undefined || typeof item !== 'object') {
             return item;
+        }
+
+        if (item instanceof ReferenciaMontao) {
+            try {
+                return this.limparObjeto(this.interpretador?.resolverValor(item));
+            } catch {
+                // Bug em Delégua: classes estrangeiras podem criar ReferenciaMontao
+                // sem armazenar o valor no montão. Tenta acesso direto como fallback.
+                const valorDireto = (this.interpretador as any)?.montao?.referencias?.[item.endereco];
+                return valorDireto !== undefined ? this.limparObjeto(valorDireto) : null;
+            }
         }
 
         if (Array.isArray(item)) {

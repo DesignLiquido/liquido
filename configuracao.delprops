@@ -1,3 +1,4 @@
+liquido.verboso = verdadeiro
 // Configuração de arquivos estáticos
 liquido.roteador.diretorioEstatico = 'publico'
 

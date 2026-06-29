@@ -7,24 +7,26 @@ import { criarDiretorioComIdSeNaoExiste, criarDiretorioSeNaoExiste } from '.';
 
 export class GeradorRotas {
     indentacao: number;
-    private motor: 'lincones' | 'delegua-entidades';
+    private motor: 'lincones' | 'delegua-entidades' | 'pitugues';
 
-    constructor(motor: 'lincones' | 'delegua-entidades' = 'lincones') {
+    constructor(motor: 'lincones' | 'delegua-entidades' | 'pitugues' = 'lincones') {
         this.indentacao = 4;
         this.motor = motor;
     }
 
     /**
-     * Cria arquivos `.delegua` no diretório 'rotas/<modelo no plural>' com cinco rotas:
-     * - Arquivo `inicial.delegua`
+     * Cria arquivos de rota no diretório 'rotas/<modelo no plural>' com cinco rotas.
+     * A extensão dos arquivos é `.delegua` (motores `lincones` e `delegua-entidades`)
+     * ou `.pitu` (motor `pitugues`):
+     * - Arquivo `inicial.<ext>`
      *     - rotaGet (selecionar todos os registros)
      *     - rotaPost (gravar 1 registro)
-     * - Arquivo `[id]/inicial.delegua`
+     * - Arquivo `[id]/inicial.<ext>`
      *     - rotaGet (selecionar 1 registro por id)
-     * - Arquivo `[id]/editar.delegua`
+     * - Arquivo `[id]/editar.<ext>`
      *     - rotaGet (carregar dados para edição)
      *     - rotaPost (alterar 1 registro)
-     * - Arquivo `[id]/excluir.delegua`
+     * - Arquivo `[id]/excluir.<ext>`
      *     - rotaGet (confirmar exclusão)
      *     - rotaPost (excluir 1 registro)
      * @param {Classe} declaracaoModelo O descritor do modelo, com suas propriedades.
@@ -44,7 +46,7 @@ export class GeradorRotas {
     }
 
     private criarNovasRotasSemId(declaracaoModelo: Classe, diretorioRotas: string): string {
-        const caminhoRotas = caminho.join(diretorioRotas, 'inicial.delegua');
+        const caminhoRotas = caminho.join(diretorioRotas, `inicial${this.extensao}`);
         sistemaArquivos.writeFileSync(caminhoRotas, this.criarConteudoInicialSemId(declaracaoModelo));
         return caminhoRotas;
     }
@@ -52,13 +54,13 @@ export class GeradorRotas {
     private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string[] {
         const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
 
-        const caminhoRotasId = caminho.join(diretorioRotasComId, 'inicial.delegua');
+        const caminhoRotasId = caminho.join(diretorioRotasComId, `inicial${this.extensao}`);
         sistemaArquivos.writeFileSync(caminhoRotasId, this.criarConteudoInicialComId(declaracaoModelo));
 
-        const caminhoRotaEditar = caminho.join(diretorioRotasComId, 'editar.delegua');
+        const caminhoRotaEditar = caminho.join(diretorioRotasComId, `editar${this.extensao}`);
         sistemaArquivos.writeFileSync(caminhoRotaEditar, this.criarConteudoEditar(declaracaoModelo));
 
-        const caminhoRotaExcluir = caminho.join(diretorioRotasComId, 'excluir.delegua');
+        const caminhoRotaExcluir = caminho.join(diretorioRotasComId, `excluir${this.extensao}`);
         sistemaArquivos.writeFileSync(caminhoRotaExcluir, this.criarConteudoExcluir(declaracaoModelo));
 
         return [caminhoRotasId, caminhoRotaEditar, caminhoRotaExcluir];
@@ -79,6 +81,10 @@ export class GeradorRotas {
     private obterCamposNaoChave(modelo: Classe): PropriedadeClasse[] {
         const nomeChave = this.obterNomeChave(modelo);
         return modelo.propriedades.filter(p => p.nome.lexema !== nomeChave);
+    }
+
+    private get extensao(): string {
+        return this.motor === 'pitugues' ? '.pitu' : '.delegua';
     }
 
     private i(nivel: number = 1): string {
@@ -111,6 +117,22 @@ export class GeradorRotas {
         const colunas = campos.map(p => p.nome.lexema).join(', ');
         const placeholders = campos.map(() => '?').join(', ');
         const valoresInserir = campos.map(p => `corpo.${p.nome.lexema}`).join(', ');
+
+        if (this.motor === 'pitugues') {
+            const rotaGet =
+                `funcao rota_get(requisicao, resposta):\n` +
+                `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural}")\n` +
+                `${this.i()}resposta.lmht({"linhas": resultados[0].linhasRetornadas}).status(200)\n\n`;
+            const rotaPost =
+                `funcao rota_post(requisicao, resposta):\n` +
+                `${this.i()}corpo = requisicao.corpo\n` +
+                `${this.i()}lincones.executar("INSERIR EM ${nomeModeloPlural} (${colunas}) VALORES (${placeholders})", [${valoresInserir}])\n` +
+                `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n\n`;
+            return rotaGet + rotaPost +
+                `liquido.rotaGet(rota_get)\n` +
+                `liquido.rotaPost(rota_post)\n`;
+        }
+
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural}")\n` +
@@ -144,6 +166,16 @@ export class GeradorRotas {
         }
 
         // LinConEs
+        if (this.motor === 'pitugues') {
+            return `funcao rota_get(requisicao, resposta):\n` +
+                `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
+                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i(2)}resposta.lmht("detalhes", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
+                `${this.i()}senao:\n` +
+                `${this.i(2)}resposta.status(404)\n\n` +
+                `liquido.rotaGet(rota_get)\n`;
+        }
+
         return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
             `${this.i()}se (resultados[0].linhasRetornadas.comprimento > 0) {\n` +
@@ -188,6 +220,25 @@ export class GeradorRotas {
             ...campos.map(p => `corpo.${p.nome.lexema}`),
             `requisicao.parametros.${nomeChave}`
         ].join(', ');
+
+        if (this.motor === 'pitugues') {
+            const rotaGet =
+                `funcao rota_get(requisicao, resposta):\n` +
+                `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
+                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i(2)}resposta.lmht("editar", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
+                `${this.i()}senao:\n` +
+                `${this.i(2)}resposta.status(404)\n\n`;
+            const rotaPost =
+                `funcao rota_post(requisicao, resposta):\n` +
+                `${this.i()}corpo = requisicao.corpo\n` +
+                `${this.i()}lincones.executar("ATUALIZAR ${nomeModeloPlural} DEFINIR ${definir} ONDE ${nomeChave} = ?", [${valoresAtualizar}])\n` +
+                `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n\n`;
+            return rotaGet + rotaPost +
+                `liquido.rotaGet(rota_get)\n` +
+                `liquido.rotaPost(rota_post)\n`;
+        }
+
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
@@ -233,6 +284,23 @@ export class GeradorRotas {
         }
 
         // LinConEs
+        if (this.motor === 'pitugues') {
+            const rotaGet =
+                `funcao rota_get(requisicao, resposta):\n` +
+                `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
+                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i(2)}resposta.lmht("excluir", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
+                `${this.i()}senao:\n` +
+                `${this.i(2)}resposta.status(404)\n\n`;
+            const rotaPost =
+                `funcao rota_post(requisicao, resposta):\n` +
+                `${this.i()}lincones.executar("EXCLUIR EM ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
+                `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n\n`;
+            return rotaGet + rotaPost +
+                `liquido.rotaGet(rota_get)\n` +
+                `liquido.rotaPost(rota_post)\n`;
+        }
+
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +

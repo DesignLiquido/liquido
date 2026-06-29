@@ -115,12 +115,13 @@ Isso deve iniciar um servidor HTTP na porta 3000. Experimente entrar em http://l
 
 Para usar Pituguês, defina `liquido.linguagem = 'pituguês'` no arquivo de configuração (veja a seção [Configuração](#configuração)). Crie um diretório chamado `rotas` e dentro dele um arquivo chamado `inicial.pitu`.
 
-Em Pituguês, as rotas são registradas por meio de decoradores acima da declaração da função:
+Em Pituguês, o registro de rotas é feito da seguinte forma:
 
 ```python
-@liquido.rotaGet("/")
 funcao minha_rota_get(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
+
+liquido.rotaGet(minha_rota_get)
 ```
 
 Execute liquido normalmente com `yarn liquido` ou `npm run liquido`. A mensagem "Olá mundo" deve aparecer ao acessar http://localhost:3000.
@@ -178,12 +179,13 @@ liquido.rotaGet(funcao(requisicao, resposta) {
 
 #### Rotas em Pituguês
 
-Em Pituguês, as rotas são declaradas com decoradores seguidos da definição da função:
+Em Pituguês, o registro de rotas é feito da seguinte forma:
 
 ```python
-@liquido.rotaGet("/")
 funcao minha_rota_get(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
+
+liquido.rotaGet(minha_rota_get)
 ```
 
 A instrução acima registra uma rota HTTP GET em "/" (por exemplo, `http://localhost:3000/`) que responde com um texto "Olá mundo" e o status HTTP 200.

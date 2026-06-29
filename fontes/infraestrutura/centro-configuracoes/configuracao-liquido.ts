@@ -19,10 +19,12 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
             .replace(/[\u0300-\u036f]/g, '') as 'delegua' | 'pitugues';
         this._linguagem = normalizado;
     }
+
     aplicacao: ConfiguracaoAplicacao;
     autenticacao: ConfiguracaoAutenticacao;
     dados: ConfiguracaoDados;
     roteador: ConfiguracaoRoteador;
+    verboso: boolean = false;
 
     constructor() {
         super();

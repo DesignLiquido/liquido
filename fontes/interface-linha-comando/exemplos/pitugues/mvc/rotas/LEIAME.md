@@ -5,9 +5,10 @@ Neste diretório temos uma série de controladores que implementam uma ou mais r
 Rotas seguem uma convenção de diretórios. Por exemplo, se queremos implementar uma rota que responda em `http://localhost:3000` (ou seja, a rota raiz), devemos criar neste diretório um arquivo com o nome `inicial.pitu`. Um exemplo de arquivo inicial contém o seguinte:
 
 ```js
-@liquido.rotaGet("/")
-funcao minha_rota(requisicao, resposta):
+funcao minha_rota_get(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
+
+liquido.rotaGet(minha_rota_get)
 ```
 
 Se executarmos Liquido em modo servidor e tentarmos acessar `http://localhost:3000` no nosso navegador, se tudo foi feito da maneira certa, teremos uma página com o texto "Olá mundo".

@@ -34,8 +34,9 @@ export class CentroConfiguracoes {
             aspecto.definirValor(aspecto, caminhoConfiguracao, valorConfiguracao);
         }
 
-        // TODO: Hablitar em modo verboso.
-        // console.log(this);
+        if (this.liquido.verboso) {
+            console.log('[Liquido] Configuração carregada:', this);
+        }
     }
 
     protected desdobrarConfiguracao(expressaoDefinirValor: DefinirValor) {
