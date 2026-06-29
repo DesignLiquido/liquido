@@ -266,7 +266,7 @@ Se uma imagem com o nome `teste.png` é colocada dentro do diretório `publico`,
 
 #### Conversões automáticas para diretório estático
 
-Ao inicializar, Liquido verifica um diretório `estilos`. Havendo arquivos FolEs nele (extensão `.foles`), cada arquivo é automaticamente convertido para CSS e salvo em um diretório dentro do diretório estático definido na configuração chamado `css`. Ou seja, um arquivo `teste.foles` é salvo em `/publico/css/teste.css` e pode ser acessado por http://localhost:3000/css/teste.css. 
+Ao inicializar, Liquido verifica um diretório `estilos`. Havendo arquivos FolEs nele (extensão `.foles`), cada arquivo é automaticamente convertido para CSS e salvo diretamente no diretório estático definido na configuração. Ou seja, um arquivo `teste.foles` é salvo em `/publico/teste.css` e pode ser acessado por http://localhost:3000/teste.css. 
 
 ### Padrões de Aplicação
 

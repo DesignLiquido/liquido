@@ -186,7 +186,8 @@ describe('Testes das classes de configuração', () => {
             expect(roteador.ativarDesativarHelmet).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarMorgan).toHaveBeenCalledWith(false);
             expect(roteador.ativarDesativarPassport).toHaveBeenCalledWith(false);
-            expect(roteador.configurarArquivosEstaticos).toHaveBeenCalledWith('publico');
+            // configurarArquivosEstaticos agora é chamado em liquido.ts com caminho absoluto
+            expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
         });
 
         it('não deve chamar configurarArquivosEstaticos quando diretorioEstatico for vazio', () => {

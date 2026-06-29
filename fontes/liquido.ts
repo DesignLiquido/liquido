@@ -133,7 +133,9 @@ export class Liquido implements LiquidoInterface {
             }
         }
 
-        this.roteador.configurarArquivosEstaticos(this.diretorioEstatico);
+        const diretorioEstatico = this.centroConfiguracoes?.liquido?.roteador?.diretorioEstatico || this.diretorioEstatico;
+        const caminhoAbsolutoEstatico = caminho.join(this.diretorioBase, diretorioEstatico);
+        this.roteador.configurarArquivosEstaticos(caminhoAbsolutoEstatico);
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 
@@ -332,15 +334,15 @@ export class Liquido implements LiquidoInterface {
     escreverEstilos() {
         const arquivosEstilos = this.descobrirEstilos();
 
-        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}/css`)) {
-            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}/css`, { recursive: true });
+        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}`)) {
+            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}`, { recursive: true });
         }
 
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
             const arquivoDestino = caminho.join(
                 process.cwd(),
-                `./${this.diretorioEstatico}/css`,
+                `./${this.diretorioEstatico}`,
                 arquivo.replace('estilos', '').replace('.foles', '.css')
             );
             sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
