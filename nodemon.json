@@ -1,7 +1,0 @@
-{
-  "watch": [
-    "rotas"
-  ],
-  "ext": "delegua, lmht, foles",
-  "exec": "ts-node ./fontes/index.ts"
-}

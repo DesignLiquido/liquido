@@ -57,21 +57,7 @@ E então execute com:
 yarn liquido
 ```
 
-### Uso com Nodemon
-
-Se quiser usar liquido com o [nodemon](https://nodemon.io/) para que a aplicação seja recarregada toda vez que houver alteração nos fontes, primeiro instale o nodemon:
-
-```sh
-npm install -g nodemon
-```
-
-Modifique seu script para o seguinte:
-
-```json
-  "scripts": {
-    "liquido": "nodemon ./node_modules/liquido/index.js"
-  }
-```
+Ao rodar `liquido` (ou `yarn liquido`), a aplicação já recarrega automaticamente sempre que houver alteração nos diretórios `rotas`, `visoes` ou `estilos` — não é necessário nenhuma ferramenta externa.
 
 ## Primeiros passos
 
@@ -148,7 +134,6 @@ Algumas ideias retiradas desses projetos:
 Para uma implementação inicial, foram escolhidas bibliotecas consagradas do Node.js de desenvolvimento para a Internet:
 
 - [Express](https://www.npmjs.com/package/express), um servidor HTTP;
-- [Nodemon](https://nodemon.io/), um observador de sistema de arquivos que recarrega a aplicação quando há mudanças em certos arquivos e/ou diretórios;
 - [Handlebars](https://handlebarsjs.com/), um sistema de _templates_;
 - [Helmet](https://helmetjs.github.io/), um _middleware_ para Express.js que define várias configurações de cabeçalho de requisições e respostas que, via de regra, deixam a aplicação mais segura;
 - [Morgan](https://github.com/expressjs/morgan), um _middleware_ para estenografia de requisições HTTP, enviando mensagens úteis para desenvolvedores em console;
