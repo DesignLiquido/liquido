@@ -1,3 +1,2 @@
-@liquido.rotaGet("/")
-funcao minha_rota_get(requisicao, resposta):
+funcao rotaGet(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
