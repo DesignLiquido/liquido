@@ -1,2 +1,4 @@
-funcao rotaGet(requisicao, resposta):
+funcao minha_rota_get(requisicao, resposta):
     resposta.enviar("Olá mundo").status(200)
+
+liquido.rotaGet(minha_rota_get)
