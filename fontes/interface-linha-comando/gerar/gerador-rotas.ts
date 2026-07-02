@@ -21,6 +21,8 @@ export class GeradorRotas {
      * - Arquivo `inicial.<ext>`
      *     - rotaGet (selecionar todos os registros)
      *     - rotaPost (gravar 1 registro)
+     * - Arquivo `novo.<ext>`
+     *     - rotaGet (exibir formulário para novo registro)
      * - Arquivo `[id]/inicial.<ext>`
      *     - rotaGet (selecionar 1 registro por id)
      * - Arquivo `[id]/editar.<ext>`
@@ -41,6 +43,7 @@ export class GeradorRotas {
 
         const rotasCriadas: string[] = [];
         rotasCriadas.push(this.criarNovasRotasSemId(declaracaoModelo, diretorioRotas));
+        rotasCriadas.push(this.criarNovaRotaFormularioNovo(diretorioRotas));
         rotasCriadas.push(...this.criarNovasRotasComId(declaracaoModelo, diretorioRotas));
         return rotasCriadas;
     }
@@ -49,6 +52,12 @@ export class GeradorRotas {
         const caminhoRotas = caminho.join(diretorioRotas, `inicial${this.extensao}`);
         sistemaArquivos.writeFileSync(caminhoRotas, this.criarConteudoInicialSemId(declaracaoModelo));
         return caminhoRotas;
+    }
+
+    private criarNovaRotaFormularioNovo(diretorioRotas: string): string {
+        const caminhoRota = caminho.join(diretorioRotas, `novo${this.extensao}`);
+        sistemaArquivos.writeFileSync(caminhoRota, this.criarConteudoFormularioNovo());
+        return caminhoRota;
     }
 
     private criarNovasRotasComId(declaracaoModelo: Classe, diretorioRotas: string): string[] {
@@ -145,6 +154,19 @@ export class GeradorRotas {
             `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n` +
             `})\n\n`;
         return rotaGet + rotaPost;
+    }
+
+    private criarConteudoFormularioNovo(): string {
+        if (this.motor === 'delegua-entidades' || this.motor === 'lincones') {
+            return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
+                `${this.i()}resposta.lmht("adicionar", {}).status(200)\n` +
+                `})\n`;
+        }
+
+        // Pituguês
+        return `funcao rota_get(requisicao, resposta):\n` +
+            `${this.i()}resposta.lmht("adicionar", {}).status(200)\n\n` +
+            `liquido.rotaGet(rota_get)\n`;
     }
 
     private criarConteudoInicialComId(declaracaoModelo: Classe): string {
