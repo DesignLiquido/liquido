@@ -2,6 +2,7 @@ import { CentroConfiguracoes } from '../../fontes/infraestrutura/centro-configur
 import { ConfiguracaoAplicacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-aplicacao';
 import { ConfiguracaoAutenticacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-autenticacao';
 import { ConfiguracaoDados } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-dados';
+import { ConfiguracaoEstilos } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-estilos';
 import { ConfiguracaoLicenca } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-licenca';
 import { ConfiguracaoLincones } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-lincones';
 import { ConfiguracaoLiquido } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-liquido';
@@ -207,6 +208,24 @@ describe('Testes das classes de configuração', () => {
         });
     });
 
+    describe('ConfiguracaoEstilos', () => {
+        it('deve criar uma instância com valor padrão "publico/css"', () => {
+            const config = new ConfiguracaoEstilos();
+            expect(config.diretorioBase).toBe('publico/css');
+        });
+
+        it('deve criar uma instância com valores iniciais', () => {
+            const config = new ConfiguracaoEstilos({ diretorioBase: 'assets/estilos' });
+            expect(config.diretorioBase).toBe('assets/estilos');
+        });
+
+        it('deve aceitar diretorioBase personalizado via definirValor', () => {
+            const config = new ConfiguracaoEstilos();
+            config.definirValor(config, ['estilos', 'diretorioBase'], 'assets/css');
+            expect(config.diretorioBase).toBe('assets/css');
+        });
+    });
+
     describe('ConfiguracaoAutenticacao', () => {
         it('deve criar uma instância com tecnologia indefinida', () => {
             const config = new ConfiguracaoAutenticacao();
@@ -247,11 +266,12 @@ describe('Testes das classes de configuração', () => {
             expect(config.linguagem).toBe('pitugues');
         });
 
-        it('deve criar uma instância com as três configurações aninhadas', () => {
+        it('deve criar uma instância com as configurações aninhadas', () => {
             const config = new ConfiguracaoLiquido();
             expect(config.aplicacao).toBeInstanceOf(ConfiguracaoAplicacao);
             expect(config.dados).toBeInstanceOf(ConfiguracaoDados);
             expect(config.roteador).toBeInstanceOf(ConfiguracaoRoteador);
+            expect(config.estilos).toBeInstanceOf(ConfiguracaoEstilos);
         });
 
         it('deve delegar configurar para as três configurações aninhadas', () => {

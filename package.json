@@ -46,6 +46,10 @@
             "esquema": "./delprops/roteador"
         },
         {
+            "espacoNomes": "liquido.estilos",
+            "esquema": "./delprops/estilos"
+        },
+        {
             "espacoNomes": "liquido.autenticacao",
             "esquema": "./delprops/autenticacao"
         }

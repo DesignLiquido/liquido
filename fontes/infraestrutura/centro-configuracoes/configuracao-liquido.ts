@@ -2,6 +2,7 @@ import { ConfiguracaoAplicacao } from "./configuracao-aplicacao";
 import { ConfiguracaoAutenticacao } from "./configuracao-autenticacao";
 import { ConfiguracaoComum } from "./configuracao-comum";
 import { ConfiguracaoDados } from "./configuracao-dados";
+import { ConfiguracaoEstilos } from "./configuracao-estilos";
 import { ConfiguracaoRoteador } from "./configuracao-roteador";
 
 export class ConfiguracaoLiquido extends ConfiguracaoComum {
@@ -24,6 +25,7 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
     autenticacao: ConfiguracaoAutenticacao;
     dados: ConfiguracaoDados;
     roteador: ConfiguracaoRoteador;
+    estilos: ConfiguracaoEstilos;
     verboso: boolean = false;
 
     constructor() {
@@ -32,6 +34,7 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
         this.autenticacao = new ConfiguracaoAutenticacao();
         this.dados = new ConfiguracaoDados();
         this.roteador = new ConfiguracaoRoteador();
+        this.estilos = new ConfiguracaoEstilos();
     }
 
     configurar(componentes: {[key: string]: any}) {
@@ -39,5 +42,6 @@ export class ConfiguracaoLiquido extends ConfiguracaoComum {
         this.autenticacao.configurar(componentes);
         this.dados.configurar(componentes);
         this.roteador.configurar(componentes);
+        this.estilos.configurar(componentes);
     }
 }

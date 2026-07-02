@@ -136,6 +136,12 @@ export class Liquido implements LiquidoInterface {
         const diretorioEstatico = this.centroConfiguracoes?.liquido?.roteador?.diretorioEstatico || this.diretorioEstatico;
         const caminhoAbsolutoEstatico = caminho.join(this.diretorioBase, diretorioEstatico);
         this.roteador.configurarArquivosEstaticos(caminhoAbsolutoEstatico);
+
+        const caminhoAbsolutoEstilos = caminho.join(this.diretorioBase, this.obterDiretorioBaseEstilos());
+        if (caminhoAbsolutoEstilos !== caminhoAbsolutoEstatico) {
+            this.roteador.configurarArquivosEstaticos(caminhoAbsolutoEstilos);
+        }
+
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 
@@ -331,18 +337,27 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
+    /**
+     * Diretório onde o CSS gerado a partir de FolEs é escrito e a partir
+     * do qual é servido pelo Express (`liquido.estilos.diretorioBase`, padrão: 'publico/css').
+     */
+    obterDiretorioBaseEstilos(): string {
+        return this.centroConfiguracoes?.liquido?.estilos?.diretorioBase || 'publico/css';
+    }
+
     escreverEstilos() {
         const arquivosEstilos = this.descobrirEstilos();
+        const diretorioBaseEstilos = this.obterDiretorioBaseEstilos();
 
-        if (!sistemaDeArquivos.existsSync(`./${this.diretorioEstatico}`)) {
-            sistemaDeArquivos.mkdirSync(`./${this.diretorioEstatico}`, { recursive: true });
+        if (!sistemaDeArquivos.existsSync(`./${diretorioBaseEstilos}`)) {
+            sistemaDeArquivos.mkdirSync(`./${diretorioBaseEstilos}`, { recursive: true });
         }
 
         for (const arquivo of arquivosEstilos) {
             const teste = this.foles.converterParaCss(arquivo);
             const arquivoDestino = caminho.join(
                 process.cwd(),
-                `./${this.diretorioEstatico}`,
+                `./${diretorioBaseEstilos}`,
                 arquivo.replace('estilos', '').replace('.foles', '.css')
             );
             sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {

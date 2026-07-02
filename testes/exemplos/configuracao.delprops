@@ -1,6 +1,9 @@
 // Configuração de arquivos estáticos
 liquido.roteador.diretorioEstatico = 'publico'
 
+// Configuração do diretório de CSS gerado a partir de FolEs
+liquido.estilos.diretorioBase = 'publico/css'
+
 // Configuração do roteador.
 liquido.roteador.cors = verdadeiro
 liquido.roteador.bodyParser = verdadeiro
