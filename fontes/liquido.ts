@@ -893,6 +893,10 @@ export class Liquido implements LiquidoInterface {
             return { corpoRetorno: objetoResposta.propriedades.mensagem, statusHttp: statusHttp };
         }
 
+        if (objetoResposta.propriedades.statusHttp) {
+            return { statusHttp: statusHttp };
+        }
+
         return {};
     }
 

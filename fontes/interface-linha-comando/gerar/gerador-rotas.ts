@@ -131,7 +131,10 @@ export class GeradorRotas {
             const rotaGet =
                 `funcao rota_get(requisicao, resposta):\n` +
                 `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural}")\n` +
-                `${this.i()}resposta.lmht({"linhas": resultados[0].linhasRetornadas}).status(200)\n\n`;
+                `${this.i()}linhas = []\n` +
+                `${this.i()}se resultados != nulo e resultados[0] != nulo:\n` +
+                `${this.i(2)}linhas = resultados[0].linhasRetornadas\n\n` +
+                `${this.i()}resposta.lmht({"linhas": linhas}).status(200)\n\n`;
             const rotaPost =
                 `funcao rota_post(requisicao, resposta):\n` +
                 `${this.i()}corpo = requisicao.corpo\n` +
@@ -145,7 +148,11 @@ export class GeradorRotas {
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural}")\n` +
-            `${this.i()}resposta.lmht({"linhas": resultados[0].linhasRetornadas}).status(200)\n` +
+            `${this.i()}var linhas = []\n` +
+            `${this.i()}se (resultados != nulo e resultados[0] != nulo) {\n` +
+            `${this.i(2)}linhas = resultados[0].linhasRetornadas\n` +
+            `${this.i()}}\n` +
+            `${this.i()}resposta.lmht({"linhas": linhas}).status(200)\n` +
             `})\n\n`;
         const rotaPost =
             `liquido.rotaPost(funcao(requisicao, resposta) {\n` +
@@ -191,7 +198,7 @@ export class GeradorRotas {
         if (this.motor === 'pitugues') {
             return `funcao rota_get(requisicao, resposta):\n` +
                 `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i()}se resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0:\n` +
                 `${this.i(2)}resposta.lmht("detalhes", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
                 `${this.i()}senao:\n` +
                 `${this.i(2)}resposta.status(404)\n\n` +
@@ -200,7 +207,7 @@ export class GeradorRotas {
 
         return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-            `${this.i()}se (resultados[0].linhasRetornadas.comprimento > 0) {\n` +
+            `${this.i()}se (resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0) {\n` +
             `${this.i(2)}resposta.lmht("detalhes", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
             `${this.i()}} senao {\n` +
             `${this.i(2)}resposta.status(404)\n` +
@@ -247,7 +254,7 @@ export class GeradorRotas {
             const rotaGet =
                 `funcao rota_get(requisicao, resposta):\n` +
                 `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i()}se resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0:\n` +
                 `${this.i(2)}resposta.lmht("editar", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
                 `${this.i()}senao:\n` +
                 `${this.i(2)}resposta.status(404)\n\n`;
@@ -264,7 +271,7 @@ export class GeradorRotas {
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-            `${this.i()}se (resultados[0].linhasRetornadas.comprimento > 0) {\n` +
+            `${this.i()}se (resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0) {\n` +
             `${this.i(2)}resposta.lmht("editar", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
             `${this.i()}} senao {\n` +
             `${this.i(2)}resposta.status(404)\n` +
@@ -310,7 +317,7 @@ export class GeradorRotas {
             const rotaGet =
                 `funcao rota_get(requisicao, resposta):\n` +
                 `${this.i()}resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-                `${this.i()}se resultados[0].linhasRetornadas.comprimento > 0:\n` +
+                `${this.i()}se resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0:\n` +
                 `${this.i(2)}resposta.lmht("excluir", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
                 `${this.i()}senao:\n` +
                 `${this.i(2)}resposta.status(404)\n\n`;
@@ -326,7 +333,7 @@ export class GeradorRotas {
         const rotaGet =
             `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
             `${this.i()}var resultados = lincones.executar("SELECIONAR * DE ${nomeModeloPlural} ONDE ${nomeChave} = ?", [requisicao.parametros.${nomeChave}])\n` +
-            `${this.i()}se (resultados[0].linhasRetornadas.comprimento > 0) {\n` +
+            `${this.i()}se (resultados != nulo e resultados[0] != nulo e resultados[0].linhasRetornadas.comprimento > 0) {\n` +
             `${this.i(2)}resposta.lmht("excluir", {"${nomeSingular}": resultados[0].linhasRetornadas[0]}).status(200)\n` +
             `${this.i()}} senao {\n` +
             `${this.i(2)}resposta.status(404)\n` +

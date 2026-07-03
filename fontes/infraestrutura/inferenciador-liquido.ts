@@ -7,7 +7,7 @@ import tiposDeSimbolos from '@designliquido/delegua/tipos-de-simbolos/delegua';
 
 // TODO: Depreciar na versão 0.50.1 de Delégua.
 export function inferirTipoVariavel(variavel: any): string {
-    if (variavel === null) {
+    if (variavel === null || variavel === undefined) {
         return 'nulo';
     }
 
@@ -74,7 +74,9 @@ export function inferirTipoVariavel(variavel: any): string {
 
 // TODO: Depreciar na versão 0.50.1 de Delégua.
 function inferirVetor(vetor: Array<any>): TipoInferencia {
-    const tiposEmVetor = new Set(vetor.map((elemento) => elemento.constructor.name));
+    const tiposEmVetor = new Set(vetor.map((elemento) =>
+        elemento === null || elemento === undefined ? typeof elemento : elemento.constructor.name
+    ));
     if (tiposEmVetor.size > 1) {
         return 'vetor';
     }
