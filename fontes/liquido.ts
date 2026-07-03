@@ -868,7 +868,9 @@ export class Liquido implements LiquidoInterface {
         }
 
         if (objetoResposta.propriedades.lmht) {
-            return this.logicaComumRespostaVisaoLmht(caminhoRota, statusHttp, objetoResposta.propriedades);
+            const resultadoVisao = await this.logicaComumRespostaVisaoLmht(caminhoRota, statusHttp, objetoResposta.propriedades);
+            resultadoVisao.tipoConteudo = 'HTML';
+            return resultadoVisao;
         }
 
         if (objetoResposta.propriedades.respostaJson) {
@@ -890,14 +892,10 @@ export class Liquido implements LiquidoInterface {
         }
 
         if (objetoResposta.propriedades.mensagem) {
-            return { corpoRetorno: objetoResposta.propriedades.mensagem, statusHttp: statusHttp };
+            return { corpoRetorno: objetoResposta.propriedades.mensagem, tipoConteudo: 'TEXTO', statusHttp: statusHttp };
         }
 
-        if (objetoResposta.propriedades.statusHttp) {
-            return { statusHttp: statusHttp };
-        }
-
-        return {};
+        return statusHttp !== 200 ? { statusHttp: statusHttp } : {};
     }
 
     private async logicaComumResultadoInterpretador(
@@ -1038,9 +1036,24 @@ export class Liquido implements LiquidoInterface {
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
                 console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento}`);
+            } else if (corpoEStatus.statusHttp === 204) {
+                res.status(204).end();
+                console.log(`[Liquido] ${req.method} ${req.path} → aceito (204)`);
             } else {
                 const statusResposta = corpoEStatus.statusHttp ?? 200;
-                res.status(statusResposta).send(corpoEStatus.corpoRetorno);
+                if (corpoEStatus.tipoConteudo === 'JSON') {
+                    res.status(statusResposta).json(corpoEStatus.corpoRetorno);
+                } else if (corpoEStatus.tipoConteudo === 'HTML') {
+                    res.status(statusResposta).type('text/html').send(corpoEStatus.corpoRetorno);
+                } else {
+                    const corpo = corpoEStatus.corpoRetorno;
+                    const corpoString = typeof corpo === 'string' ? corpo : String(corpo ?? '');
+                    if (/^\s*<\?xml/.test(corpoString)) {
+                        res.status(statusResposta).type('application/xml').send(corpoString);
+                    } else {
+                        res.status(statusResposta).type('text/plain').send(corpoString);
+                    }
+                }
                 if (statusResposta >= 500) {
                     console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta})`);
                 } else {

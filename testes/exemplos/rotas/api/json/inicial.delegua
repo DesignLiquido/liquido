@@ -1,0 +1,3 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.json({ "status": "success", "data": verdadeiro }).status(200)
+})
