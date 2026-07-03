@@ -1,0 +1,3 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+    resposta.json({ "message": "Hello World - MVC JSON" }).status(200)
+})

@@ -42,6 +42,8 @@ describe('Cadeia de middlewares — adicionarRota', () => {
         mockRes = {
             status: jest.fn().mockReturnThis(),
             send: jest.fn(),
+            type: jest.fn().mockReturnThis(),
+            end: jest.fn(),
             redirect: jest.fn(),
         };
     });

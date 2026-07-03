@@ -80,6 +80,8 @@
         "prettier-format": "yarn prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
         "testes": "yarn jest --coverage",
         "testes:w": "yarn jest --runInBand --watchAll",
+        "testes:e2e": "yarn jest testes/e2e --no-coverage --verbose",
+        "testes:e2e:prepublish": "npm pack && mkdir -p test-sandbox && cd test-sandbox && npm init -y && npm install ../*.tgz && jest ../testes/e2e && cd .. && rm -rf test-sandbox *.tgz",
         "dev": "ts-node -r ts-node/register/transpile-only ./fontes/index.ts",
         "testes-unitarios": "yarn jest --coverage"
     },
@@ -124,6 +126,7 @@
         "@types/passport": "^1.0.17",
         "@types/passport-jwt": "^4.0.1",
         "@types/prompts": "^2.4.9",
+        "@types/supertest": "^7.2.0",
         "@types/xml2js": "^0.4.14",
         "@typescript-eslint/eslint-plugin": "^8.15.0",
         "@typescript-eslint/parser": "^8.15.0",
@@ -135,6 +138,7 @@
         "prettier": "^3.5.3",
         "release-it": "^18.1.2",
         "rimraf": "^6.0.1",
+        "supertest": "^7.2.2",
         "ts-jest": "^29.3.1",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.3"
