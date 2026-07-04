@@ -107,11 +107,11 @@ export class GeradorVisoes {
         return `${" ".repeat(this.indentacao * 2)}<tabela>\n${cabecaTabela}\n${corpoTabela}\n${" ".repeat(this.indentacao * 2)}</tabela>`;
     }
 
-    private geracaoComumCamposDetalhes(declaracaoModelo: Classe): string {
+    private geracaoComumCamposDetalhes(declaracaoModelo: Classe, prefixo: string = ''): string {
         const listaPropriedades: string[] = [];
         for (const propriedade of declaracaoModelo.propriedades) {
             listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<termo>${propriedade.nome.lexema}</termo>`);
-            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<definição>{{${propriedade.nome.lexema}}}</definição>`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 3) + `<definição>{{${prefixo}${propriedade.nome.lexema}}}</definição>`);
         }
 
         return listaPropriedades.reduce(
@@ -121,26 +121,32 @@ export class GeradorVisoes {
 
     /**
      * Função que gera o corpo de `detalhes.lmht` de cada visão gerada por linha de comando.
+     *
+     * As rotas geradas por `GeradorRotas` (ex.: `resposta.lmht("detalhes", {"${nomeSingular}": registro})`)
+     * aninham o registro sob o nome singular do modelo. Os placeholders aqui precisam
+     * do mesmo prefixo (`{{nomeSingular.campo}}`), senão o Handlebars não encontra os valores.
      * @param {Classe} declaracaoModelo A declaração do modelo de dados, com suas propriedades e definições.
      * @returns {string} Um trecho em LMHT com a estrutura do corpo da página.
      */
     private corpoDetalhes(declaracaoModelo: Classe): string {
+        const nomeSingular = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
+        const prefixo = `${nomeSingular}.`;
         const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Detalhes de ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
 
-        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` + 
-            this.geracaoComumCamposDetalhes(declaracaoModelo) +
+        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` +
+            this.geracaoComumCamposDetalhes(declaracaoModelo, prefixo) +
             `\n${" ".repeat(this.indentacao * 2)}</lista-definições>\n\n` +
-            `${" ".repeat(this.indentacao * 2)}<ligação destino="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/editar">Editar</ligação> |\n` +
-            `${" ".repeat(this.indentacao * 2)}<ligação destino="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/excluir">Excluir</ligação>\n` ;
+            `${" ".repeat(this.indentacao * 2)}<ligação destino="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{${prefixo}id}}/editar">Editar</ligação> |\n` +
+            `${" ".repeat(this.indentacao * 2)}<ligação destino="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{${prefixo}id}}/excluir">Excluir</ligação>\n` ;
 
         return `${titulo}${relacaoPropriedades}`;
     }
 
-    private geracaoComumCamposFormulario(declaracaoModelo: Classe): string {
+    private geracaoComumCamposFormulario(declaracaoModelo: Classe, prefixo: string = ''): string {
         const listaPropriedades: string[] = [];
         for (const propriedade of declaracaoModelo.propriedades) {
             listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<etiqueta para="${propriedade.nome.lexema}">${propriedade.nome.lexema}</etiqueta>`);
-            listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<campo tipo="texto" id="${propriedade.nome.lexema}" valor="{{${propriedade.nome.lexema}}}" />`);
+            listaPropriedades.push(" ".repeat(this.indentacao * 4) + `<campo tipo="texto" id="${propriedade.nome.lexema}" nome="${propriedade.nome.lexema}" valor="{{${prefixo}${propriedade.nome.lexema}}}" />`);
         }
 
         return listaPropriedades.reduce(
@@ -173,15 +179,17 @@ export class GeradorVisoes {
      * @returns {string} Um trecho em LMHT com a estrutura do corpo da página.
      */
     private corpoEditar(declaracaoModelo: Classe): string {
+        const nomeSingular = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
+        const prefixo = `${nomeSingular}.`;
         const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Editar ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
 
-        const relacaoPropriedades = `${" ".repeat(this.indentacao * 3)}<campos>\n` + 
-            `${" ".repeat(this.indentacao * 4)}<campo tipo="escondido" id="id" valor="{{id}}" />\n` +
-            this.geracaoComumCamposFormulario(declaracaoModelo) +
+        const relacaoPropriedades = `${" ".repeat(this.indentacao * 3)}<campos>\n` +
+            `${" ".repeat(this.indentacao * 4)}<campo tipo="escondido" id="id" nome="id" valor="{{${prefixo}id}}" />\n` +
+            this.geracaoComumCamposFormulario(declaracaoModelo, prefixo) +
             `\n\n${" ".repeat(this.indentacao * 4)}<campo tipo="enviar" valor="Atualizar" />\n` +
             `\n${" ".repeat(this.indentacao * 3)}</campos>\n`;
 
-        const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/editar">\n`+ 
+        const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{${prefixo}id}}/editar">\n`+
             `${relacaoPropriedades}` +
             `${" ".repeat(this.indentacao * 2)}</formulário>\n`;
         return `${titulo}${formulario}`;
@@ -193,15 +201,17 @@ export class GeradorVisoes {
      * @returns {string} Um trecho em LMHT com a estrutura do corpo da página.
      */
     private corpoConfirmarExclusao(declaracaoModelo: Classe): string {
+        const nomeSingular = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
+        const prefixo = `${nomeSingular}.`;
         const titulo = `${" ".repeat(this.indentacao * 2)}<titulo1>Confirmar Exclusão de ${declaracaoModelo.simbolo.lexema}</titulo1>\n`;
         const mensagemConfirmacaoExclusao = `${" ".repeat(this.indentacao * 2)}<titulo3>Tem certeza de que deseja excluir o registro abaixo?</titulo3>\n`;
 
-        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` + 
-            this.geracaoComumCamposDetalhes(declaracaoModelo) +
+        const relacaoPropriedades = `${" ".repeat(this.indentacao * 2)}<lista-definições>\n` +
+            this.geracaoComumCamposDetalhes(declaracaoModelo, prefixo) +
             `\n${" ".repeat(this.indentacao * 2)}</lista-definições>\n`;
 
-        const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{id}}/excluir">\n`+
-            `${" ".repeat(this.indentacao * 3)}<campo tipo="escondido" id="id" valor={{id}} />\n` +
+        const formulario = `${" ".repeat(this.indentacao * 2)}<formulário método="POST" ação="/${pluralizar(declaracaoModelo.simbolo.lexema.toLocaleLowerCase())}/{{${prefixo}id}}/excluir">\n`+
+            `${" ".repeat(this.indentacao * 3)}<campo tipo="escondido" id="id" nome="id" valor="{{${prefixo}id}}" />\n` +
             `${" ".repeat(this.indentacao * 3)}<campo tipo="enviar" valor="Confirmar Exclusão" />\n` +
             `${" ".repeat(this.indentacao * 2)}</formulário>\n`;
 

@@ -84,8 +84,12 @@ export class FormatadorLmht {
         caminhoRota: string
     ): { visaoCorrespondente: string | undefined, caminhosTentados: string[] } {
         const caminhoRotaNormalizado = caminhoRota.replace(/^\//, '');
-        const caminhoRotaParametrosResolvidos = caminhoRotaNormalizado.replace(/:([\w]+)(\/)?/i, `[$1]`);
-        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaParametrosResolvidos);
+        // A estrutura de visões é sempre plana: segmentos de parâmetro (`:id`) não têm
+        // pasta correspondente do lado das visões (diferente do lado das rotas, que usa
+        // pastas `[id]`), então são removidos do caminho por completo.
+        const caminhoRotaSemParametros = caminhoRotaNormalizado.replace(/:[\w]+\/?/gi, '');
+        const ultimaParteEhParametro = /:[\w]+$/i.test(caminhoRotaNormalizado);
+        const diretorioOuArquivo = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros);
         const retorno: { visaoCorrespondente: string | undefined, caminhosTentados: string[] } = {
             visaoCorrespondente: undefined,
             caminhosTentados: [
@@ -95,13 +99,12 @@ export class FormatadorLmht {
         }
 
         let visaoCorrespondente: string | undefined;
-        if (caminhoRotaParametrosResolvidos.endsWith(']')) {
+        if (ultimaParteEhParametro) {
             // Quando o caminho termina em um símbolo de parâmetro, significa que a visão correspondente
             // é a de detalhes.
-            const caminhoRotaDiretorio = caminhoRota.replace(/:([\w]+)(\/)?/i, '');
-            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaDiretorio, 'detalhes.lmht');
+            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros, 'detalhes.lmht');
         } else {
-            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaParametrosResolvidos + '.lmht');
+            visaoCorrespondente = caminho.join(this.diretorioBase, 'visoes', caminhoRotaSemParametros + '.lmht');
         }
         
         if (sistemaDeArquivos.existsSync(diretorioOuArquivo)) {
@@ -139,7 +142,7 @@ export class FormatadorLmht {
         for (const [nome, valor] of Object.entries(valores)) {
             // eslint-disable-next-line no-prototype-builtins
             let valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
-            if (valorResolvido.constructor.name === 'ObjetoDeleguaClasse') {
+            if (valorResolvido && valorResolvido.constructor === ObjetoDeleguaClasse) {
                 valorResolvido = this.obterPropriedadesDeObjetoComoDicionario(valorResolvido);
             }
 

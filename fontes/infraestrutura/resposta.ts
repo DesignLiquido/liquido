@@ -82,6 +82,60 @@ class MetodoJson extends DeleguaFuncaoNativa {
 }
 
 /**
+ * Implementação nativa do método `lmht()` da classe `Resposta`.
+ *
+ * Assim como `json()` (ver `MetodoJson` acima), não pode ser um método declarativo
+ * gerado por `GeradorExpressoes`: uma atribuição declarativa apenas copia a
+ * `ReferenciaMontao` do(s) argumento(s) para `isto.valores`. A renderização da visão
+ * LMHT (`logicaComumRespostaVisaoLmht`) acontece de forma assíncrona, depois que a
+ * função de rota já retornou e `executarBloco` já chamou `excluirReferencias` —
+ * nesse ponto a referência do montão já foi limpa, e a leitura tardia falha ou
+ * devolve um valor inválido (ver `resolverValores` em `FormatadorLmht`).
+ *
+ * Sobrescrever `chamar` dá acesso ao `visitante` enquanto o escopo da rota ainda
+ * está ativo, permitindo materializar `visao`/`valores` com `resolverProfundo`
+ * antes da limpeza do montão.
+ */
+class MetodoLmht extends DeleguaFuncaoNativa {
+    constructor() {
+        super('lmht', 0, (_instancia: ObjetoDeleguaClasse | undefined, _args: any[]) => null);
+        this.declaracao = new FuncaoConstruto(-1, -1, [
+            {
+                abrangencia: 'multiplo',
+                tipoDado: 'vetor',
+                nome: new Simbolo('IDENTIFICADOR', 'visaoEValores', null, -1, -1)
+            } as ParametroInterface
+        ], []);
+    }
+
+    async chamar(visitante: InterpretadorInterface, argumentos: any[]): Promise<any> {
+        const instancia = this.instancia as ObjetoDeleguaClasse | undefined;
+        if (instancia) {
+            instancia.propriedades['lmht'] = true;
+
+            if (argumentos.length > 1) {
+                const visaoBruta = visitante.resolverValor(argumentos[0]);
+                instancia.propriedades['visao'] = resolverProfundo(visitante, visaoBruta);
+
+                const valoresBrutos = visitante.resolverValor(argumentos[1]);
+                instancia.propriedades['valores'] = resolverProfundo(visitante, valoresBrutos);
+            } else if (argumentos.length === 1) {
+                const valoresBrutos = visitante.resolverValor(argumentos[0]);
+                instancia.propriedades['valores'] = resolverProfundo(visitante, valoresBrutos);
+            }
+            // 0 argumentos: nenhuma atribuição; visão resolvida pela rota em logicaComumRespostaVisaoLmht
+        }
+        return instancia;
+    }
+
+    funcaoPorMetodoDeClasse(instancia: ObjetoDeleguaClasse): MetodoLmht {
+        const copia = new MetodoLmht();
+        copia.instancia = instancia;
+        return copia;
+    }
+}
+
+/**
  * Classe de resposta exposta às funções de rota em Delégua/Pituguês.
  *
  * Cada método define propriedades na instância e retorna `isto` para encadeamento.
@@ -216,8 +270,10 @@ export class Resposta extends DescritorTipoClasse {
             false
         );
 
-        // O exemplo abaixo gera um método `lmht` utilizando o gerador de expressões.
-        // Seria o equivalente à seguinte implementação:
+        // Assim como `json`, `lmht` precisa sobrescrever `chamar` para acessar o interpretador
+        // e materializar os valores antes da limpeza do montão.
+        // Ler motivos mais detalhados na documentação de `MetodoLmht` deste fonte.
+        // Seria o equivalente à seguinte implementação declarativa (que tem o bug descrito):
 
         // classe Resposta {
         //     visao: texto
@@ -235,59 +291,7 @@ export class Resposta extends DescritorTipoClasse {
         //         retorna isto
         //     }
         // }
-
-        metodos['lmht'] = geradorExpressoes.gerarMetodo('lmht',
-            geradorExpressoes.gerarConstrutoFuncao(
-                [geradorExpressoes.gerarParametro('visaoEValores', 'vetor', 'multiplo')],
-                [
-                    geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                        'lmht',
-                        geradorExpressoes.gerarLiteral(true)
-                    ),
-                    geradorExpressoes.gerarDeclaracaoSe(
-                        geradorExpressoes.gerarConstrutoBinario(
-                            geradorExpressoes.gerarChamada(
-                                geradorExpressoes.gerarAcessoMetodoOuPropriedade(
-                                    geradorExpressoes.gerarReferenciaVariavel('visaoEValores'),
-                                    'tamanho'
-                                )
-                            ),
-                            geradorExpressoes.gerarOperadorComparacao('maior'),
-                            geradorExpressoes.gerarLiteral(1)
-                        ),
-                        geradorExpressoes.gerarBlocoEscopo([ // Se: 2+ args
-                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                'visao',
-                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
-                            ),
-                            geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                'valores',
-                                geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 1)
-                            )
-                        ]),
-                        geradorExpressoes.gerarDeclaracaoSe( // Senão se: 1 arg
-                            geradorExpressoes.gerarConstrutoBinario(
-                                geradorExpressoes.gerarChamada(
-                                    geradorExpressoes.gerarAcessoMetodoOuPropriedade(
-                                        geradorExpressoes.gerarReferenciaVariavel('visaoEValores'),
-                                        'tamanho'
-                                    )
-                                ),
-                                geradorExpressoes.gerarOperadorComparacao('igual'),
-                                geradorExpressoes.gerarLiteral(1)
-                            ),
-                            geradorExpressoes.gerarBlocoEscopo([
-                                geradorExpressoes.gerarAtribuicaoValorEmPropriedadeClasse(
-                                    'valores',
-                                    geradorExpressoes.gerarAcessoIndiceVariavel('visaoEValores', 0)
-                                )
-                            ])
-                            // 0 args: nenhuma atribuição; visao resolvida pela rota em logicaComumRespostaVisaoLmht
-                        )
-                    ),
-                    geradorExpressoes.gerarRetornoDeFuncao('isto')
-                ])
-            );
+        metodos['lmht'] = new MetodoLmht();
 
         metodos['redirecionar'] = geradorExpressoes.gerarMetodo('redirecionar', 
             geradorExpressoes.gerarConstrutoFuncao(
