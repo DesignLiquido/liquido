@@ -1,5 +1,5 @@
 import { AcessoMetodoOuPropriedade, DefinirValor } from "@designliquido/delegua/construtos";
-import { Declaracao, Expressao } from "@designliquido/delegua/declaracoes";
+import { Comentario, Declaracao, Expressao } from "@designliquido/delegua/declaracoes";
 import { VariavelInterface } from "@designliquido/delegua/interfaces";
 
 import { ConfiguracaoLiquido } from "./configuracao-liquido";
@@ -17,7 +17,7 @@ export class CentroConfiguracoes {
 
         const entradasConfiguracao: any[] = [];
         for (const declaracao of declaracoes) {
-            if (declaracao.constructor.name === 'Comentario') {
+            if (declaracao.constructor === Comentario) {
                 continue;
             }
 

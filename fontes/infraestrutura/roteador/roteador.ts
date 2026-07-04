@@ -106,10 +106,15 @@ export class Roteador implements RoteadorInterface {
 
         if (this.bodyParser) {
             this.aplicacao.use(bodyParser.json());
+            // Formulários LMHT (`<formulário>`/`<campo>`) enviam POST como
+            // `application/x-www-form-urlencoded` por padrão. Sem este middleware,
+            // `requisicao.corpo` fica sempre vazio para esses envios.
+            this.aplicacao.use(bodyParser.urlencoded({ extended: true }));
         }
 
         if (this.expressJson) {
             this.aplicacao.use(express.json());
+            this.aplicacao.use(express.urlencoded({ extended: true }));
         }
 
         if (this.cookieParser) {
