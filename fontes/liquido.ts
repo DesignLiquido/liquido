@@ -1012,6 +1012,9 @@ export class Liquido implements LiquidoInterface {
         }
 
         registradorRota(caminhoRota, async (req, res) => {
+            const inicioRequisicao = process.hrtime.bigint();
+            const duracaoMs = () => (Number(process.hrtime.bigint() - inicioRequisicao) / 1e6).toFixed(3);
+
             let corpoEStatus: CorpoResposta = {};
 
             // Executa middlewares em sequência
@@ -1035,10 +1038,10 @@ export class Liquido implements LiquidoInterface {
             // Envia a resposta
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
-                console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento}`);
+                console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento} (${duracaoMs()} ms)`);
             } else if (corpoEStatus.statusHttp === 204) {
                 res.status(204).end();
-                console.log(`[Liquido] ${req.method} ${req.path} → aceito (204)`);
+                console.log(`[Liquido] ${req.method} ${req.path} → aceito (204) (${duracaoMs()} ms)`);
             } else {
                 const statusResposta = corpoEStatus.statusHttp ?? 200;
                 if (corpoEStatus.tipoConteudo === 'JSON') {
@@ -1055,9 +1058,9 @@ export class Liquido implements LiquidoInterface {
                     }
                 }
                 if (statusResposta >= 500) {
-                    console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta})`);
+                    console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta}) (${duracaoMs()} ms)`);
                 } else {
-                    console.log(`[Liquido] ${req.method} ${req.path} → aceito (${statusResposta})`);
+                    console.log(`[Liquido] ${req.method} ${req.path} → aceito (${statusResposta}) (${duracaoMs()} ms)`);
                 }
             }
         });
