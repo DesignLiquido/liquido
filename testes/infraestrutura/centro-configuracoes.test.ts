@@ -1,3 +1,5 @@
+import { Comentario } from '@designliquido/delegua/declaracoes';
+
 import { CentroConfiguracoes } from '../../fontes/infraestrutura/centro-configuracoes';
 import { ConfiguracaoAplicacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-aplicacao';
 import { ConfiguracaoAutenticacao } from '../../fontes/infraestrutura/centro-configuracoes/configuracao-autenticacao';
@@ -319,15 +321,13 @@ describe('Testes das classes de configuração', () => {
     });
 
     describe('CentroConfiguracoes', () => {
-        class Comentario {}
-
         it('deve criar uma instância com lista vazia de declarações', () => {
             const centro = new CentroConfiguracoes([]);
             expect(centro.liquido).toBeTruthy();
         });
 
         it('deve ignorar declarações do tipo Comentario', () => {
-            const comentario = new Comentario();
+            const comentario = new Comentario(0, 1, '// comentário', false);
             const centro = new CentroConfiguracoes([comentario as any]);
             expect(centro.liquido).toBeTruthy();
         });

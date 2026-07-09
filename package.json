@@ -89,7 +89,7 @@
         "@designliquido/delegua-node": "^1.23.0",
         "@designliquido/delprops": "^0.1.0",
         "@designliquido/flexoes": "^0.1.0",
-        "@designliquido/foles": "^0.15.1",
+        "@designliquido/foles": "^0.16.1",
         "@designliquido/lincones-js": "^0.2.4",
         "@designliquido/lincones-sqlite": "^0.3.2",
         "@designliquido/lmht-js": "^0.6.2",
