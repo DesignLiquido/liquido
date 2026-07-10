@@ -1,0 +1,16 @@
+<lmht>
+    <cabeça>
+        <meta nome="viewport" conteudo="width=device-width, initial-scale=1.0" />
+        <recurso tipo="stylesheet" destino="/css/principal.css" />
+        <titulo>Bem-vindo ao Liquido</titulo>
+    </cabeça>
+    <corpo>
+        <titulo1>Olá, {{nome}}!</titulo1>
+        <p>Sua aplicação MVC em Liquido está no ar.</p>
+        <p>Para começar:</p>
+        <p>— A rota desta página fica em rotas/inicial.pitu;</p>
+        <p>— Esta visão fica em visoes/inicial.lmht;</p>
+        <p>— O estilo fica em estilos/principal.foles, transpilado automaticamente para publico/css/principal.css.</p>
+        <p>Qualquer alteração nesses diretórios recarrega a aplicação automaticamente. Boa jornada!</p>
+    </corpo>
+</lmht>

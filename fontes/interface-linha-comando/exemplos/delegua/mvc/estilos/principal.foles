@@ -1,0 +1,11 @@
+corpo {
+    cor-fundo: #f4f6f8;
+    cor: #22303c;
+    margem: 48px;
+    tamanho-fonte: 18px;
+    altura-linha: 1.6;
+}
+
+titulo1 {
+    cor: #0e3a5f;
+}
