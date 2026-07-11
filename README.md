@@ -197,7 +197,7 @@ Cada arquivo só pode ter uma chamada por método HTTP de rota. Por exemplo, um 
 - `liquido.rotaUnlock()`
 - `liquido.rotaPropfind()`
 
-Algumas rotas ainda não são suportadas porque o Express.js 4 não as implementou, mas estão marcadas para implementações futuras (Express.js 5, que ainda é _beta_). São elas:
+Algumas rotas ainda não são suportadas porque o Express.js 4 não as implementou, mas estão marcadas para implementações futuras (Express.js ^5.2.1 __estável__). São elas:
 
 - `liquido.rotaLink()`
 - `liquido.rotaUnlink()`
