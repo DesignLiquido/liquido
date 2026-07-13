@@ -306,6 +306,11 @@ describe('Liquido', () => {
                     () => Buffer.from('')
                 );
 
+                await sistemaArquivos.promises.writeFile(
+                        caminho.join(caminhoDiretorioProjeto, 'package.json'),
+                        JSON.stringify({ name: 'teste', scripts: {} })
+                );
+
                 await detectarGerenciadorDePacotes(
                     'npm',
                     caminhoDiretorioProjeto
@@ -319,6 +324,16 @@ describe('Liquido', () => {
                     'npm install liquido@latest',
                     { cwd: caminhoDiretorioProjeto }
                 );
+
+                const conteudoPackageJson = JSON.parse(
+                    await sistemaArquivos.promises.readFile(
+                        caminho.join(caminhoDiretorioProjeto, 'package.json'),
+                        'utf-8'
+                    )
+                );
+                expect(conteudoPackageJson.scripts).toHaveProperty(
+                    'liquido', 'node ./node_modules/liquido/index.js'
+                );
             });
 
 
@@ -327,6 +342,11 @@ describe('Liquido', () => {
 
                 (ChildProcess.execSync as jest.Mock).mockImplementation(
                     () => Buffer.from('')
+                );
+
+                await sistemaArquivos.promises.writeFile(
+                        caminho.join(caminhoDiretorioProjeto, 'package.json'),
+                        JSON.stringify({ name: 'teste', scripts: {} })
                 );
 
                 await detectarGerenciadorDePacotes(
@@ -342,7 +362,16 @@ describe('Liquido', () => {
                     'yarn add liquido@latest',
                     { cwd: caminhoDiretorioProjeto }
                 );
-    
+
+                const conteudoPackageJson = JSON.parse(
+                    await sistemaArquivos.promises.readFile(
+                        caminho.join(caminhoDiretorioProjeto, 'package.json'),
+                        'utf-8'
+                    )
+                );
+                expect(conteudoPackageJson.scripts).toHaveProperty(
+                    'liquido', 'node ./node_modules/liquido/index.js'
+                );
             });
 
             it('Deve inicializar projeto com Bun sem criar arquivos desnecessários', async () => {
@@ -391,6 +420,9 @@ describe('Liquido', () => {
                     });
                     expect(conteudoPackageJson).not.toHaveProperty(
                         'peerDependencies.typescript'
+                    );
+                    expect(conteudoPackageJson.scripts).toHaveProperty(
+                        'liquido', 'node ./node_modules/liquido/index.js'
                     );
                     expect(
                         sistemaArquivos.existsSync(`${caminhoDiretorioBun}/tsconfig.json`)
