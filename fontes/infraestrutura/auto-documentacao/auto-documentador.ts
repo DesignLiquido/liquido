@@ -184,7 +184,6 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         caminhoControlador: string,
         declaracoes: Declaracao[]
     ): [string, { [key in MetodoHttpOpenApi]?: RotaOpenApi }] {
-        this.erros = [];
         const descritivoControlador: { [key in MetodoHttpOpenApi]?: RotaOpenApi } = {};
         const rotaRelativa = caminhoControlador
             .replace(this.diretorioRotas, '')
@@ -228,6 +227,7 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
     }
 
     async documentar() {
+        this.erros = [];
         const rotasEControladores = await this.encontrarControladores();
         const documento: DocumentoOpenApi = {
             openapi: '3.0.0',
