@@ -4,6 +4,7 @@ import { ConfiguracaoComum } from "./configuracao-comum";
 export class ConfiguracaoRoteador extends ConfiguracaoComum {
     diretorioEstatico: string = 'publico';
     cors: boolean = false;
+    corsOrigem: string = '*';
     bodyParser: boolean = true;
     morgan: boolean = false;
     cookieParser: boolean = true;
@@ -20,6 +21,7 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
         const roteador = componentes['roteador'] as RoteadorInterface;
         roteador.ativarDesativarBodyParser(this.bodyParser);
         roteador.ativarDesativarCors(this.cors);
+        roteador.configurarOrigemCors(this.corsOrigem);
         roteador.ativarDesativarCookieParser(this.cookieParser);
         roteador.ativarDesativarExpressJson(this.json);
         roteador.ativarDesativarHelmet(this.helmet);

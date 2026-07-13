@@ -4,6 +4,9 @@ liquido.roteador.diretorioEstatico = 'publico'
 
 // Configuração do roteador.
 liquido.roteador.cors = verdadeiro
+// CORS liberado para qualquer origem ('*') é adequado apenas para desenvolvimento.
+// Em produção, restrinja para o(s) domínio(s) da aplicação, separados por vírgula.
+liquido.roteador.corsOrigem = '*'
 liquido.roteador.bodyParser = verdadeiro
 liquido.roteador.morgan = verdadeiro
 liquido.roteador.cookieParser = verdadeiro
