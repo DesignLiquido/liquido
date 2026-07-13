@@ -560,7 +560,8 @@ export class Liquido implements LiquidoInterface {
                                 arquivo,
                                 linguagemSelecionada
                             ),
-                            argumentosResolvidos
+                            argumentosResolvidos,
+                            arquivo
                         );
                     }
                 }
@@ -636,29 +637,37 @@ export class Liquido implements LiquidoInterface {
         }
     }
 
-    private classificarErro(erro: ErroInterpretadorInterface): string {
+    private classificarErro(erro: ErroInterpretadorInterface): { codigo: string; mensagemAmigavel?: string } {
         const textoErro = (erro.mensagem || erro.erroInterno?.message || '').toLowerCase();
 
         for (const item of listaDeErros) {
             if (textoErro.includes(item.palavraChave)) {
-                return item.codigo;
+                return { codigo: item.codigo, mensagemAmigavel: item.mensagem };
             }
         }
 
-        return 'LIQ99999';
+        return { codigo: 'LIQ99999' };
     }
 
     private logicaComumErrosInterpretacao(
-        retornoInterpretador: RetornoInterpretadorInterface
+        retornoInterpretador: RetornoInterpretadorInterface,
+        arquivoFonte?: string
     ): {
         corpoRetorno?: any;
         statusHttp?: number;
         redirecionamento?: string;
+        tipoConteudo?: string;
     } {
         const listaErros: string[] = [];
 
         for (const erro of retornoInterpretador.erros) {
-            const tipoErro = this.classificarErro(erro);
+            const { codigo, mensagemAmigavel } = this.classificarErro(erro);
+            const localizacao = [
+                arquivoFonte ? `Arquivo: ${arquivoFonte}` : undefined,
+                erro.linha !== undefined && erro.linha > 0 ? `Linha: ${erro.linha}` : undefined
+            ]
+                .filter(Boolean)
+                .join(', ');
 
             if (erro.erroInterno) {
                 const erroInternoTipado: {
@@ -666,18 +675,31 @@ export class Liquido implements LiquidoInterface {
                     pilha: string;
                 } = erro.erroInterno;
 
-                console.error(`[Liquido] ${tipoErro}: ${erroInternoTipado.message}`);
+                const mensagemPrincipal = mensagemAmigavel || erroInternoTipado.message;
+                const detalheTecnico = mensagemAmigavel
+                    ? ` (detalhe técnico: ${erroInternoTipado.message})`
+                    : '';
+
+                console.error(
+                    `[Liquido] ${codigo}${localizacao ? ` [${localizacao}]` : ''}: ${mensagemPrincipal}${detalheTecnico}`
+                );
                 listaErros.push(
                     `
-                    Código: ${tipoErro}\n
-                    Mensagem: ${erroInternoTipado.message}\n
+                    Código: ${codigo}\n
+                    ${localizacao ? `Onde: ${localizacao}\n` : ''}
+                    Mensagem: ${mensagemPrincipal}\n
+                    ${mensagemAmigavel ? `Detalhe técnico: ${erroInternoTipado.message}\n` : ''}
                     Pilha: ${erroInternoTipado.pilha}
                     `
                 );
             } else {
-                console.error(`[Liquido] ${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`);
+                const mensagemPrincipal = mensagemAmigavel || erro.mensagem;
+                const detalheTecnico = mensagemAmigavel ? ` (detalhe técnico: ${erro.mensagem})` : '';
+                const prefixoLocalizacao = localizacao ? ` [${localizacao}]` : ` - [Linha ${erro.linha}]`;
+
+                console.error(`[Liquido] ${codigo}${prefixoLocalizacao}: ${mensagemPrincipal}${detalheTecnico}`);
                 listaErros.push(
-                    `${tipoErro} - [Linha ${erro.linha}]: ${erro.mensagem}`
+                    `${codigo}${prefixoLocalizacao}: ${mensagemPrincipal}${detalheTecnico}`
                 );
             }
         }
@@ -793,14 +815,21 @@ export class Liquido implements LiquidoInterface {
             `;
         }
 
-        if (this.centroConfiguracoes.liquido.arquetipo === 'rest') {
+        if (this.centroConfiguracoes.liquido.arquetipo === 'mvc') {
+            return { corpoRetorno: corpoFinal, statusHttp: 500, tipoConteudo: 'HTML' };
+        }
+
+        // Arquétipo 'rest' e qualquer outro valor: resposta estruturada em JSON.
+        // Sem `tipoConteudo`, o corpo (um objeto) era coagido para texto e o
+        // cliente recebia o literal "[object Object]" com text/plain.
+        if (corpoFinal === undefined) {
             corpoFinal = {
                 mensagem: 'Ocorreu um erro interno na aplicação.',
                 detalhes: listaErros
             };
         }
 
-        return { corpoRetorno: corpoFinal, statusHttp: 500 };
+        return { corpoRetorno: corpoFinal, statusHttp: 500, tipoConteudo: 'JSON' };
     }
 
     /**
@@ -900,10 +929,11 @@ export class Liquido implements LiquidoInterface {
 
     private async logicaComumResultadoInterpretador(
         caminhoRota: string,
-        retornoInterpretador: RetornoInterpretadorInterface
+        retornoInterpretador: RetornoInterpretadorInterface,
+        arquivoFonte?: string
     ): Promise<CorpoResposta> {
         if (retornoInterpretador.erros.length > 0) {
-            return this.logicaComumErrosInterpretacao(retornoInterpretador);
+            return this.logicaComumErrosInterpretacao(retornoInterpretador, arquivoFonte);
         }
 
         let objetoResposta: ObjetoDeleguaClasse | null = null;
@@ -959,17 +989,20 @@ export class Liquido implements LiquidoInterface {
      * @param caminhoRota O caminho da rota.
      * @param funcao A função a ser executada.
      * @param nomeFuncao O nome único para identificar a função no interpretador.
+     * @param arquivoFonte O caminho do arquivo fonte que define a rota, usado
+     *                     para apontar a origem em mensagens de erro.
      * @returns O corpo e status da resposta, se houver.
      */
     private async executarFuncaoRota(
         req: any,
         caminhoRota: string,
         funcao: FuncaoConstruto,
-        nomeFuncao: string
+        nomeFuncao: string,
+        arquivoFonte?: string
     ): Promise<CorpoResposta> {
         await this.prepararRequisicao(req, nomeFuncao, funcao);
         const retornoInterpretador = await this.chamarInterpretador(nomeFuncao);
-        return await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador);
+        return await this.logicaComumResultadoInterpretador(caminhoRota, retornoInterpretador, arquivoFonte);
     }
 
     /**
@@ -979,16 +1012,24 @@ export class Liquido implements LiquidoInterface {
      * @param argumentos Todas as funções em Delégua que devem ser executadas
      *                   para a resolução da rota. O último argumento é o handler final,
      *                   todos os anteriores são middlewares executados em sequência.
+     * @param arquivoFonte O caminho do arquivo fonte que define a rota, usado
+     *                     para apontar a origem em mensagens de erro.
      */
     async adicionarRota(
         metodoRoteador: string,
         caminhoRota: string,
-        argumentos: FuncaoConstruto[]
+        argumentos: FuncaoConstruto[],
+        arquivoFonte?: string
     ): Promise<void> {
         if (argumentos.length === 0) {
             console.error(`Rota ${caminhoRota} não possui nenhuma função definida.`);
             return;
         }
+
+        // Caminho relativo à raiz do projeto, mais legível em mensagens de erro.
+        const arquivoFonteRelativo = arquivoFonte
+            ? caminho.relative(process.cwd(), arquivoFonte)
+            : undefined;
 
         // Separa middlewares (todos menos o último) e handler (último argumento)
         const middlewares = argumentos.slice(0, -1);
@@ -1022,7 +1063,7 @@ export class Liquido implements LiquidoInterface {
                 const middleware = middlewares[i];
                 const nomeMiddleware = `middleware${i}_${metodoRoteador}`;
 
-                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, middleware, nomeMiddleware);
+                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, middleware, nomeMiddleware, arquivoFonteRelativo);
 
                 // Se o middleware enviou uma resposta, para a execução
                 if (this.respostaFoiDefinida(corpoEStatus)) {
@@ -1032,7 +1073,7 @@ export class Liquido implements LiquidoInterface {
 
             // Se nenhum middleware enviou resposta, executa o handler final
             if (!this.respostaFoiDefinida(corpoEStatus)) {
-                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, handler, `handler_${metodoRoteador}`);
+                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, handler, `handler_${metodoRoteador}`, arquivoFonteRelativo);
             }
 
             // Envia a resposta
