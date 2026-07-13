@@ -133,6 +133,21 @@ export async function detectarGerenciadorDePacotes(
             break;
         }
     }
+    await adicionarScriptsLiquido(caminhoPackageJson);
+}
+
+async function adicionarScriptsLiquido(caminhoPackageJson: string) {
+    const packageJson = JSON.parse(
+        await sistemaArquivos.promises.readFile(caminhoPackageJson, 'utf8')
+    );
+
+    packageJson.scripts ??= {};
+    packageJson.scripts.liquido = 'node ./node_modules/liquido/index.js';
+
+    await sistemaArquivos.promises.writeFile(
+        caminhoPackageJson,
+        JSON.stringify(packageJson, null, 2) + '\n'
+    );
 }
 
 /* export function gerarProjetoPorTipoDeProjeto(tipoDeProjeto: string) {
