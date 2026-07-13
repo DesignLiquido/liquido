@@ -24,5 +24,5 @@ export interface LiquidoInterface {
     prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): void;
 
     chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretadorInterface>;
-    adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: ConstrutoInterface[]): void;
+    adicionarRota(metodoRoteador: string, caminhoRota: string, argumentos: ConstrutoInterface[], arquivoFonte?: string): void;
 }

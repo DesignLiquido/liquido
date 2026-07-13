@@ -80,7 +80,7 @@ describe('Cadeia de middlewares — adicionarRota', () => {
 
         expect(executarFuncaoRotaSpy).toHaveBeenCalledTimes(1);
         expect(executarFuncaoRotaSpy).toHaveBeenCalledWith(
-            mockReq, '/teste', handler, 'handler_rotaGet'
+            mockReq, '/teste', handler, 'handler_rotaGet', undefined
         );
     });
 
