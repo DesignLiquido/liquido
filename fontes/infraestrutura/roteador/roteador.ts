@@ -32,7 +32,7 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
-    corsOrigem = '*';
+    origensCors = '*';
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
@@ -128,7 +128,7 @@ export class Roteador implements RoteadorInterface {
                 console.log(
                     "[Liquido] CORS habilitado para qualquer origem ('*'). " +
                     "Adequado apenas para desenvolvimento; em produção, restrinja com " +
-                    "liquido.roteador.corsOrigem = 'https://seudominio.com.br' em configuracao.delprops."
+                    "liquido.roteador.origensCors = 'https://seudominio.com.br' em configuracao.delprops."
                 );
                 this.aplicacao.use(cors());
             } else {
@@ -154,22 +154,22 @@ export class Roteador implements RoteadorInterface {
      * ou várias separadas por vírgula. O valor '*' (padrão) libera qualquer
      * origem e deve ser usado apenas em desenvolvimento.
      */
-    configurarOrigemCors(origem: string): void {
-        this.corsOrigem = origem && origem.trim().length > 0 ? origem : '*';
+    configurarOrigensCors(origem: string): void {
+        this.origensCors = origem && origem.trim().length > 0 ? origem : '*';
     }
 
     /**
-     * Traduz `corsOrigem` para as opções do middleware `cors`.
+     * Traduz `origensCors` para as opções do middleware `cors`.
      * @returns `undefined` quando a origem é '*' (comportamento padrão do
      *          middleware, que libera qualquer origem), ou um objeto com a
      *          lista de origens permitidas.
      */
     resolverOpcoesCors(): { origin: string[] } | undefined {
-        if (this.corsOrigem === '*') {
+        if (this.origensCors === '*') {
             return undefined;
         }
 
-        const origens = this.corsOrigem
+        const origens = this.origensCors
             .split(',')
             .map(origem => origem.trim())
             .filter(origem => origem.length > 0);

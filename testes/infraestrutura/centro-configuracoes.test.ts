@@ -174,7 +174,7 @@ describe('Testes das classes de configuração', () => {
             const roteador = {
                 ativarDesativarBodyParser: jest.fn(),
                 ativarDesativarCors: jest.fn(),
-                configurarOrigemCors: jest.fn(),
+                configurarOrigensCors: jest.fn(),
                 ativarDesativarCookieParser: jest.fn(),
                 ativarDesativarExpressJson: jest.fn(),
                 ativarDesativarHelmet: jest.fn(),
@@ -185,7 +185,7 @@ describe('Testes das classes de configuração', () => {
             config.configurar({ roteador });
             expect(roteador.ativarDesativarBodyParser).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarCors).toHaveBeenCalledWith(false);
-            expect(roteador.configurarOrigemCors).toHaveBeenCalledWith('*');
+            expect(roteador.configurarOrigensCors).toHaveBeenCalledWith('*');
             expect(roteador.ativarDesativarCookieParser).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarExpressJson).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarHelmet).toHaveBeenCalledWith(true);
@@ -200,7 +200,7 @@ describe('Testes das classes de configuração', () => {
             const roteador = {
                 ativarDesativarBodyParser: jest.fn(),
                 ativarDesativarCors: jest.fn(),
-                configurarOrigemCors: jest.fn(),
+                configurarOrigensCors: jest.fn(),
                 ativarDesativarCookieParser: jest.fn(),
                 ativarDesativarExpressJson: jest.fn(),
                 ativarDesativarHelmet: jest.fn(),
@@ -285,7 +285,7 @@ describe('Testes das classes de configuração', () => {
             const roteador = {
                 ativarDesativarBodyParser: jest.fn(),
                 ativarDesativarCors: jest.fn(),
-                configurarOrigemCors: jest.fn(),
+                configurarOrigensCors: jest.fn(),
                 ativarDesativarCookieParser: jest.fn(),
                 ativarDesativarExpressJson: jest.fn(),
                 ativarDesativarHelmet: jest.fn(),

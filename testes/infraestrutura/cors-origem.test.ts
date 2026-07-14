@@ -5,7 +5,7 @@ import { AutoDocumentador } from '../../fontes/infraestrutura/auto-documentacao/
 /**
  * Testes de regressão para o achado B4 (issue #119):
  * a origem do CORS deve ser explícita e configurável por
- * `liquido.roteador.corsOrigem`, com aviso quando liberada para
+ * `liquido.roteador.origensCors`, com aviso quando liberada para
  * qualquer origem ('*').
  */
 describe('CORS com origem configurável', () => {
@@ -19,7 +19,7 @@ describe('CORS com origem configurável', () => {
 
         it('uma origem única resolve para lista com um item', () => {
             const roteador = criarRoteador();
-            roteador.configurarOrigemCors('https://meusite.com.br');
+            roteador.configurarOrigensCors('https://meusite.com.br');
             expect(roteador.resolverOpcoesCors()).toEqual({
                 origin: ['https://meusite.com.br']
             });
@@ -27,7 +27,7 @@ describe('CORS com origem configurável', () => {
 
         it('múltiplas origens separadas por vírgula resolvem para lista, ignorando espaços', () => {
             const roteador = criarRoteador();
-            roteador.configurarOrigemCors('https://a.com.br, https://b.com.br ,https://c.com.br');
+            roteador.configurarOrigensCors('https://a.com.br, https://b.com.br ,https://c.com.br');
             expect(roteador.resolverOpcoesCors()).toEqual({
                 origin: ['https://a.com.br', 'https://b.com.br', 'https://c.com.br']
             });
@@ -35,10 +35,10 @@ describe('CORS com origem configurável', () => {
 
         it('valor vazio ou apenas vírgulas volta ao comportamento padrão', () => {
             const roteador = criarRoteador();
-            roteador.configurarOrigemCors('');
+            roteador.configurarOrigensCors('');
             expect(roteador.resolverOpcoesCors()).toBeUndefined();
 
-            roteador.configurarOrigemCors(' , ,');
+            roteador.configurarOrigensCors(' , ,');
             expect(roteador.resolverOpcoesCors()).toBeUndefined();
         });
     });
@@ -69,7 +69,7 @@ describe('CORS com origem configurável', () => {
         it('não deve avisar quando a origem está restringida', () => {
             const roteador = criarRoteador();
             roteador.ativarDesativarCors(true);
-            roteador.configurarOrigemCors('https://meusite.com.br');
+            roteador.configurarOrigensCors('https://meusite.com.br');
             roteador.iniciarMiddlewares();
 
             expect(saidaConsole()).not.toContain('CORS habilitado para qualquer origem');
@@ -84,21 +84,21 @@ describe('CORS com origem configurável', () => {
     });
 
     describe('ConfiguracaoRoteador', () => {
-        it("deve ter '*' como padrão de corsOrigem", () => {
+        it("deve ter '*' como padrão de origensCors", () => {
             const configuracao = new ConfiguracaoRoteador();
-            expect(configuracao.corsOrigem).toBe('*');
+            expect(configuracao.origensCors).toBe('*');
         });
 
-        it('deve repassar corsOrigem ao roteador em configurar()', () => {
+        it('deve repassar origensCors ao roteador em configurar()', () => {
             const configuracao = new ConfiguracaoRoteador({
                 cors: true,
-                corsOrigem: 'https://meusite.com.br'
+                origensCors: 'https://meusite.com.br'
             });
 
             const roteadorSimulado = {
                 ativarDesativarBodyParser: jest.fn(),
                 ativarDesativarCors: jest.fn(),
-                configurarOrigemCors: jest.fn(),
+                configurarOrigensCors: jest.fn(),
                 ativarDesativarCookieParser: jest.fn(),
                 ativarDesativarExpressJson: jest.fn(),
                 ativarDesativarHelmet: jest.fn(),
@@ -109,7 +109,7 @@ describe('CORS com origem configurável', () => {
             configuracao.configurar({ roteador: roteadorSimulado });
 
             expect(roteadorSimulado.ativarDesativarCors).toHaveBeenCalledWith(true);
-            expect(roteadorSimulado.configurarOrigemCors).toHaveBeenCalledWith('https://meusite.com.br');
+            expect(roteadorSimulado.configurarOrigensCors).toHaveBeenCalledWith('https://meusite.com.br');
         });
     });
 
@@ -119,7 +119,7 @@ describe('CORS com origem configurável', () => {
             ['delegua/mvc'],
             ['pitugues/api-rest'],
             ['pitugues/mvc']
-        ])('template %s deve declarar corsOrigem explicitamente com aviso', (template: string) => {
+        ])('template %s deve declarar origensCors explicitamente com aviso', (template: string) => {
             const sistemaArquivos = require('fs');
             const caminho = require('path');
             const conteudo = sistemaArquivos.readFileSync(
@@ -132,7 +132,7 @@ describe('CORS com origem configurável', () => {
                 'utf-8'
             );
 
-            expect(conteudo).toContain("liquido.roteador.corsOrigem = '*'");
+            expect(conteudo).toContain("liquido.roteador.origensCors = '*'");
             expect(conteudo).toContain('apenas para desenvolvimento');
         });
     });

@@ -16,7 +16,7 @@ const roteador: DefinicaoPropriedade[] = [
         detalhe: 'Habilita CORS (padrão: falso).',
     },
     {
-        nome: 'corsOrigem',
+        nome: 'origensCors',
         tipo: 'texto',
         detalhe:
             "Origem(ns) permitida(s) para CORS, separadas por vírgula. " +

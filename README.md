@@ -215,7 +215,7 @@ Um exemplo de `configuracao.delprops` para um projeto em Delégua:
 liquido.arquetipo = 'rest'
 liquido.linguagem = 'delegua'
 liquido.roteador.cors = verdadeiro
-liquido.roteador.corsOrigem = '*'
+liquido.roteador.origensCors = '*'
 liquido.roteador.bodyParser = verdadeiro
 liquido.roteador.morgan = verdadeiro
 liquido.roteador.cookieParser = verdadeiro
@@ -230,7 +230,7 @@ Para usar Pituguês, basta alterar a propriedade `linguagem`:
 liquido.arquetipo = 'rest'
 liquido.linguagem = 'pituguês'
 liquido.roteador.cors = verdadeiro
-liquido.roteador.corsOrigem = '*'
+liquido.roteador.origensCors = '*'
 liquido.roteador.bodyParser = verdadeiro
 liquido.roteador.morgan = verdadeiro
 liquido.roteador.cookieParser = verdadeiro
@@ -239,7 +239,7 @@ liquido.roteador.json = verdadeiro
 liquido.roteador.helmet = verdadeiro
 ```
 
-A propriedade `liquido.roteador.corsOrigem` define a(s) origem(ns) permitida(s) para CORS, separadas por vírgula (por exemplo, `'https://meusite.com.br, https://admin.meusite.com.br'`). O valor `'*'` libera qualquer origem e é adequado apenas para desenvolvimento — em produção, restrinja para o(s) domínio(s) da aplicação. Quando o CORS está habilitado com `'*'`, Liquido exibe um aviso na inicialização.
+A propriedade `liquido.roteador.origensCors` define a(s) origem(ns) permitida(s) para CORS, separadas por vírgula (por exemplo, `'https://meusite.com.br, https://admin.meusite.com.br'`). O valor `'*'` libera qualquer origem e é adequado apenas para desenvolvimento — em produção, restrinja para o(s) domínio(s) da aplicação. Quando o CORS está habilitado com `'*'`, Liquido exibe um aviso na inicialização.
 
 ### Servindo arquivos estáticos
 
