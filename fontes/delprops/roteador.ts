@@ -16,6 +16,14 @@ const roteador: DefinicaoPropriedade[] = [
         detalhe: 'Habilita CORS (padrão: falso).',
     },
     {
+        nome: 'origensCors',
+        tipo: 'texto',
+        detalhe:
+            "Origem(ns) permitida(s) para CORS, separadas por vírgula. " +
+            "O padrão '*' libera qualquer origem e é adequado apenas para desenvolvimento; " +
+            "em produção, restrinja para o(s) domínio(s) da aplicação.",
+    },
+    {
         nome: 'bodyParser',
         tipo: 'logico',
         detalhe: 'Habilita o body-parser (padrão: verdadeiro).',

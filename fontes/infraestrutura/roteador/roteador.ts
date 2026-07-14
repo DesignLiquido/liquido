@@ -32,6 +32,7 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
+    origensCors = '*';
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
@@ -122,7 +123,17 @@ export class Roteador implements RoteadorInterface {
         }
 
         if (this.cors) {
-            this.aplicacao.use(cors());
+            const opcoesCors = this.resolverOpcoesCors();
+            if (opcoesCors === undefined) {
+                console.log(
+                    "[Liquido] CORS habilitado para qualquer origem ('*'). " +
+                    "Adequado apenas para desenvolvimento; em produção, restrinja com " +
+                    "liquido.roteador.origensCors = 'https://seudominio.com.br' em configuracao.delprops."
+                );
+                this.aplicacao.use(cors());
+            } else {
+                this.aplicacao.use(cors(opcoesCors));
+            }
         }
 
         if (this.passport) {
@@ -136,6 +147,38 @@ export class Roteador implements RoteadorInterface {
 
     ativarDesativarCors(valor: boolean): void {
         this.cors = valor;
+    }
+
+    /**
+     * Define a(s) origem(ns) permitida(s) para CORS. Aceita uma única origem
+     * ou várias separadas por vírgula. O valor '*' (padrão) libera qualquer
+     * origem e deve ser usado apenas em desenvolvimento.
+     */
+    configurarOrigensCors(origem: string): void {
+        this.origensCors = origem && origem.trim().length > 0 ? origem : '*';
+    }
+
+    /**
+     * Traduz `origensCors` para as opções do middleware `cors`.
+     * @returns `undefined` quando a origem é '*' (comportamento padrão do
+     *          middleware, que libera qualquer origem), ou um objeto com a
+     *          lista de origens permitidas.
+     */
+    resolverOpcoesCors(): { origin: string[] } | undefined {
+        if (this.origensCors === '*') {
+            return undefined;
+        }
+
+        const origens = this.origensCors
+            .split(',')
+            .map(origem => origem.trim())
+            .filter(origem => origem.length > 0);
+
+        if (origens.length === 0) {
+            return undefined;
+        }
+
+        return { origin: origens };
     }
 
     ativarDesativarPassport(valor: boolean): void {
