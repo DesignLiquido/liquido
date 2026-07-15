@@ -286,9 +286,19 @@ class LiquidoPontoEntrada {
     }
 
     private resolverCaminhosObservados(): string[] {
-        return ['rotas', 'visoes', 'estilos']
-            .map((diretorio) => path.join(process.cwd(), diretorio))
-            .filter((diretorio) => fs.existsSync(diretorio));
+        const caminhos = ['rotas', 'visoes', 'estilos']
+            .map(diretorio => path.join(process.cwd(), diretorio))
+            .filter(diretorio => fs.existsSync(diretorio));
+        const caminhoConfiguracao = path.join(
+            process.cwd(),
+            'configuracao.delprops'
+        );
+
+        if (fs.existsSync(caminhoConfiguracao)) {
+            caminhos.push(caminhoConfiguracao);
+        }
+
+        return caminhos;
     }
 
     private iniciarServidorComObservacao(): void {
@@ -305,7 +315,9 @@ class LiquidoPontoEntrada {
             ...argv.slice(2)
         ];
 
-        console.info(blue('Observando mudanças em rotas, visões e estilos...'));
+        console.info(blue(
+            'Observando mudanças em rotas, visões, estilos e configuração...'
+        ));
 
         const processo = spawn(execPath, argumentos, {
             stdio: 'inherit',
