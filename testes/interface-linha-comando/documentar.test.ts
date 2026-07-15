@@ -37,7 +37,7 @@ describe('Comando documentar', () => {
 
         const saida = saidaConsole();
         expect(saida).toContain('Nenhum arquivo de rota');
-        expect(saida).toContain(caminho.join(diretorioTemporario, 'rotas/rest').replace(/\\/gi, '/'));
+        expect(saida).toContain(caminho.join(diretorioTemporario, 'rotas').replace(/\\/gi, '/'));
         expect(saida).toContain('Nenhum arquivo de documentação foi gerado.');
 
         expect(
@@ -46,7 +46,7 @@ describe('Comando documentar', () => {
     });
 
     it('deve gerar openapi.json e reportar caminho e número de rotas', async () => {
-        const diretorioRota = caminho.join(diretorioTemporario, 'rotas', 'rest', 'artigos');
+        const diretorioRota = caminho.join(diretorioTemporario, 'rotas', 'artigos');
         sistemaArquivos.mkdirSync(diretorioRota, { recursive: true });
         sistemaArquivos.writeFileSync(
             caminho.join(diretorioRota, 'inicial.delegua'),
@@ -75,7 +75,7 @@ describe('Comando documentar', () => {
     });
 
     it('deve gravar no caminho de saída informado quando fornecido', async () => {
-        const diretorioRota = caminho.join(diretorioTemporario, 'rotas', 'rest');
+        const diretorioRota = caminho.join(diretorioTemporario, 'rotas');
         sistemaArquivos.mkdirSync(diretorioRota, { recursive: true });
         sistemaArquivos.writeFileSync(
             caminho.join(diretorioRota, 'inicial.delegua'),
