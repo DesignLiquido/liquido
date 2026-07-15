@@ -181,7 +181,6 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
                 configurarArquivosEstaticos: jest.fn(),
-                configurarCors: jest.fn(),
                 configurarPorta: jest.fn()
             };
             config.configurar({ roteador });
@@ -193,7 +192,7 @@ describe('Testes das classes de configuração', () => {
             expect(roteador.ativarDesativarHelmet).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarMorgan).toHaveBeenCalledWith(false);
             expect(roteador.ativarDesativarPassport).toHaveBeenCalledWith(false);
-            expect(roteador.configurarCors).toHaveBeenCalledWith([]);
+            expect(roteador.configurarOrigensCors).toHaveBeenCalledWith('*');
             expect(roteador.configurarPorta).toHaveBeenCalledWith(3000);
             // configurarArquivosEstaticos agora é chamado em liquido.ts com caminho absoluto
             expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
@@ -209,10 +208,10 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarHelmet: jest.fn(),
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
-                configurarCors: jest.fn()
+                configurarOrigensCors: jest.fn()
             };
             config.configurar({ roteador });
-            expect(roteador.configurarCors).toHaveBeenCalledWith(['https://exemplo.com']);
+            expect(roteador.configurarOrigensCors).toHaveBeenCalledWith(['https://exemplo.com']);
         });
 
         it('não deve chamar configurarArquivosEstaticos quando diretorioEstatico for vazio', () => {

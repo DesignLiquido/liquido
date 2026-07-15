@@ -4,7 +4,7 @@ import { ConfiguracaoComum } from "./configuracao-comum";
 export class ConfiguracaoRoteador extends ConfiguracaoComum {
     diretorioEstatico: string = 'publico';
     cors: boolean = false;
-    origensCors: string = '*';
+    origensCors: string | string[] = '*';
     bodyParser: boolean = true;
     morgan: boolean = false;
     cookieParser: boolean = true;
@@ -21,12 +21,19 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
         const roteador = componentes['roteador'] as RoteadorInterface;
         roteador.ativarDesativarBodyParser(this.bodyParser);
         roteador.ativarDesativarCors(this.cors);
-        roteador.configurarOrigensCors(this.origensCors);
+        if (typeof roteador.configurarOrigensCors === 'function') {
+            roteador.configurarOrigensCors(this.origensCors);
+        } else if (typeof (roteador as any).configurarCors === 'function') {
+            (roteador as any).configurarCors(this.origensCors);
+        }
         roteador.ativarDesativarCookieParser(this.cookieParser);
         roteador.ativarDesativarExpressJson(this.json);
         roteador.ativarDesativarHelmet(this.helmet);
         roteador.ativarDesativarMorgan(this.morgan);
         roteador.ativarDesativarPassport(this.passport);
+        if (typeof roteador.configurarPorta === 'function') {
+            roteador.configurarPorta(this.porta);
+        }
         // Nota: configurarArquivosEstaticos é chamado em liquido.ts com caminho absoluto
     }
 }

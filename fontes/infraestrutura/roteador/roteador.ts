@@ -32,7 +32,7 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
-    origensCors = '*';
+    origensCors: string | string[] = '*';
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
@@ -157,7 +157,12 @@ export class Roteador implements RoteadorInterface {
      * ou várias separadas por vírgula. O valor '*' (padrão) libera qualquer
      * origem e deve ser usado apenas em desenvolvimento.
      */
-    configurarOrigensCors(origem: string): void {
+    configurarOrigensCors(origem: string | string[]): void {
+        if (Array.isArray(origem)) {
+            this.origensCors = origem;
+            return;
+        }
+
         this.origensCors = origem && origem.trim().length > 0 ? origem : '*';
     }
 
@@ -172,10 +177,12 @@ export class Roteador implements RoteadorInterface {
             return undefined;
         }
 
-        const origens = this.origensCors
-            .split(',')
-            .map(origem => origem.trim())
-            .filter(origem => origem.length > 0);
+        const origens = Array.isArray(this.origensCors)
+            ? this.origensCors
+            : this.origensCors
+                .split(',')
+                .map(origem => origem.trim())
+                .filter(origem => origem.length > 0);
 
         if (origens.length === 0) {
             return undefined;
