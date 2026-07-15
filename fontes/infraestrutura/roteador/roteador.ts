@@ -36,7 +36,7 @@ export class Roteador implements RoteadorInterface {
 
     constructor(autoDocumentador: AutoDocumentador) {
         this.aplicacao = express();
-        this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+        this.porta = 3000;
 
         this.autoDocumentador = autoDocumentador;
         
@@ -89,6 +89,10 @@ export class Roteador implements RoteadorInterface {
                 }
             })
         );
+    }
+    configurarPorta(porta: number): void {
+        this.porta = porta;
+
     }
 
     configurarArquivosEstaticos(diretorio: string = 'publico'): void {

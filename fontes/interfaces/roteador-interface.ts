@@ -7,4 +7,5 @@ export interface RoteadorInterface {
     ativarDesativarHelmet(valor: boolean): void;
     ativarDesativarMorgan(valor: boolean): void;
     configurarArquivosEstaticos(diretorio: string): void;
+    configurarPorta(porta: number): void;
 }

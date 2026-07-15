@@ -32,6 +32,16 @@ describe('Testes do roteador', () => {
     expect(roteador).toBeTruthy();
   });
 
+  it('deve ignorar a porta do ambiente e usar o valor padrão até que a configuração seja aplicada', () => {
+    process.env.PORT = '4000';
+
+    const roteadorSemConfiguracao = new Roteador(new AutoDocumentador());
+
+    expect(roteadorSemConfiguracao.porta).toBe(3000);
+
+    delete process.env.PORT;
+  });
+
   it('deve chamar o método iniciar', () => {
     roteador.iniciar();
     expect(roteador.aplicacao.listen).toHaveBeenCalled();
