@@ -32,6 +32,7 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
+    origensCors: string[] | string = [];
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
@@ -128,7 +129,6 @@ export class Roteador implements RoteadorInterface {
         if (this.cors) {
             this.aplicacao.use(cors());
         }
-
         if (this.passport) {
             try {
                 this.aplicacao.use(autenticacao().initialize());
@@ -140,6 +140,10 @@ export class Roteador implements RoteadorInterface {
 
     ativarDesativarCors(valor: boolean): void {
         this.cors = valor;
+    }
+
+    configurarCors(origens: string[] | string): void {
+        this.origensCors = origens;
     }
 
     ativarDesativarPassport(valor: boolean): void {

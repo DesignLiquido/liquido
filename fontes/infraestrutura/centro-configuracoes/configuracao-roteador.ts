@@ -4,6 +4,7 @@ import { ConfiguracaoComum } from "./configuracao-comum";
 export class ConfiguracaoRoteador extends ConfiguracaoComum {
     diretorioEstatico: string = 'publico';
     cors: boolean = false;
+    origensCors: string[] | string = [];
     bodyParser: boolean = true;
     morgan: boolean = false;
     cookieParser: boolean = true;
@@ -17,15 +18,16 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
     }
 
     configurar(componentes: {[key: string]: any}) {
-        const roteador = componentes['roteador'] as RoteadorInterface;
-        roteador.ativarDesativarBodyParser(this.bodyParser);
-        roteador.ativarDesativarCors(this.cors);
-        roteador.ativarDesativarCookieParser(this.cookieParser);
-        roteador.ativarDesativarExpressJson(this.json);
-        roteador.ativarDesativarHelmet(this.helmet);
-        roteador.ativarDesativarMorgan(this.morgan);
-        roteador.ativarDesativarPassport(this.passport);
-        roteador.configurarPorta(this.porta);
+        const roteador = componentes['roteador'] as Partial<RoteadorInterface>;
+        roteador.ativarDesativarBodyParser?.(this.bodyParser);
+        roteador.ativarDesativarCors?.(this.cors);
+        roteador.ativarDesativarCookieParser?.(this.cookieParser);
+        roteador.ativarDesativarExpressJson?.(this.json);
+        roteador.ativarDesativarHelmet?.(this.helmet);
+        roteador.ativarDesativarMorgan?.(this.morgan);
+        roteador.ativarDesativarPassport?.(this.passport);
+        roteador.configurarCors?.(this.origensCors);
+        roteador.configurarPorta?.(this.porta);
         // Nota: configurarArquivosEstaticos é chamado em liquido.ts com caminho absoluto
     }
 }

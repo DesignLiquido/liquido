@@ -180,6 +180,7 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
                 configurarArquivosEstaticos: jest.fn(),
+                configurarCors: jest.fn(),
                 configurarPorta: jest.fn()
             };
             config.configurar({ roteador });
@@ -190,9 +191,26 @@ describe('Testes das classes de configuração', () => {
             expect(roteador.ativarDesativarHelmet).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarMorgan).toHaveBeenCalledWith(false);
             expect(roteador.ativarDesativarPassport).toHaveBeenCalledWith(false);
+            expect(roteador.configurarCors).toHaveBeenCalledWith([]);
             expect(roteador.configurarPorta).toHaveBeenCalledWith(3000);
             // configurarArquivosEstaticos agora é chamado em liquido.ts com caminho absoluto
             expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
+        });
+
+        it('deve repassar origensCors ao roteador sem depender de configurarPorta', () => {
+            const config = new ConfiguracaoRoteador({ origensCors: ['https://exemplo.com'] });
+            const roteador = {
+                ativarDesativarBodyParser: jest.fn(),
+                ativarDesativarCors: jest.fn(),
+                ativarDesativarCookieParser: jest.fn(),
+                ativarDesativarExpressJson: jest.fn(),
+                ativarDesativarHelmet: jest.fn(),
+                ativarDesativarMorgan: jest.fn(),
+                ativarDesativarPassport: jest.fn(),
+                configurarCors: jest.fn()
+            };
+            config.configurar({ roteador });
+            expect(roteador.configurarCors).toHaveBeenCalledWith(['https://exemplo.com']);
         });
 
         it('não deve chamar configurarArquivosEstaticos quando diretorioEstatico for vazio', () => {
