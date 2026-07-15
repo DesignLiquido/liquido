@@ -20,7 +20,8 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
             type: 'select',
             name: 'nomeModelo',
             message: 'Qual o nome do modelo?',
-            choices: opcoesModelos
+            choices: opcoesModelos,
+            hint: '- Use as setas. Enter para confirmar.'
         });
 
         nomeModelo = respostaNomeModelo.nomeModelo;
