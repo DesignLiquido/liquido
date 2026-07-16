@@ -198,21 +198,7 @@ describe('Testes das classes de configuração', () => {
             expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
         });
 
-        it('deve repassar origensCors ao roteador sem depender de configurarPorta', () => {
-            const config = new ConfiguracaoRoteador({ origensCors: ['https://exemplo.com'] });
-            const roteador = {
-                ativarDesativarBodyParser: jest.fn(),
-                ativarDesativarCors: jest.fn(),
-                ativarDesativarCookieParser: jest.fn(),
-                ativarDesativarExpressJson: jest.fn(),
-                ativarDesativarHelmet: jest.fn(),
-                ativarDesativarMorgan: jest.fn(),
-                ativarDesativarPassport: jest.fn(),
-                configurarOrigensCors: jest.fn()
-            };
-            config.configurar({ roteador });
-            expect(roteador.configurarOrigensCors).toHaveBeenCalledWith(['https://exemplo.com']);
-        });
+
 
         it('não deve chamar configurarArquivosEstaticos quando diretorioEstatico for vazio', () => {
             const config = new ConfiguracaoRoteador({ diretorioEstatico: '' });

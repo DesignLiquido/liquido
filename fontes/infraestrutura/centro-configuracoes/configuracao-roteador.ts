@@ -21,19 +21,13 @@ export class ConfiguracaoRoteador extends ConfiguracaoComum {
         const roteador = componentes['roteador'] as RoteadorInterface;
         roteador.ativarDesativarBodyParser(this.bodyParser);
         roteador.ativarDesativarCors(this.cors);
-        if (typeof roteador.configurarOrigensCors === 'function') {
-            roteador.configurarOrigensCors(this.origensCors);
-        } else if (typeof (roteador as any).configurarCors === 'function') {
-            (roteador as any).configurarCors(this.origensCors);
-        }
+        roteador.configurarOrigensCors(this.origensCors);
         roteador.ativarDesativarCookieParser(this.cookieParser);
         roteador.ativarDesativarExpressJson(this.json);
         roteador.ativarDesativarHelmet(this.helmet);
         roteador.ativarDesativarMorgan(this.morgan);
         roteador.ativarDesativarPassport(this.passport);
-        if (typeof roteador.configurarPorta === 'function') {
-            roteador.configurarPorta(this.porta);
-        }
+        roteador.configurarPorta(this.porta);
         // Nota: configurarArquivosEstaticos é chamado em liquido.ts com caminho absoluto
     }
 }

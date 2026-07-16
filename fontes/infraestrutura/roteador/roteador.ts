@@ -32,7 +32,7 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
-    origensCors: string | string[] = '*';
+    origensCors: string[] = ['*'];
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
@@ -163,7 +163,8 @@ export class Roteador implements RoteadorInterface {
             return;
         }
 
-        this.origensCors = origem && origem.trim().length > 0 ? origem : '*';
+        this.origensCors = origem.split(',').
+        map(origem => origem.trim()).filter(origem => origem.length > 0);
     }
 
     /**
@@ -173,22 +174,17 @@ export class Roteador implements RoteadorInterface {
      *          lista de origens permitidas.
      */
     resolverOpcoesCors(): { origin: string[] } | undefined {
-        if (this.origensCors === '*') {
+        
+        if (Array.isArray(this.origensCors)
+            && this.origensCors.length === 1
+            && this.origensCors[0] === '*') {
+            return undefined;
+        }
+        if (this.origensCors.length === 0) {
             return undefined;
         }
 
-        const origens = Array.isArray(this.origensCors)
-            ? this.origensCors
-            : this.origensCors
-                .split(',')
-                .map(origem => origem.trim())
-                .filter(origem => origem.length > 0);
-
-        if (origens.length === 0) {
-            return undefined;
-        }
-
-        return { origin: origens };
+        return { origin: this.origensCors };
     }
 
     ativarDesativarPassport(valor: boolean): void {
