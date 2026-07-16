@@ -1,3 +1,97 @@
-lmht {
+// Valores globais
+paragrafo {
+    animação: herdar;
+    justificar-conteudo: inicial;
+    selecao-usuario: reverter;
+    margem-em-bloco-rolagem-mouse: reverter-camada;
+    raio-borda: desarmar;
+}
+
+// Atributos número e número quantificador 
+divisao {
     tamanho-fonte: 22px;
+    altura: 100%;
+    largura: 200%;
+    colunas: 2;
+    opacidade: 0.5;
+    indice-z: 5;
+    linhas-superiores: 2;
+}
+
+// Declaração de classe + atributo qualitativo
+.minha-classe {
+    posicao: absoluta;
+    cor-destaque: vermelho;
+    cor-fundo: #ff00f2;
+    inicio-borda-em-bloco: tracejado;
+    estilo-borda: sulcado;
+    ajuste-cor-forcado: auto;
+}
+
+// Atribuição Abreviada
+codigo {
+    posicao-deslocamento: 20% centro;
+    limite-forma-imagem: 0.9;
+    espaçamento-letras: .2rem;
+    area-mascara: completar-caixa, preenchimento;
+    coluna-em-grade: auto / auto;
+}
+
+// Valores String
+lmht {
+    citações: 'x';
+    enfase-texto: 'foo';
+    vazamento-texto: '/25B2';
+}
+
+// Valores específicos
+ligacao {
+    estilo-lista: dentro meu-estilo;
+    recursos-fonte: "c2sc", "hist";
+    eventos-ponteiro: delimitarCaixa;
+    espacamento-letras: .2rem;
+    fonte-texto: "Times New Roman", sem-serifa;
+    regras-coluna: fina;
+    imagem-borda: preencher 27px;
+}
+
+// Métodos de coloração
+abreviação {
+    filtro-fundo: borrar(10px);
+    imagem-máscara: gradiente-linear(90graus, azul, vermelho);
+    origem-imagem-borda: gradiente-linear(90deg, verde, amarelo);
+    filtro: borrar(80%);
+    imagem-fundo: repetir-gradiente-cônico(vermelho 20px 10px, azul 30% 20px, verde 10% 15deg);
+}
+
+// Métodos de formato e movimento
+aparte {
+    deslocamento: raio(conter 200graus);
+    espacamento: calcular(100px - 80px);
+    forma-externa: polígono(10px 10px, 100px 100px, 200px 200px);
+    trajeto-deslocamento: elipse(10% 10px 5em 6px);
+    transformar: translação(15graus);
+    variacao-fonte-alternativa: estilístico(1);
+}
+
+// Pseudoclasses
+divisao:foco {
+    tamanho-fonte: 12px;
+}
+
+paragrafo:futuro {
+    filtro-fundo: borrar(10px);
+}
+
+divisão:direcao-texto {
+    altura: 20px;
+}
+
+// Atribuição de valor via variável
+$valor-padrao: 50%;
+$recuo-imediato: 20px;
+
+formulario {
+  altura: $valor-padrao;
+  recuo: $recuo-imediato;
 }
