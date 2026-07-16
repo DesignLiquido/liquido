@@ -67,7 +67,8 @@ class LiquidoPontoEntrada {
                 type: 'select',
                 name: 'nomeModelo',
                 message: 'Qual o nome do modelo?',
-                choices: opcoesModelos
+                choices: opcoesModelos,
+                hint: '- Use as setas. Enter para confirmar.'
             });
 
             nomeModelo = respostaNomeModelo.nomeModelo;
@@ -172,7 +173,8 @@ class LiquidoPontoEntrada {
                         { title: 'MVC', description: 'Modelo-Visão-Controlador', value: 'mvc' },
                         { title: 'API REST', description: 'Interface de dados usando o modelo REST', value: 'api-rest' }
                     ],
-                    initial: 1
+                    initial: 0,
+                    hint: '- Use as setas. Enter para confirmar.'
                 });
 
                 const perguntaLinguagemDeBackEnd = await prompts({
@@ -189,7 +191,8 @@ class LiquidoPontoEntrada {
                             value: 'pitugues'
                         }
                     ],
-                    initial: 1
+                    initial: 0,
+                    hint: '- Use as setas. Enter para confirmar.'
                 });
 
                 const perguntaInicializarRepositorioGit = await prompts({
@@ -215,7 +218,8 @@ class LiquidoPontoEntrada {
                         { title: 'Yarn', value: 'yarn' },
                         { title: 'Bun', value: 'bun' }
                     ],
-                    initial: 1
+                    initial: 0,
+                    hint: '- Use as setas. Enter para confirmar.'
                 });
                 const gerenciadorDePacotes =
                     perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
@@ -239,7 +243,20 @@ class LiquidoPontoEntrada {
                     diretorioCompleto
                 );
 
-                console.info(yellow(`Seu projeto foi criado com sucesso! ${diretorioCompleto}`))
+                // Apaga linha residual, restaura cursor e modo raw
+                if (process.stdin.isTTY) {
+                    try {
+                        process.stdin.setRawMode(false);
+                    } catch (_) {
+                        // Ignora erros ao restaurar modo raw
+                    };
+                }
+
+                process.stdout.write('\x1B[2K\x1B[0G\x1B[?25h\n');
+
+                console.info(yellow(
+                    `Seu projeto foi criado com sucesso! ${diretorioCompleto}`
+                ));
             }
         }
     }
