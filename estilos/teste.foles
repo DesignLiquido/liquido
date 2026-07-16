@@ -10,8 +10,8 @@ paragrafo {
 // Atributos número e número quantificador 
 divisao {
     tamanho-fonte: 22px;
-    altura: 100%;
-    largura: 200%;
+    altura: 100rem;
+    largura: 200vh;
     colunas: 2;
     opacidade: 0.5;
     indice-z: 5;
@@ -25,16 +25,17 @@ divisao {
     cor-fundo: #ff00f2;
     inicio-borda-em-bloco: tracejado;
     estilo-borda: sulcado;
+    regras-coluna: fina;
     ajuste-cor-forcado: auto;
 }
 
 // Atribuição Abreviada
 codigo {
     posicao-deslocamento: 20% centro;
-    limite-forma-imagem: 0.9;
-    espaçamento-letras: .2rem;
+    borda: 10px 20px 150px 200px;
     area-mascara: completar-caixa, preenchimento;
     coluna-em-grade: auto / auto;
+    imagem-borda: preencher 27px;
 }
 
 // Valores String
@@ -51,8 +52,7 @@ ligacao {
     eventos-ponteiro: delimitarCaixa;
     espacamento-letras: .2rem;
     fonte-texto: "Times New Roman", sem-serifa;
-    regras-coluna: fina;
-    imagem-borda: preencher 27px;
+    variacao-fonte-alternativa: conjunto-estilos(1, 2, 6);
 }
 
 // Métodos de coloração
@@ -60,7 +60,6 @@ abreviação {
     filtro-fundo: borrar(10px);
     imagem-máscara: gradiente-linear(90graus, azul, vermelho);
     origem-imagem-borda: gradiente-linear(90deg, verde, amarelo);
-    filtro: borrar(80%);
     imagem-fundo: repetir-gradiente-cônico(vermelho 20px 10px, azul 30% 20px, verde 10% 15deg);
 }
 
