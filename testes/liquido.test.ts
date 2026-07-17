@@ -440,15 +440,13 @@ describe('Liquido', () => {
                     );
                 }
             });
-        
 
             it('Deve usar o nome da pasta quando o nome do projeto é criado com "." ou "./"', async () => {
-
                 const spyCwd = jest
                     .spyOn(process, 'cwd')
                     .mockReturnValue('/home/usuario/minha-pasta-teste');
 
-                let nomeProjetoTerminal = '.';
+                const nomeProjetoTerminal = '.';
                 let nomeProjetoResolvido = nomeProjetoTerminal;
 
                 if (
@@ -478,6 +476,138 @@ describe('Liquido', () => {
 
                 spyCwd.mockRestore();
            });
+        });
+    });
+
+    describe('normalizarObjetoJS', () => {
+        it('Deve converter Object.create(null) para objeto com protótipo padrão', () => {
+            const semPrototipo = Object.create(null);
+            semPrototipo.id = '42';
+            semPrototipo.nome = 'teste';
+
+            const resultado = (liquido as any).normalizarObjetoJS(semPrototipo);
+
+            // Deve ser um objeto comum
+            expect(typeof resultado).toBe('object');
+            expect(resultado).not.toBeNull();
+            expect(Array.isArray(resultado)).toBe(false);
+
+            // Deve ter protótipo (constructor definido)
+            expect(resultado.constructor).toBe(Object);
+
+            // Deve preservar as propriedades originais
+            expect(resultado.id).toBe('42');
+            expect(resultado.nome).toBe('teste');
+
+            // Deve ser uma cópia, não o mesmo objeto
+            expect(resultado).not.toBe(semPrototipo);
+        });
+
+        it('Deve manter objetos com protótipo padrão inalterados', () => {
+            const objetoNormal = { id: '42', nome: 'teste' };
+            const resultado = (liquido as any).normalizarObjetoJS(objetoNormal);
+
+            // Deve ser o mesmo objeto (sem cópia)
+            expect(resultado).toBe(objetoNormal);
+
+            // Deve manter as propriedades
+            expect(resultado.id).toBe('42');
+            expect(resultado.nome).toBe('teste');
+
+            // Deve ter constructor
+            expect(resultado.constructor).toBe(Object);
+        });
+
+        it('Deve retornar null inalterado', () => {
+            expect((liquido as any).normalizarObjetoJS(null)).toBeNull();
+        });
+
+        it('Deve retornar undefined inalterado', () => {
+            expect((liquido as any).normalizarObjetoJS(undefined)).toBeUndefined();
+        });
+
+        it('Deve retornar strings inalteradas', () => {
+            expect((liquido as any).normalizarObjetoJS('texto')).toBe('texto');
+            expect((liquido as any).normalizarObjetoJS('')).toBe('');
+        });
+
+        it('Deve retornar números inalterados', () => {
+            expect((liquido as any).normalizarObjetoJS(42)).toBe(42);
+            expect((liquido as any).normalizarObjetoJS(0)).toBe(0);
+            expect((liquido as any).normalizarObjetoJS(-1)).toBe(-1);
+        });
+
+        it('Deve retornar booleanos inalterados', () => {
+            expect((liquido as any).normalizarObjetoJS(true)).toBe(true);
+            expect((liquido as any).normalizarObjetoJS(false)).toBe(false);
+        });
+
+        it('Deve retornar arrays inalterados (arrays têm protótipo próprio)', () => {
+            const array = [1, 2, 3];
+            const resultado = (liquido as any).normalizarObjetoJS(array);
+
+            expect(resultado).toBe(array);
+            expect(Array.isArray(resultado)).toBe(true);
+            expect(resultado).toEqual([1, 2, 3]);
+        });
+
+        it('Deve converter Object.create(null) aninhado em primeiro nível', () => {
+            const semPrototipo = Object.create(null);
+            semPrototipo.chave = 'valor';
+
+            const resultado = (liquido as any).normalizarObjetoJS(semPrototipo);
+
+            expect(resultado).not.toBe(semPrototipo);
+            expect(resultado.chave).toBe('valor');
+            expect(resultado.constructor).toBe(Object);
+        });
+
+        it('Deve funcionar com objetos vazios (sem propriedades)', () => {
+            const semPrototipoVazio = Object.create(null);
+            const resultado = (liquido as any).normalizarObjetoJS(semPrototipoVazio);
+
+            expect(resultado).not.toBe(semPrototipoVazio);
+            expect(resultado.constructor).toBe(Object);
+            expect(Object.keys(resultado).length).toBe(0);
+        });
+
+        it('Deve converter Object.create(null) simulando req.params do Express', () => {
+            // Express cria req.params com Object.create(null)
+            const reqParams = Object.create(null);
+            reqParams.id = '42';
+            reqParams.categoria = 'livros';
+
+            const resultado = (liquido as any).normalizarObjetoJS(reqParams);
+
+            // Verifica se o interpretador consegue acessar .constructor
+            expect(resultado.constructor).toBe(Object);
+            expect(resultado.constructor.name).toBe('Object');
+
+            // Verifica os valores
+            expect(resultado.id).toBe('42');
+            expect(resultado.categoria).toBe('livros');
+        });
+
+        it('Deve preservar datas e outros objetos com protótipo', () => {
+            const data = new Date('2024-01-01');
+            const resultado = (liquido as any).normalizarObjetoJS(data);
+
+            // Date tem constructor, deve ser mantido como está
+            expect(resultado).toBe(data);
+            expect(resultado.constructor).toBe(Date);
+        });
+
+        it('Deve preservar objetos com protótipo customizado', () => {
+            class MeuObjeto {
+                constructor(public valor: number) {}
+            }
+            const objeto = new MeuObjeto(42);
+
+            const resultado = (liquido as any).normalizarObjetoJS(objeto);
+
+            // Deve ser mantido como está (tem constructor)
+            expect(resultado).toBe(objeto);
+            expect(resultado.valor).toBe(42);
         });
     });
 

@@ -6,13 +6,13 @@ import { AcessoMetodo, AcessoMetodoOuPropriedade, Chamada, FuncaoConstruto, Vari
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { ReferenciaMontao } from '@designliquido/delegua/interpretador/estruturas/referencia-montao';
-import { 
-    ErroInterpretadorInterface, 
-    InterpretadorInterface, 
-    ResultadoParcialInterpretadorInterface, 
-    RetornoInterpretadorInterface, 
-    SimboloInterface, 
-    VariavelInterface 
+import {
+    ErroInterpretadorInterface,
+    InterpretadorInterface,
+    ResultadoParcialInterpretadorInterface,
+    RetornoInterpretadorInterface,
+    SimboloInterface,
+    VariavelInterface
 } from '@designliquido/delegua/interfaces';
 import { RetornoLexadorInterface } from '@designliquido/delegua/interfaces/retornos/retorno-lexador-interface';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
@@ -298,8 +298,8 @@ export class Liquido implements LiquidoInterface {
                     this.arquivosDelegua.push(caminhoAbsoluto);
                     continue;
                 }
-            } 
-            
+            }
+
             if (linguagemNorm === 'pitugues') {
                 if (caminhoAbsoluto.endsWith('.pitu')) {
                     this.arquivosPitugues.push(caminhoAbsoluto);
@@ -395,8 +395,8 @@ export class Liquido implements LiquidoInterface {
         const retornoImportador = this.importador?.importar(arquivo, -1);
 
         const retornoAvaliadorSintatico = await (this
-            .avaliadorSintatico as { 
-                analisar: (retornoLexador: RetornoLexadorInterface<SimboloInterface<string>>, hashArquivo: number) => Promise<{ erros: any[]; declaracoes: Declaracao[] }> 
+            .avaliadorSintatico as {
+                analisar: (retornoLexador: RetornoLexadorInterface<SimboloInterface<string>>, hashArquivo: number) => Promise<{ erros: any[]; declaracoes: Declaracao[] }>
             })?.analisar(
                 retornoImportador?.retornoLexador as RetornoLexadorInterface<SimboloInterface<string>>,
                 retornoImportador?.hashArquivo as number
@@ -570,6 +570,32 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
+     * Normaliza um objeto JavaScript simples que pode ter sido criado sem protótipo
+     * (como `req.params`, `req.query` do Express, que usam `Object.create(null)`).
+     * O interpretador Delégua depende de `constructor` para identificar objetos
+     * como dicionários, então é necessário garantir que o protótipo padrão exista.
+     */
+    private normalizarObjetoJS(valor: any): any {
+        if (
+            valor !== null &&
+            typeof valor === 'object' &&
+            !Array.isArray(valor)
+        ) {
+            if (valor.constructor === undefined) {
+                // Objeto criado sem protótipo (ex: Object.create(null)).
+                // Cria uma cópia com protótipo padrão para que o interpretador
+                // consiga acessar `constructor` e tratar o objeto como dicionário.
+                return { ...valor };
+            }
+
+            // Já tem protótipo; mantém o original.
+            return valor;
+        }
+
+        return valor;
+    }
+
+    /**
      * O Interpretador Delégua exige alguns parâmetros definidos antes de executar.
      * Esse método define esses parâmetros na posição inicial da pilha de execução
      * do Interpretador.
@@ -581,13 +607,16 @@ export class Liquido implements LiquidoInterface {
         this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoElementoSintatico('liquido', 'módulo'));
         this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoElementoSintatico('requisicao', 'módulo'));
         this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoElementoSintatico('resposta', 'módulo'));
+
         const descritorClasseRequisicao = new Requisicao(requisicao);
         await descritorClasseRequisicao.chamar(this.interpretador as InterpretadorInterface, []);
+
         const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
-        instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, requisicao.body);
-        instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, requisicao.params);
-        instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, requisicao.query || {});
+        instanciaRequisicao.definir({ lexema: 'corpo' } as SimboloInterface, this.normalizarObjetoJS(requisicao.body));
+        instanciaRequisicao.definir({ lexema: 'parametros' } as SimboloInterface, this.normalizarObjetoJS(requisicao.params));
+        instanciaRequisicao.definir({ lexema: 'parametrosPesquisa' } as SimboloInterface, this.normalizarObjetoJS(requisicao.query || {}));
         instanciaRequisicao.definir({ lexema: 'parametrosCaminho' } as SimboloInterface, requisicao.path);
+
         this.interpretador?.pilhaEscoposExecucao.definirVariavel(
             'requisicao',
             instanciaRequisicao
@@ -627,7 +656,7 @@ export class Liquido implements LiquidoInterface {
                     )
                 ],
                 true
-            ) || { 
+            ) || {
                 erros: [],
                 resultado: []
             } as RetornoInterpretadorInterface;

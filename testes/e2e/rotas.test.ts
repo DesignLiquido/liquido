@@ -60,6 +60,24 @@ describe('E2E Integration Tests - Routing & MIME Types', () => {
         });
     });
 
+    describe('Parâmetros de Rota ([id])', () => {
+        it('Deve retornar o parâmetro de rota dinâmica via interpolacão', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .get('/api/clientes/42')
+                .expect(200);
+
+            expect(response.text).toBe('Teste com ID. 42');
+        });
+
+        it('Deve retornar parâmetros de rota dinâmica como um objeto JSON', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .post('/api/clientes/99')
+                .expect(200);
+
+            expect(response.body).toEqual({ id: '99' });
+        });
+    });
+
     describe('REST API Routes', () => {
         it('should return 204 No Content for empty response with no body content', async () => {
             const response = await request(liquido.roteador.aplicacao)
