@@ -125,10 +125,10 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
     protected resolverConstrutoValorDecorador(
         construtoValor: ConstrutoInterface
     ): any {
-        switch (construtoValor.constructor.name) {
-            case 'Literal':
-                return (construtoValor as Literal).valor;
-            case 'Vetor':
+        switch (construtoValor.constructor) {
+            case Literal:
+                return construtoValor.valor;
+            case Vetor:
                 const valoresResolvidos = [];
 
                 for (const valor of (construtoValor as Vetor).valores) {
