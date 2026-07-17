@@ -103,7 +103,8 @@ describe('CORS com origem configurável', () => {
                 ativarDesativarExpressJson: jest.fn(),
                 ativarDesativarHelmet: jest.fn(),
                 ativarDesativarMorgan: jest.fn(),
-                ativarDesativarPassport: jest.fn()
+                ativarDesativarPassport: jest.fn(),
+                configurarPorta: jest.fn(),
             };
 
             configuracao.configurar({ roteador: roteadorSimulado });

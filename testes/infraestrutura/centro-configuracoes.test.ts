@@ -180,7 +180,8 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarHelmet: jest.fn(),
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
-                configurarArquivosEstaticos: jest.fn()
+                configurarArquivosEstaticos: jest.fn(),
+                configurarPorta: jest.fn()
             };
             config.configurar({ roteador });
             expect(roteador.ativarDesativarBodyParser).toHaveBeenCalledWith(true);
@@ -191,9 +192,13 @@ describe('Testes das classes de configuração', () => {
             expect(roteador.ativarDesativarHelmet).toHaveBeenCalledWith(true);
             expect(roteador.ativarDesativarMorgan).toHaveBeenCalledWith(false);
             expect(roteador.ativarDesativarPassport).toHaveBeenCalledWith(false);
+            expect(roteador.configurarOrigensCors).toHaveBeenCalledWith('*');
+            expect(roteador.configurarPorta).toHaveBeenCalledWith(3000);
             // configurarArquivosEstaticos agora é chamado em liquido.ts com caminho absoluto
             expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
         });
+
+
 
         it('não deve chamar configurarArquivosEstaticos quando diretorioEstatico for vazio', () => {
             const config = new ConfiguracaoRoteador({ diretorioEstatico: '' });
@@ -206,7 +211,8 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarHelmet: jest.fn(),
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
-                configurarArquivosEstaticos: jest.fn()
+                configurarArquivosEstaticos: jest.fn(),
+                configurarPorta: jest.fn()
             };
             config.configurar({ roteador });
             expect(roteador.configurarArquivosEstaticos).not.toHaveBeenCalled();
@@ -291,7 +297,8 @@ describe('Testes das classes de configuração', () => {
                 ativarDesativarHelmet: jest.fn(),
                 ativarDesativarMorgan: jest.fn(),
                 ativarDesativarPassport: jest.fn(),
-                configurarArquivosEstaticos: jest.fn()
+                configurarArquivosEstaticos: jest.fn(),
+                configurarPorta: jest.fn()
             };
             const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };
             config.configurar({ autoDocumentador, roteador, provedorLincones });
@@ -316,6 +323,12 @@ describe('Testes das classes de configuração', () => {
             const config = new ConfiguracaoLiquido();
             config.definirValor(config, ['liquido', 'roteador', 'cors'], true);
             expect(config.roteador.cors).toBe(true);
+        });
+
+        it('deve aceitar porta via definirValor em roteador', () => {
+            const config = new ConfiguracaoLiquido();
+            config.definirValor(config, ['liquido', 'roteador', 'porta'], 4000);
+            expect(config.roteador.porta).toBe(4000);
         });
 
         it('deve lançar ErroConfiguracao para propriedade aninhada inexistente', () => {

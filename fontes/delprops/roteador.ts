@@ -53,6 +53,11 @@ const roteador: DefinicaoPropriedade[] = [
         tipo: 'logico',
         detalhe: 'Habilita o helmet para segurança de cabeçalhos HTTP (padrão: verdadeiro).',
     },
+    {
+        nome: 'porta',
+        tipo: 'numero',
+        detalhe: 'Porta na qual o servidor irá subir (padrão: 3000).',
+    }
 ];
 
 export default roteador;

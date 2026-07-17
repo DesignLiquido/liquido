@@ -32,12 +32,12 @@ export class Roteador implements RoteadorInterface {
     bodyParser = false;
 
     cors = false;
-    origensCors = '*';
+    origensCors: string[] = ['*'];
     passport = false;
 
     constructor(autoDocumentador: AutoDocumentador) {
         this.aplicacao = express();
-        this.porta = Number(process.env.PORTA) || Number(process.env.PORT) || 3000;
+        this.porta = 3000;
 
         this.autoDocumentador = autoDocumentador;
         
@@ -91,6 +91,10 @@ export class Roteador implements RoteadorInterface {
             })
         );
     }
+    configurarPorta(porta: number): void {
+        this.porta = porta;
+
+    }
 
     configurarArquivosEstaticos(diretorio: string = 'publico'): void {
         this.aplicacao.use(express.static(diretorio, { redirect: true }));
@@ -135,7 +139,6 @@ export class Roteador implements RoteadorInterface {
                 this.aplicacao.use(cors(opcoesCors));
             }
         }
-
         if (this.passport) {
             try {
                 this.aplicacao.use(autenticacao().initialize());
@@ -154,8 +157,14 @@ export class Roteador implements RoteadorInterface {
      * ou várias separadas por vírgula. O valor '*' (padrão) libera qualquer
      * origem e deve ser usado apenas em desenvolvimento.
      */
-    configurarOrigensCors(origem: string): void {
-        this.origensCors = origem && origem.trim().length > 0 ? origem : '*';
+    configurarOrigensCors(origem: string | string[]): void {
+        if (Array.isArray(origem)) {
+            this.origensCors = origem;
+            return;
+        }
+
+        this.origensCors = origem.split(',').
+        map(origem => origem.trim()).filter(origem => origem.length > 0);
     }
 
     /**
@@ -165,20 +174,17 @@ export class Roteador implements RoteadorInterface {
      *          lista de origens permitidas.
      */
     resolverOpcoesCors(): { origin: string[] } | undefined {
-        if (this.origensCors === '*') {
+        
+        if (Array.isArray(this.origensCors)
+            && this.origensCors.length === 1
+            && this.origensCors[0] === '*') {
+            return undefined;
+        }
+        if (this.origensCors.length === 0) {
             return undefined;
         }
 
-        const origens = this.origensCors
-            .split(',')
-            .map(origem => origem.trim())
-            .filter(origem => origem.length > 0);
-
-        if (origens.length === 0) {
-            return undefined;
-        }
-
-        return { origin: origens };
+        return { origin: this.origensCors };
     }
 
     ativarDesativarPassport(valor: boolean): void {

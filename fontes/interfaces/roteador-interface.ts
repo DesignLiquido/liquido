@@ -1,6 +1,6 @@
 export interface RoteadorInterface {
     ativarDesativarCors(valor: boolean): void;
-    configurarOrigensCors(origem: string): void;
+    configurarOrigensCors(origem: string | string[]): void;
     ativarDesativarPassport(valor: boolean): void;
     ativarDesativarCookieParser(valor: boolean): void;
     ativarDesativarExpressJson(valor: boolean): void;
@@ -8,4 +8,5 @@ export interface RoteadorInterface {
     ativarDesativarHelmet(valor: boolean): void;
     ativarDesativarMorgan(valor: boolean): void;
     configurarArquivosEstaticos(diretorio: string): void;
+    configurarPorta(porta: number): void;
 }

@@ -13,6 +13,7 @@ liquido.roteador.cookieParser = verdadeiro
 liquido.roteador.passport = falso
 liquido.roteador.json = verdadeiro
 liquido.roteador.helmet = verdadeiro
+liquido.roteador.porta = 3000
 
 // Configuração de bases de dados
 liquido.dados.lincones.tecnologia = 'sqlite'
