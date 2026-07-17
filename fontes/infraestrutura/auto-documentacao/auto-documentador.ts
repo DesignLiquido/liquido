@@ -7,20 +7,26 @@ import {
     Declaracao,
     Expressao,
     Chamada,
+    AcessoMetodo,
     AcessoMetodoOuPropriedade,
     Decorador,
     Literal,
     Vetor,
     ConstrutoInterface
 } from '@designliquido/delegua';
+import { LexadorPitugues } from '@designliquido/delegua/lexador';
 import { Importador } from '@designliquido/delegua-node/importador';
-import { AvaliadorSintaticoComImportacao } from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
+import {
+    AvaliadorSintaticoComImportacao
+} from '@designliquido/delegua-node/avaliador-sintatico/avaliador-sintatico-com-importacao';
 
 import { RotaOpenApi } from './rota-open-api';
 import { MetodoHttpOpenApi } from './metodo-http-open-api';
 import { RespostaOpenApi } from './resposta-open-api';
 import { DocumentoOpenApi } from './documento-open-api';
-import { AutoDocumentadorInterface } from '../../interfaces/auto-documentador-interface';
+import {
+    AutoDocumentadorInterface
+} from '../../interfaces/auto-documentador-interface';
 
 /**
  * O auto documentador lê o projeto e gera uma especificação OpenAPI
@@ -38,7 +44,9 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
     constructor() {
         this.erros = [];
-        this.diretorioRotas = caminho.join(process.cwd(), 'rotas/rest').replace(/\\/gi, '/');
+        this.diretorioRotas = caminho
+            .join(process.cwd(), 'rotas')
+            .replace(/\\/gi, '/');
 
         this.decoradoresValidos = {
             '@rest.documentacao': {
@@ -61,11 +69,17 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
     }
 
     // TODO: Pensar em como fazer isso considerando importações de outros arquivos.
-    protected async obterEstruturasDeAltoNivelDeControlador(caminhoControlador: string): Promise<Declaracao[]> {
+    protected async obterEstruturasDeAltoNivelDeControlador(
+        caminhoControlador: string
+    ): Promise<Declaracao[]> {
         const arquivosAbertos = {};
         const conteudoArquivosAbertos = {};
 
-        const importador = new Importador(new Lexador(), arquivosAbertos, conteudoArquivosAbertos, false);
+        const lexador = caminhoControlador.endsWith('.pitu')
+            ? new LexadorPitugues()
+            : new Lexador();
+
+        const importador = new Importador(lexador, arquivosAbertos, conteudoArquivosAbertos, false);
 
         const avaliadorSintatico = new AvaliadorSintaticoComImportacao(importador);
 
@@ -84,35 +98,54 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
     }
 
     protected async encontrarControladores() {
-        const formatoGlob = (this.diretorioRotas + '/**/*.delegua').replace(/\\/gi, '/');
-        const arquivos = await glob([formatoGlob], { dot: true, absolute: false, stats: false });
+        const formatoGlob = (
+            this.diretorioRotas + '/**/*.{delegua,pitu}'
+        ).replace(/\\/gi, '/');
+        const arquivos = await glob(
+            [formatoGlob],
+            { dot: true, absolute: false, stats: false }
+        );
 
         const controladores = [];
+
         for (const caminhoArquivo of arquivos) {
-            const estruturas = await this.obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
-            const rotaEControlador = this.lerControlador(caminhoArquivo, estruturas);
+            const estruturas = await this
+                .obterEstruturasDeAltoNivelDeControlador(caminhoArquivo);
+            const rotaEControlador = this.lerControlador(
+                caminhoArquivo,
+                estruturas
+            );
+
             controladores.push(rotaEControlador);
         }
 
         return controladores;
     }
 
-    protected resolverConstrutoValorDecorador(construtoValor: ConstrutoInterface): any {
-        switch (construtoValor.constructor.name) {
-            case 'Literal':
-                return (construtoValor as Literal).valor;
-            case 'Vetor':
+    protected resolverConstrutoValorDecorador(
+        construtoValor: ConstrutoInterface
+    ): any {
+        switch (construtoValor.constructor) {
+            case Literal:
+                return construtoValor.valor;
+            case Vetor:
                 const valoresResolvidos = [];
+
                 for (const valor of (construtoValor as Vetor).valores) {
-                    valoresResolvidos.push(this.resolverConstrutoValorDecorador(valor));
+                    valoresResolvidos.push(
+                        this.resolverConstrutoValorDecorador(valor)
+                    );
                 }
 
                 return valoresResolvidos;
         }
     }
 
-    protected resolverAtributosDecorador(decorador: Decorador): Record<string, any> {
+    protected resolverAtributosDecorador(
+        decorador: Decorador
+    ): Record<string, any> {
         const decoradorResolvido: Record<string, any> = {};
+
         for (const [nomeAtributo, valorAtributo] of Object.entries(decorador.atributos)) {
             decoradorResolvido[nomeAtributo] = this.resolverConstrutoValorDecorador(valorAtributo);
         }
@@ -120,9 +153,12 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         return decoradorResolvido;
     }
 
-    protected resolverDecoradorDocumentacao(atributos: Record<string, any>): RotaOpenApi {
+    protected resolverDecoradorDocumentacao(
+        atributos: Record<string, any>
+    ): RotaOpenApi {
         const retorno: RotaOpenApi = {};
         const decoradoresValidosDocumentacao = this.decoradoresValidos['@rest.documentacao'];
+
         for (const [nomeAtributo, valorAtributo] of Object.entries(atributos)) {
             retorno[decoradoresValidosDocumentacao[nomeAtributo] as keyof RotaOpenApi] = valorAtributo;
         }
@@ -132,18 +168,21 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
     protected resolverDecoradorResposta(atributos: Record<string, any>): any {
         const decoradoresValidosResposta = this.decoradoresValidos['@rest.resposta'];
+
         if (!('codigo' in atributos) && !('código' in atributos)) {
-            this.erros.push(new Error(`Decorador @rest.resposta não possui atributo obrigado 'código' ou 'codigo'.`));
+            this.erros.push(new Error(
+                `Decorador @rest.resposta não possui atributo obrigado 'código' ou 'codigo'.`
+            ));
+
             return null;
         }
 
         const codigo = atributos['codigo'] || atributos['código'];
         const retorno: RespostaOpenApi = {};
+
         for (const [nomeAtributo, valorAtributo] of Object.entries(atributos)) {
             const nomeOpenApi = decoradoresValidosResposta[nomeAtributo];
-            if (nomeOpenApi === 'statusCode') {
-                continue;
-            }
+            if (nomeOpenApi === 'statusCode') continue;
 
             if (nomeOpenApi === 'content') {
                 retorno.content = valorAtributo;
@@ -158,7 +197,10 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
 
     protected resolverDecorador(decorador: Decorador): any {
         if (!(decorador.nome in this.decoradoresValidos)) {
-            this.erros.push(new Error(`Decorador ${decorador.nome} não é válido para um método de um controlador.`));
+            this.erros.push(new Error(
+                `Decorador ${decorador.nome} não é válido para um método de um controlador.`
+            ));
+
             return null;
         }
 
@@ -185,24 +227,39 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
         declaracoes: Declaracao[]
     ): [string, { [key in MetodoHttpOpenApi]?: RotaOpenApi }] {
         const descritivoControlador: { [key in MetodoHttpOpenApi]?: RotaOpenApi } = {};
-        const rotaRelativa = caminhoControlador
-            .replace(this.diretorioRotas, '')
-            .replace('inicial.delegua', '')
-            .replace('.delegua', '');
 
-        // console.log('rotaRelativa', rotaRelativa);
+        // Remove o prefixo do diretório de rotas e a extensão do arquivo
+        // para obter o caminho relativo da rota
+        let rotaRelativa = caminhoControlador.substring(
+            this.diretorioRotas.length
+        );
+
+        rotaRelativa = rotaRelativa.replace(/inicial\.(delegua|pitu)$/, '');
+        rotaRelativa = rotaRelativa.replace(/\.(delegua|pitu)$/, '');
+        rotaRelativa = rotaRelativa.replace(/\[(.+?)\]/g, '{$1}');
 
         for (const declaracao of declaracoes) {
-            // Os decoradores contêm a documentação adicional para uma rota.
+            if (!(declaracao instanceof Expressao)) continue;
+
+            const expressao = declaracao.expressao;
+
+            if (!(expressao instanceof Chamada)) continue;
+
+            const chamada = expressao;
             const decoradores = declaracao.decoradores;
-            // Aqui normalmente teremos uma expressão com uma chamada dentro.
-            const chamada = (declaracao as Expressao).expressao as Chamada;
-            // Tipicamente, a entidade chamada é uma variável com o nome reservado `liquido`.
-            // o método é um Símbolo.
-            // A execução e middlewares ficam em argumentos.
-            const entidadeChamada = chamada.entidadeChamada as AcessoMetodoOuPropriedade;
-            // const argumentos = chamada.argumentos;
-            // console.log(decoradores, argumentos, entidadeChamada.objeto, entidadeChamada.simbolo);
+
+            // Extrai o nome do método (rotaGet, rotaPost, ...) suportando
+            // AcessoMetodo (Delégua) e AcessoMetodoOuPropriedade (Pituguês)
+            let nomeMetodo: string | null = null;
+            const entidadeChamada = chamada.entidadeChamada;
+
+            if (entidadeChamada instanceof AcessoMetodo) {
+                nomeMetodo = entidadeChamada.nomeMetodo;
+            } else if (entidadeChamada instanceof AcessoMetodoOuPropriedade) {
+                nomeMetodo = entidadeChamada.simbolo.lexema;
+            }
+
+            if (!nomeMetodo) continue;
 
             let descritivoMetodoRota: RotaOpenApi = {};
             for (const decorador of decoradores) {
@@ -219,7 +276,8 @@ export class AutoDocumentador implements AutoDocumentadorInterface {
                 }
             }
 
-            const metodoResolvido = entidadeChamada.simbolo.lexema.replace('rota', '');
+            const metodoResolvido = nomeMetodo.replace('rota', '');
+
             descritivoControlador[metodoResolvido.toLowerCase() as MetodoHttpOpenApi] = descritivoMetodoRota;
         }
 
