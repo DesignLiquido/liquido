@@ -1,0 +1,7 @@
+liquido.rotaGet(funcao(requisicao, resposta) {
+  resposta.enviar("Teste com ID. ${requisicao.parametros.id}").status(200)
+})
+
+liquido.rotaPost(funcao(requisicao, resposta) {
+  resposta.json(requisicao.parametros).status(200)
+})
