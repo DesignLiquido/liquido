@@ -26,7 +26,10 @@ import {
     inicializarBancoDeleguaEntidades,
     inicializarBancoLincones,
     lerMotorConfigurado,
-    obterTodosModelos
+    obterTodosModelos,
+    validarTipoProjeto,
+    validarLinguagem,
+    validarGerenciadorDePacotes
 } from './interface-linha-comando';
 import { ComandoBancoIniciarInterface, ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
@@ -127,44 +130,79 @@ class LiquidoPontoEntrada {
     async comandoNovo(
         args: yargs.ArgumentsCamelCase<ComandoNovoInterface>
     ) {
-        let nomeProjeto = args.nome
+        const modoInterativo = process.stdin.isTTY;
+
+        let nomeProjeto = args.nome;
 
         if (nomeProjeto === undefined || nomeProjeto.length <= 0) {
-            const respostaNomeProjeto = await prompts({
-                type: 'text',
-                name: 'nomeProjeto',
-                message: 'Qual o nome do seu projeto?'
-            });
+            if (modoInterativo) {
+                const respostaNomeProjeto = await prompts({
+                    type: 'text',
+                    name: 'nomeProjeto',
+                    message: 'Qual o nome do seu projeto?'
+                });
 
-            nomeProjeto = respostaNomeProjeto.nomeProjeto;
+                nomeProjeto = respostaNomeProjeto.nomeProjeto;
+            } else {
+                console.error(red(
+                    'Erro: Nome do projeto é obrigatório.\n' +
+                    'Uso: liquido novo [nome] --tipo <mvc|api-rest> --linguagem <delegua|pitugues> --gerenciador <npm|yarn|bun> [--sim]'
+                ));
+
+                process.exit(1);
+            }
         }
 
-        if (nomeProjeto.length > 0) {
-            const diretorioAlvo = nomeProjeto;
+        if (nomeProjeto === undefined || nomeProjeto.length <= 0) {
+            return;
+        }
 
-            if (nomeProjeto === '.' || nomeProjeto === './') {
-                nomeProjeto = path.basename(cwd());
+        const diretorioAlvo = nomeProjeto;
+
+        if (nomeProjeto === '.' || nomeProjeto === './') {
+            nomeProjeto = path.basename(cwd());
+        }
+
+        console.log(green(
+            `Iremos criar um novo projeto em Liquido chamado "${nomeProjeto}"`
+        ));
+
+        // Confirmação (pulada com --sim)
+        let confirmado = args.sim ?? false;
+
+        if (!args.sim) {
+            if (modoInterativo) {
+                const resposta = await prompts({
+                    type: 'confirm',
+                    message: 'Confirma?',
+                    name: 'confirmado',
+                    initial: true,
+                    onRender(this: any) {
+                        this.yesMsg = 'Sim';
+                        this.noMsg = 'não';
+                        this.yesOption = '(S/n)';
+                    }
+                });
+
+                confirmado = resposta.confirmado;
+            } else {
+                console.error(red(
+                    'Erro: Confirmação necessária. Use --sim para ambientes não-interativos.'
+                ));
+
+                process.exit(1);
             }
+        }
 
-            console.log(green(`Iremos criar um novo projeto em Liquido chamado "${nomeProjeto}"`));
+        if (!confirmado) {
+            console.info(yellow('Operação cancelada.'));
+            return;
+        }
 
-            const resposta = await prompts({
-                type: 'confirm',
-                message: 'Confirma?',
-                name: 'confirmado',
-                initial: true,
-                onRender(this: any) {
-                    this.yesMsg = 'Sim';
-                    this.noMsg = 'não';
-                    this.yesOption = '(S/n)';
-                }
-            });
+        let tipoProjeto = args.tipo;
 
-            if (resposta.confirmado) {
-                const diretorioCompleto = criarDiretorioAplicacao(
-                    diretorioAlvo
-                );
-
+        if (!tipoProjeto) {
+            if (modoInterativo) {
                 const perguntaTipoProjeto = await prompts({
                     type: 'select',
                     name: 'tipoProjeto',
@@ -177,38 +215,80 @@ class LiquidoPontoEntrada {
                     hint: '- Use as setas. Enter para confirmar.'
                 });
 
+                tipoProjeto = perguntaTipoProjeto.tipoProjeto;
+            } else {
+                console.error(red(
+                    'Erro: Tipo de projeto é obrigatório. Use --tipo <mvc|api-rest>.'
+                ));
+
+                process.exit(1);
+            }
+        }
+
+        if (!validarTipoProjeto(tipoProjeto)) {
+            console.error(red(
+                `Erro: Tipo de projeto inválido: "${tipoProjeto}". Use "mvc" ou "api-rest".`
+            ));
+
+            process.exit(1);
+        }
+
+        let linguagemSelecionada = args.linguagem;
+
+        if (!linguagemSelecionada) {
+            if (modoInterativo) {
                 const perguntaLinguagemDeBackEnd = await prompts({
                     type: 'select',
                     name: 'linguagemBackEnd',
                     message: 'Selecione a linguagem de programação',
                     choices: [
-                        {
-                            title: 'Delégua',
-                            value: 'delegua'
-                        },
-                        {
-                            title: 'Pituguês',
-                            value: 'pitugues'
-                        }
+                        { title: 'Delégua', value: 'delegua' },
+                        { title: 'Pituguês', value: 'pitugues' }
                     ],
                     initial: 0,
                     hint: '- Use as setas. Enter para confirmar.'
                 });
 
-                const perguntaInicializarRepositorioGit = await prompts({
-                    type: 'confirm',
-                    message: 'Deseja inicializar um repositório Git?',
-                    name: 'confirmado',
-                    initial: true,
-                    onRender(this: any) {
-                        this.yesMsg = 'Sim';
-                        this.noMsg = 'não';
-                        this.yesOption = '(S/n)';
-                    }
-                });
-                const inicializarRepositorioGit =
-                    perguntaInicializarRepositorioGit.confirmado;
+                linguagemSelecionada = perguntaLinguagemDeBackEnd.linguagemBackEnd;
+            } else {
+                console.error(red(
+                    'Erro: Linguagem de backend é obrigatória. Use --linguagem <delegua|pitugues>.'
+                ));
 
+                process.exit(1);
+            }
+        }
+
+        if (!validarLinguagem(linguagemSelecionada)) {
+            console.error(red(
+                `Erro: Linguagem inválida: "${linguagemSelecionada}". Use "delegua" ou "pitugues".`
+            ));
+
+            process.exit(1);
+        }
+
+        let inicializarRepositorioGit = false;
+
+        if (modoInterativo) {
+            const perguntaInicializarRepositorioGit = await prompts({
+                type: 'confirm',
+                message: 'Deseja inicializar um repositório Git?',
+                name: 'confirmado',
+                initial: true,
+                onRender(this: any) {
+                    this.yesMsg = 'Sim';
+                    this.noMsg = 'não';
+                    this.yesOption = '(S/n)';
+                }
+            });
+
+            inicializarRepositorioGit = perguntaInicializarRepositorioGit.confirmado;
+        }
+
+        let gerenciadorDePacotes = args.gerenciador;
+
+        if (!gerenciadorDePacotes) {
+            if (modoInterativo) {
                 const perguntaQualGerenciadorDePacotesQuerUsar = await prompts({
                     type: 'select',
                     name: 'gerenciadorDePacotes',
@@ -221,43 +301,69 @@ class LiquidoPontoEntrada {
                     initial: 0,
                     hint: '- Use as setas. Enter para confirmar.'
                 });
-                const gerenciadorDePacotes =
-                    perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
 
-                const linguagemSelecionada = perguntaLinguagemDeBackEnd.linguagemBackEnd;
-
-                await detectarGerenciadorDePacotes(
-                    gerenciadorDePacotes,
-                    diretorioCompleto
-                );
-
-                await copiarArquivosDeExemploParaNovoProjeto(
-                    nomeProjeto,
-                    perguntaTipoProjeto.tipoProjeto,
-                    linguagemSelecionada,
-                    diretorioCompleto
-                );
-
-                await gerarRepositorioGit(
-                    inicializarRepositorioGit,
-                    diretorioCompleto
-                );
-
-                // Apaga linha residual, restaura cursor e modo raw
-                if (process.stdin.isTTY) {
-                    try {
-                        process.stdin.setRawMode(false);
-                    } catch (_) {
-                        // Ignora erros ao restaurar modo raw
-                    };
-                }
-
-                process.stdout.write('\x1B[2K\x1B[0G\x1B[?25h\n');
-
-                console.info(yellow(
-                    `Seu projeto foi criado com sucesso! ${diretorioCompleto}`
+                gerenciadorDePacotes = perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
+            } else {
+                console.error(red(
+                    'Erro: Gerenciador de pacotes é obrigatório. Use --gerenciador <npm|yarn|bun>.'
                 ));
+
+                process.exit(1);
             }
+        }
+
+        if (!validarGerenciadorDePacotes(gerenciadorDePacotes)) {
+            console.error(red(
+                `Erro: Gerenciador de pacotes inválido: "${gerenciadorDePacotes}". Use "npm", "yarn" ou "bun".`
+            ));
+
+            process.exit(1);
+        }
+
+        const diretorioCompleto = criarDiretorioAplicacao(diretorioAlvo);
+
+        try {
+            await detectarGerenciadorDePacotes(
+                gerenciadorDePacotes,
+                diretorioCompleto
+            );
+            await copiarArquivosDeExemploParaNovoProjeto(
+                nomeProjeto,
+                tipoProjeto,
+                linguagemSelecionada,
+                diretorioCompleto
+            );
+            await gerarRepositorioGit(
+                inicializarRepositorioGit,
+                diretorioCompleto
+            );
+
+            // Apaga linha residual, restaura cursor e modo raw
+            if (modoInterativo) {
+                try {
+                    process.stdin.setRawMode(false);
+                } catch (_) {
+                    // Ignora erros ao restaurar modo raw
+                }
+            }
+
+            process.stdout.write('\x1B[2K\x1B[0G\x1B[?25h\n');
+
+            console.info(yellow(
+                `Seu projeto foi criado com sucesso! ${diretorioCompleto}`
+            ));
+        } catch (erro: any) {
+            // Em caso de erro, limpa o diretório recém-criado
+            try {
+                fs.rmSync(diretorioCompleto, { recursive: true, force: true });
+            } catch (_) {
+                // Ignora erro ao limpar
+            }
+
+            console.error(red(
+                `Erro ao criar projeto: ${erro?.message ?? erro}`
+            ));
+            process.exit(1);
         }
     }
 
@@ -378,7 +484,13 @@ class LiquidoPontoEntrada {
         .alias('ajuda', '?')
         .command(['*', 'servidor'], 'Serve o diretório local como uma aplicação para a internet.', {}, this.comandoServidor.bind(this))
         .command('documentar', 'Lê o projeto e gera uma documentação OpenAPI correspondente', {}, this.comandoDocumentar)
-        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', { nome: { type: 'string' as const, default: '' } }, this.comandoNovo)
+        .command('novo [nome]', 'Inicia uma nova aplicação pré-configurada para funcionar com Liquido.', {
+            nome: { type: 'string' as const, default: '' },
+            tipo: { type: 'string' as const, default: '', describe: 'Tipo de projeto: mvc ou api-rest' },
+            linguagem: { type: 'string' as const, default: '', describe: 'Linguagem de backend: delegua ou pitugues' },
+            sim: { type: 'boolean' as const, default: false, describe: 'Pula a confirmação inicial (modo não-interativo)' },
+            gerenciador: { type: 'string' as const, default: '', describe: 'Gerenciador de pacotes: npm, yarn ou bun' }
+        }, this.comandoNovo)
         .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', { modelo: { type: 'string' as const, default: '' } }, this.comandoGerar)
         .command(
             'banco iniciar',
