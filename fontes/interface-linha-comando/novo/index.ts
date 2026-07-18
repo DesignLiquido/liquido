@@ -150,9 +150,23 @@ async function adicionarScriptsLiquido(caminhoPackageJson: string) {
     );
 }
 
-/* export function gerarProjetoPorTipoDeProjeto(tipoDeProjeto: string) {
-    switch (tipoDeProjeto) {
-        case 'api-rest':
-            sistemaArquivos.
-    }
-} */
+/** Valida se o tipo de projeto informado é 'mvc' ou 'api-rest'. */
+export function validarTipoProjeto(
+    tipo: string | undefined
+): tipo is 'mvc' | 'api-rest' {
+    return tipo === 'mvc' || tipo === 'api-rest';
+}
+
+/** Valida se a linguagem informada é 'delegua' ou 'pitugues'. */
+export function validarLinguagem(
+    linguagem: string | undefined
+): linguagem is 'delegua' | 'pitugues' {
+    return linguagem === 'delegua' || linguagem === 'pitugues';
+}
+
+/** Valida se o gerenciador de pacotes informado é 'npm', 'yarn' ou 'bun'. */
+export function validarGerenciadorDePacotes(
+    gerenciador: string | undefined
+): gerenciador is 'npm' | 'yarn' | 'bun' {
+    return gerenciador === 'npm' || gerenciador === 'yarn' || gerenciador === 'bun';
+}
