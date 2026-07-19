@@ -14,6 +14,7 @@ import {
     SimboloInterface,
     VariavelInterface
 } from '@designliquido/delegua/interfaces';
+import { ErroConfiguracao } from './infraestrutura/centro-configuracoes/erro-configuracao';
 import { RetornoLexadorInterface } from '@designliquido/delegua/interfaces/retornos/retorno-lexador-interface';
 import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, LexadorPitugues, Simbolo } from '@designliquido/delegua/lexador';
@@ -246,7 +247,11 @@ export class Liquido implements LiquidoInterface {
                 }
             }
         } catch (error) {
-            console.error(error);
+            if (error instanceof ErroConfiguracao) {
+                console.error(`[Liquido] Erro de configuração: ${error.message}`);
+            } else {
+                console.error(error);
+            }
         }
     }
 

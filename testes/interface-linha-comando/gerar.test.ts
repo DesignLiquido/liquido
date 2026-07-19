@@ -20,6 +20,7 @@ describe('Testes das funções geradoras de interface de linha de comando', () =
 
     describe('obterTodosModelos', () => {
         it('deve retornar modelos com extensão .delegua', () => {
+            (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(true);
             (sistemaArquivos.readdirSync as jest.Mock).mockReturnValue([
                 'usuario.delegua',
                 'produto.delegua',
@@ -32,12 +33,20 @@ describe('Testes das funções geradoras de interface de linha de comando', () =
         });
 
         it('deve retornar lista vazia quando não há arquivos .delegua', () => {
+            (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(true);
             (sistemaArquivos.readdirSync as jest.Mock).mockReturnValue([
                 'README.md',
                 'package.json'
             ]);
             const modelos = obterTodosModelos();
             expect(modelos).toHaveLength(0);
+        });
+
+        it('deve retornar lista vazia quando o diretório modelos não existe', () => {
+            (sistemaArquivos.existsSync as jest.Mock).mockReturnValue(false);
+            const modelos = obterTodosModelos();
+            expect(modelos).toHaveLength(0);
+            expect(sistemaArquivos.readdirSync).not.toHaveBeenCalled();
         });
     });
 

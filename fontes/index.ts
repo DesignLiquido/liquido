@@ -61,10 +61,18 @@ class LiquidoPontoEntrada {
     async comandoGerar(
         args: yargs.ArgumentsCamelCase<ComandoGerarInterface>
     ) {
-        let nomeModelo = args.modelo
+        let nomeModelo = args.modelo;
 
         if (nomeModelo === undefined || nomeModelo.length <= 0) {
             const opcoesModelos = obterTodosModelos()
+
+            if (opcoesModelos.length === 0) {
+                console.error(red(
+                    'Erro: Nenhum modelo encontrado.\n' +
+                    'Certifique-se de que o diretório "modelos/" existe e contém arquivos .delegua.'
+                ));
+                process.exit(1);
+            }
 
             const respostaNomeModelo = await prompts({
                 type: 'select',
@@ -75,6 +83,22 @@ class LiquidoPontoEntrada {
             });
 
             nomeModelo = respostaNomeModelo.nomeModelo;
+        }
+
+        if (!nomeModelo) {
+            console.error(red(
+                'Erro: Nome do modelo não informado.\n' +
+                'Uso: liquido gerar [modelo]'
+            ));
+            process.exit(1);
+        }
+
+        const caminhoModelo = path.join(process.cwd(), 'modelos', `${nomeModelo}.delegua`);
+        if (!fs.existsSync(caminhoModelo)) {
+            console.error(red(
+                `Erro: Arquivo de modelo não encontrado: ${caminhoModelo}`
+            ));
+            process.exit(1);
         }
 
         const declaracoes = await importarModelos(nomeModelo);

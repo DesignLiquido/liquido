@@ -18,10 +18,10 @@ export class ProvedorLincones implements ProvedorInterface {
     configurar(nome: string, valor: string): void {
         switch (nome) {
             case 'tecnologia':
-                this.tecnologia = valor;
+                this.tecnologia = valor || "";
                 break;
             case 'caminho':
-                this.caminho = valor;
+                this.caminho = valor || "";
                 break;
         }
     }
