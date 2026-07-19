@@ -14,6 +14,7 @@ import { devolverVariavelAmbiente } from '../utilidades/variaveis-ambiente';
 import { MetodoRoteador } from './metodo-roteador';
 import { AutoDocumentador } from '../auto-documentacao/auto-documentador';
 import { RoteadorInterface } from '../../interfaces/roteador-interface';
+import { Server } from 'http';
 
 /**
  * O roteador é a classe que monta todas as rotas em que a aplicação irá trabalhar.
@@ -308,8 +309,36 @@ export class Roteador implements RoteadorInterface {
             this.adicionarRotaToken();
         }
 
-        this.aplicacao.listen(this.porta, () => {
-            console.log(`Aplicação iniciada na porta ${this.porta}`);
+        this.iniciarNaPorta(this.porta);
+    }
+
+    private iniciarNaPorta(porta: number) {
+        const servidor: Server = this.aplicacao.listen(porta, () => {
+            console.log(`Aplicação iniciada na porta ${porta}`);
+        });
+
+        servidor.on('error', (erro: NodeJS.ErrnoException) => {
+            if (erro.code === 'EADDRINUSE') {
+                console.error(
+                    `\n[Liquido] Erro: A porta ${porta} já está em uso.\n` +
+                    `Para liberar a porta, encerre o processo que está usando-a:\n` +
+                    `  netstat -ano | findstr :${porta}\n` +
+                    `  taskkill /PID <PID> /F\n\n` +
+                    `Ou defina outra porta na variável de ambiente PORTA:\n` +
+                    `  set PORTA=${porta + 1}   (Windows)\n` +
+                    `  export PORTA=${porta + 1}  (Linux/Mac)\n` +
+                    `Ou crie um arquivo .env com:\n` +
+                    `  PORTA=${porta + 1}\n`
+                );
+                process.exit(1);
+            } else {
+                console.error(`[Liquido] Erro ao iniciar servidor na porta ${porta}:`, erro.message);
+                process.exit(1);
+            }
+        });
+
+        servidor.on('listening', () => {
+            servidor.removeAllListeners('error');
         });
     }
 }
