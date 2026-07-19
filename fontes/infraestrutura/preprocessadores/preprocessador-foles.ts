@@ -35,8 +35,15 @@ export class PreprocessadorFolEs {
 
             if (estilos.length > 0) {
                 for (const estilo of estilos) {
-                    const estiloConvertido = this.foles.converterTextoParaCss(estilo);
-                    cabeca.push({ style: [estiloConvertido] });
+                    try {
+                        const estiloConvertido = this.foles.converterTextoParaCss(estilo);
+                        cabeca.push({ style: [estiloConvertido] });
+                    } catch (erro: any) {
+                        console.error(
+                            `[Liquido] Erro ao processar estilo no LMHT: ${erro.message || erro}. ` +
+                            `O estilo será ignorado, mas a página continuará sendo renderizada.`
+                        );
+                    }
                 }
                 
                 // TODO: Melhorar essa lógica. Isso pode excluir outra coisa que não uma tag de estilo.
