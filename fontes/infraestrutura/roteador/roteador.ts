@@ -4,6 +4,7 @@ import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import jwt from 'jwt-simple';
+import { match } from 'path-to-regexp';
 import morgan from 'morgan';
 import redoc from 'redoc-express';
 
@@ -24,6 +25,7 @@ export class Roteador implements RoteadorInterface {
     autoDocumentador: AutoDocumentador;
     porta: number;
     mapaRotas: {[metodo: string]: (caminho: string, execucao: (req: Request, res: Response) => void) => void};
+    private mapaCaminhosMetodos: Map<string, Set<string>>;
 
     morgan = false;
     helmet = false;
@@ -42,6 +44,7 @@ export class Roteador implements RoteadorInterface {
         this.autoDocumentador = autoDocumentador;
         
         this.mapaRotas = {};
+        this.mapaCaminhosMetodos = new Map();
         this.mapaRotas[MetodoRoteador.Get] = this.rotaGet.bind(this);
         this.mapaRotas[MetodoRoteador.Post] = this.rotaPost.bind(this);
         this.mapaRotas[MetodoRoteador.Put] = this.rotaPut.bind(this);
@@ -211,52 +214,94 @@ export class Roteador implements RoteadorInterface {
         this.morgan = valor;
     }
 
+    private registrarMetodoCaminho(caminho: string, metodo: string) {
+        if (!this.mapaCaminhosMetodos.has(caminho)) {
+            this.mapaCaminhosMetodos.set(caminho, new Set());
+        }
+        this.mapaCaminhosMetodos.get(caminho)!.add(metodo);
+    }
+
     rotaGet(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.get(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'GET');
     }
 
     rotaPost(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.post(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'POST');
     }
 
     rotaPut(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.put(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'PUT');
     }
 
     rotaPatch(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.patch(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'PATCH');
     }
 
     rotaDelete(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.delete(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'DELETE');
     }
 
     rotaOptions(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.options(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'OPTIONS');
     }
 
     rotaCopy(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.copy(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'COPY');
     }
 
     rotaHead(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.head(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'HEAD');
     }
 
     rotaLock(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.lock(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'LOCK');
     }
 
     rotaUnlock(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.unlock(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'UNLOCK');
     }
 
     rotaPurge(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.purge(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'PURGE');
     }
 
     rotaPropfind(caminho: string, execucao: (req: Request, res: Response) => void) {
         this.aplicacao.propfind(caminho, execucao);
+        this.registrarMetodoCaminho(caminho, 'PROPFIND');
+    }
+
+    adicionarTratamentoMetodoNaoPermitido() {
+        const metodosPorCaminho = this.mapaCaminhosMetodos;
+        const matches = Array.from(metodosPorCaminho.entries()).map(([caminho, metodos]) => ({
+            match: match(caminho, { decode: decodeURIComponent }),
+            metodos
+        }));
+
+        this.aplicacao.use((req: Request, res: Response, next: NextFunction) => {
+            for (const { match: matcher, metodos } of matches) {
+                if (matcher(req.path)) {
+                    if (!metodos.has(req.method)) {
+                        const allow = Array.from(metodos).join(', ');
+                        res.set('Allow', allow);
+                        res.status(405).json({ erro: 'Método não permitido', metodosAceitos: allow });
+                        return;
+                    }
+                    break;
+                }
+            }
+            next();
+        });
     }
 
     adicionarRotaToken() {
