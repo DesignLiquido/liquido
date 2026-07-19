@@ -98,7 +98,7 @@ class LiquidoPontoEntrada {
         }
 
         for (const declaracao of declaracoes) {
-            const declaracaoModelo = <Classe>declaracao
+            const declaracaoModelo = declaracao as Classe
             const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
             const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 
