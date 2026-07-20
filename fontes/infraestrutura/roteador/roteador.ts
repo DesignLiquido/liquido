@@ -303,6 +303,118 @@ export class Roteador implements RoteadorInterface {
         }
     }
 
+    private montarPaginaNaoEncontradaHtml(metodo: string, caminho: string): string {
+        return `<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página não encontrada — Líquido</title>
+    <style>
+        :root {
+            --fundo: #f4f6f8;
+            --texto: #333;
+            --azul-topo: #4a90d9;
+            --branco: #ffffff;
+            --borda: #e1e4e8;
+            --fundo-codigo: #2d2d2d;
+            --texto-codigo: #f8f8f2;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fundo);
+            color: var(--texto);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .cabecalho {
+            background-color: var(--azul-topo);
+            color: var(--branco);
+            padding: 40px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+        h2 {
+            color: var(--azul-topo);
+            border-bottom: 2px solid #cce0ff;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.5rem;
+        }
+        .conteudo {
+            padding: 20px;
+        }
+        pre {
+            background-color: var(--fundo-codigo);
+            color: var(--texto-codigo);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .dica {
+            background: var(--branco);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="cabecalho">
+        <div class="container">
+            <h1>Página não encontrada</h1>
+        </div>
+    </div>
+    <div class="container conteudo">
+        <h2>Detalhes da requisição</h2>
+        <pre>${metodo} ${caminho}</pre>
+        <div class="dica">
+            <strong>Dica:</strong> Verifique se o endereço digitado está correto.
+            Utilize a ferramenta de documentação em <a href="/docs">/docs</a>
+            para consultar as rotas disponíveis.
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    adicionarTratamentoNaoEncontrado() {
+        this.aplicacao.use((req: Request, res: Response) => {
+            const preferenciaAceite = req.headers['accept'] || '';
+            const prefereJson = preferenciaAceite.includes('application/json')
+                || preferenciaAceite.includes('application/*')
+                || preferenciaAceite.includes('*/*');
+            const caminhoNormalizado = req.path || req.originalUrl || '/';
+
+            if (prefereJson) {
+                res.status(404).json({
+                    erro: 'Rota não encontrada',
+                    caminho: caminhoNormalizado,
+                    metodo: req.method
+                });
+                return;
+            }
+
+            const pagina = this.montarPaginaNaoEncontradaHtml(req.method, caminhoNormalizado);
+            res.status(404).type('text/html; charset=utf-8').send(pagina);
+        });
+    }
+
     iniciar() {
         if (this.passport === true) {
             this.adicionarRotaToken();

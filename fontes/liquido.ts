@@ -145,6 +145,7 @@ export class Liquido implements LiquidoInterface {
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 
+        this.roteador.adicionarTratamentoNaoEncontrado();
         this.roteador.iniciar();
 
         if (this.centroConfiguracoes?.liquido?.arquetipo !== 'rest') {
