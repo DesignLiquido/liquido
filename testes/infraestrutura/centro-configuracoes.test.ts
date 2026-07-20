@@ -81,6 +81,25 @@ describe('Testes das classes de configuração', () => {
             expect(provedorLincones.configurar).toHaveBeenCalledWith('tecnologia', 'sqlite');
             expect(provedorLincones.configurar).toHaveBeenCalledWith('caminho', './banco.db');
         });
+
+        it('deve lançar ErroConfiguracao quando apenas tecnologia está definido', () => {
+            const config = new ConfiguracaoLincones({ tecnologia: 'sqlite' });
+            expect(() => config.configurar({ provedorLincones: { configurar: jest.fn() } }))
+                .toThrow(ErroConfiguracao);
+        });
+
+        it('deve lançar ErroConfiguracao quando apenas caminho está definido', () => {
+            const config = new ConfiguracaoLincones({ caminho: './banco.db' });
+            expect(() => config.configurar({ provedorLincones: { configurar: jest.fn() } }))
+                .toThrow(ErroConfiguracao);
+        });
+
+        it('deve pular configuração quando tecnologia e caminho não estão definidos', () => {
+            const config = new ConfiguracaoLincones();
+            const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };
+            expect(() => config.configurar({ provedorLincones })).not.toThrow();
+            expect(provedorLincones.configurar).not.toHaveBeenCalled();
+        });
     });
 
     describe('ConfiguracaoDados', () => {
@@ -122,11 +141,20 @@ describe('Testes das classes de configuração', () => {
             expect(config.arquivoInicializacao).toBe('banco-inicial.lincones');
         });
 
-        it('deve delegar configurar para lincones', () => {
+        it('deve delegar configurar para lincones quando tecnologia e caminho estão definidos', () => {
             const config = new ConfiguracaoDados();
+            config.definirValor(config, ['dados', 'lincones', 'tecnologia'], 'sqlite');
+            config.definirValor(config, ['dados', 'lincones', 'caminho'], './banco.db');
             const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };
             config.configurar({ provedorLincones });
             expect(provedorLincones.configurar).toHaveBeenCalled();
+        });
+
+        it('não deve chamar provedorLincones quando tecnologia e caminho não estão definidos', () => {
+            const config = new ConfiguracaoDados();
+            const provedorLincones = { configurar: jest.fn(), configurado: false, resolver: jest.fn() };
+            config.configurar({ provedorLincones });
+            expect(provedorLincones.configurar).not.toHaveBeenCalled();
         });
     });
 
@@ -287,6 +315,8 @@ describe('Testes das classes de configuração', () => {
 
         it('deve delegar configurar para as três configurações aninhadas', () => {
             const config = new ConfiguracaoLiquido();
+            config.definirValor(config, ['liquido', 'dados', 'lincones', 'tecnologia'], 'sqlite');
+            config.definirValor(config, ['liquido', 'dados', 'lincones', 'caminho'], './banco.db');
             const autoDocumentador = { nomeAplicacao: '', versao: '', descricao: '', nomeLicenca: '', urlLicensa: '', documentar: jest.fn() };
             const roteador = {
                 ativarDesativarBodyParser: jest.fn(),

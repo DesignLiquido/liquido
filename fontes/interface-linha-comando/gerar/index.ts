@@ -22,6 +22,10 @@ export function obterTodosModelos(): { title: string, value: string }[] {
     const diretorioModelos = caminho.join(process.cwd(), 'modelos');
     const opcoesModelos: { title: string; value: string }[] = [];
 
+    if (!sistemaArquivos.existsSync(diretorioModelos)) {
+        return opcoesModelos;
+    }
+
     sistemaArquivos.readdirSync(diretorioModelos).forEach((arquivo) => {
         if (arquivo.endsWith('.delegua')) {
             const prefixoArquivo = arquivo.split('.')[0];

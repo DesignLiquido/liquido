@@ -26,6 +26,17 @@ describe('Testes do provedor Lincones', () => {
     expect(provedor.configurado).toBeTruthy();
   });
 
+  it('undefined não deve corromper a invariante configurado', () => {
+    provedor.configurar('tecnologia', undefined as any);
+    expect(provedor.configurado).toBeFalsy();
+    expect(provedor.tecnologia).toBe('');
+  });
+
+  it('strings vazias não devem tornar configurado true', () => {
+    provedor.configurar('caminho', '');
+    expect(provedor.configurado).toBeFalsy();
+  });
+
   it('Deve resolver o provedor', async () => {
     provedor.configurar('tecnologia', 'sqlite');
     provedor.configurar('caminho', ':memory:');
