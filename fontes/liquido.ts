@@ -2,7 +2,8 @@ import * as sistemaDeArquivos from 'fs';
 import * as caminho from 'path';
 
 import { AvaliadorSintaticoLiquido, AvaliadorSintaticoLiquidoPitugues } from './infraestrutura/avaliadores-sintaticos';
-import { AcessoMetodo, AcessoMetodoOuPropriedade, Chamada, FuncaoConstruto, Variavel } from '@designliquido/delegua/construtos';
+import { AcessoMetodo, AcessoMetodoOuPropriedade, Chamada, Dicionario, FuncaoConstruto, Variavel, Literal } from '@designliquido/delegua/construtos';
+import { ConstrutoInterface } from '@designliquido/delegua/interfaces';
 import { Expressao, FuncaoDeclaracao } from '@designliquido/delegua/declaracoes'
 import { DeleguaFuncao, ObjetoDeleguaClasse } from '@designliquido/delegua/interpretador/estruturas';
 import { ReferenciaMontao } from '@designliquido/delegua/interpretador/estruturas/referencia-montao';
@@ -15,12 +16,13 @@ import {
     VariavelInterface
 } from '@designliquido/delegua/interfaces';
 import { RetornoLexadorInterface } from '@designliquido/delegua/interfaces/retornos/retorno-lexador-interface';
-import { InformacaoElementoSintatico } from '@designliquido/delegua/informacao-elemento-sintatico';
 import { Lexador, LexadorPitugues, Simbolo } from '@designliquido/delegua/lexador';
 
 import { Importador } from '@designliquido/delegua-node/importador';
 
 import { FolEs } from '@designliquido/foles';
+import { LRUCache } from 'lru-cache';
+import safeStringify from 'safe-stable-stringify';
 
 import { Resposta } from './infraestrutura';
 import { FormatadorLmht } from './infraestrutura/formatadores';
@@ -51,6 +53,10 @@ export class Liquido implements LiquidoInterface {
     centroConfiguracoes!: CentroConfiguracoes;
     autoDocumentador: AutoDocumentador;
     private classeContextoEntidades: any = null;
+    private programasInterpretadorCache: Map<string, Expressao[]> = new Map();
+    private cacheRespostas: LRUCache<string, CorpoResposta>;
+    private descritorClasseRequisicaoCache: Requisicao;
+    private descritorClasseRespostaCache: Resposta;
 
     arquivosDelegua: string[];
     arquivosPitugues: string[];
@@ -73,6 +79,16 @@ export class Liquido implements LiquidoInterface {
         this.diretorioDescobertos = [];
         this.diretorioBase = diretorioBase;
         this.diretorioEstatico = 'publico';
+        this.cacheRespostas = new LRUCache<string, CorpoResposta>({
+            max: 500,
+            ttl: 60_000,
+        });
+
+        // Cria os descritores de classe uma única vez para reuso entre requisições.
+        // O `requisicaoExpress` não é usado pelo interpretador,
+        // então null é seguro para o descritor cacheado.
+        this.descritorClasseRequisicaoCache = new Requisicao(null as any);
+        this.descritorClasseRespostaCache = new Resposta();
 
         this.configurarPipelineLinguagem('delegua');
 
@@ -197,6 +213,10 @@ export class Liquido implements LiquidoInterface {
                 contexto: 'módulo'
             }
         };
+
+        // Limpa os caches ao trocar de linguagem (o interpretador recria o escopo)
+        this.programasInterpretadorCache.clear();
+        this.cacheRespostas.clear();
     }
 
     /**
@@ -631,11 +651,7 @@ export class Liquido implements LiquidoInterface {
      * @param funcaoConstruto O conteúdo da função, declarada no arquivo `.delegua` correspondente.
      */
     async prepararRequisicao(requisicao: any, nomeFuncao: string, funcaoConstruto: FuncaoConstruto): Promise<void> {
-        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('liquido', new InformacaoElementoSintatico('liquido', 'módulo'));
-        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('requisicao', new InformacaoElementoSintatico('requisicao', 'módulo'));
-        this.avaliadorSintatico?.pilhaEscopos.definirInformacoesVariavel('resposta', new InformacaoElementoSintatico('resposta', 'módulo'));
-
-        const descritorClasseRequisicao = new Requisicao(requisicao);
+        const descritorClasseRequisicao = this.descritorClasseRequisicaoCache;
         await descritorClasseRequisicao.chamar(this.interpretador as InterpretadorInterface, []);
 
         const instanciaRequisicao = new ObjetoDeleguaClasse(descritorClasseRequisicao);
@@ -649,7 +665,7 @@ export class Liquido implements LiquidoInterface {
             instanciaRequisicao
         );
 
-        const descritorClasseResposta = new Resposta();
+        const descritorClasseResposta = this.descritorClasseRespostaCache;
         await descritorClasseResposta.chamar(this.interpretador as InterpretadorInterface, []);
         this.interpretador?.pilhaEscoposExecucao.definirVariavel(
             'resposta',
@@ -673,17 +689,21 @@ export class Liquido implements LiquidoInterface {
      */
     async chamarInterpretador(nomeFuncao: string): Promise<RetornoInterpretadorInterface> {
         try {
-            return await this.interpretador?.interpretar(
-                [
+            let programa = this.programasInterpretadorCache.get(nomeFuncao);
+            if (!programa) {
+                programa = [
                     new Expressao(
                         new Chamada(-1, new Variavel(-1, new Simbolo('IDENTIFICADOR', nomeFuncao, null, -1, -1)), [
                             new Variavel(-1, new Simbolo('IDENTIFICADOR', 'requisicao', null, -1, -1)),
                             new Variavel(-1, new Simbolo('IDENTIFICADOR', 'resposta', null, -1, -1))
                         ])
                     )
-                ],
-                true
-            ) || {
+                ];
+
+                this.programasInterpretadorCache.set(nomeFuncao, programa);
+            }
+
+            return await this.interpretador?.interpretar(programa, true) || {
                 erros: [],
                 resultado: []
             } as RetornoInterpretadorInterface;
@@ -1026,6 +1046,202 @@ export class Liquido implements LiquidoInterface {
     }
 
     /**
+     * Analisa estaticamente o corpo de uma função de rota para determinar se pode
+     * ser executada sem o interpretador Delégua.
+     * Uma rota é considerada estática quando:
+     * - Todas as declarações no corpo são Expressao (sem Se, Enquanto, Var, etc.)
+     * - As únicas variáveis referenciadas são 'resposta'
+     * - A cadeia de métodos usa apenas literais como argumentos
+     * - A cadeia usa apenas: enviar, json, status, redirecionar
+     * @returns CorpoResposta pré-computado se a rota for estática, ou null
+     */
+    private static analisarRotaEstatica(
+        funcao: FuncaoConstruto
+    ): CorpoResposta | null {
+        const corpo = funcao.corpo;
+        if (!corpo || corpo.length === 0) return null;
+
+        const acc: {
+            corpoRetorno?: any;
+            statusHttp?: number;
+            tipoConteudo?: string;
+            redirecionamento?: string;
+            lmht?: boolean;
+        } = { statusHttp: 200 };
+
+        for (const decl of corpo) {
+            if (!(decl instanceof Expressao)) {
+                return null; // Tem Se, Var, Enquanto, etc. — não é estática
+            }
+
+            if (!Liquido.analisarCadeiaResposta(decl.expressao, acc)) {
+                return null;
+            }
+        }
+
+        if (acc.lmht) {
+            return null; // LMHT precisa do formatador e req — não é estática
+        }
+
+        return {
+            corpoRetorno: acc.corpoRetorno,
+            statusHttp: acc.statusHttp ?? 200,
+            tipoConteudo: acc.tipoConteudo,
+            redirecionamento: acc.redirecionamento,
+        };
+    }
+
+    /**
+     * Tenta resolver um ConstrutoInterface para um valor JS simples.
+     * Retorna o valor resolvido, ou undefined se não for possível resolver.
+     * Usa `undefined` como sentinela porque `null` é um valor válido
+     * que representa `nulo` em Delégua.
+     */
+    private static resolverConstrutoLiteral(construto: ConstrutoInterface): any {
+        if (construto instanceof Literal) {
+            return construto.valor;
+        }
+
+        if (construto instanceof Dicionario) {
+            if (construto.esSpread?.some(s => s)) {
+                return undefined; // Spread não pode ser resolvido estaticamente
+            }
+
+            const obj: Record<string, any> = {};
+
+            for (let i = 0; i < construto.chaves.length; i++) {
+                const valorResolvido = Liquido.resolverConstrutoLiteral(
+                    construto.valores[i]
+                );
+
+                if (valorResolvido === undefined) {
+                    return undefined; // Valor não-resolvível
+                }
+
+                obj[construto.chaves[i]] = valorResolvido;
+            }
+
+            return obj;
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Percorre recursivamente uma cadeia de métodos encadeados em 'resposta'.
+     * Ex: resposta.enviar("X").status(200)
+     */
+    private static analisarCadeiaResposta(
+        expr: ConstrutoInterface,
+        acc: {
+            corpoRetorno?: any;
+            statusHttp?: number;
+            tipoConteudo?: string;
+            redirecionamento?: string;
+            lmht?: boolean
+        }
+    ): boolean {
+        if (
+            expr instanceof Chamada &&
+            expr.entidadeChamada instanceof AcessoMetodo
+        ) {
+            const acesso = expr.entidadeChamada as AcessoMetodo;
+            const nomeMetodo = acesso.nomeMetodo;
+            const objeto = acesso.objeto;
+
+            // Verifica se todos os argumentos são resolvíveis estaticamente
+            for (const arg of expr.argumentos) {
+                // Referencia variável → não é estático
+                if (arg instanceof Variavel) return false;
+
+                if (
+                    !(arg instanceof Literal) &&
+                    !(arg instanceof Dicionario)
+                ) {
+                    return false; // Construto não suportado
+                }
+
+                // Se é Dicionario, verifica recursivamente todos os valores
+                if (arg instanceof Dicionario) {
+                    for (const valor of arg.valores) {
+                        if (Liquido.resolverConstrutoLiteral(valor) === undefined) {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // Se o objeto é outro Chamada, processa o encadeamento recursivamente
+            if (objeto instanceof Chamada) {
+                if (!Liquido.analisarCadeiaResposta(objeto, acc)) {
+                    return false;
+                }
+            } else if (
+                !(objeto instanceof Variavel &&
+                  objeto.simbolo.lexema === 'resposta')
+            ) {
+                return false; // Objeto não é 'resposta' nem encadeamento
+            }
+
+            // Aplica o método atual no acumulador
+            const args = expr.argumentos;
+            switch (nomeMetodo) {
+                case 'enviar':
+                    if (args.length >= 1 && args[0] instanceof Literal) {
+                        acc.corpoRetorno = args[0].valor;
+                        acc.tipoConteudo = acc.tipoConteudo || 'TEXTO';
+
+                        return true;
+                    }
+
+                    return false;
+                case 'json':
+                    if (args.length >= 1) {
+                        if (args[0] instanceof Literal) {
+                            acc.corpoRetorno = args[0].valor;
+                            acc.tipoConteudo = 'JSON';
+                            return true;
+                        }
+                        if (args[0] instanceof Dicionario) {
+                            const obj = Liquido.resolverConstrutoLiteral(args[0]);
+                            if (obj !== undefined) {
+                                acc.corpoRetorno = obj;
+                                acc.tipoConteudo = 'JSON';
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                case 'status':
+                    if (args.length >= 1 && args[0] instanceof Literal) {
+                        acc.statusHttp = args[0].valor as number;
+
+                        return true;
+                    }
+
+                    return false;
+                case 'redirecionar':
+                    if (args.length >= 1 && args[0] instanceof Literal) {
+                        acc.redirecionamento = args[0].valor as string;
+
+                        return true;
+                    }
+
+                    return false;
+                case 'lmht':
+                    // LMHT precisa do formatador com dados de requisição — não é estático
+                    acc.lmht = true;
+                    return false;
+                default:
+                    return false; // Método desconhecido
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Verifica se uma resposta foi definida pelo middleware ou handler.
      * @param corpoEStatus O objeto de resposta retornado pelo interpretador.
      * @returns Verdadeiro se alguma resposta foi definida, falso caso contrário.
@@ -1108,11 +1324,29 @@ export class Liquido implements LiquidoInterface {
             this.rotasPitugues.push(caminhoRota);
         }
 
+        // Analisa o handler em tempo de startup para bypass do interpretador
+        const corpoEstatico = middlewares.length === 0
+            ? Liquido.analisarRotaEstatica(handler)
+            : null;
+
+        if (corpoEstatico && this.centroConfiguracoes?.liquido?.verboso) {
+            console.log(`[Liquido] Fast Path ativado para ${metodoResolvido.toUpperCase()} ${caminhoRota}`);
+        }
+
         registradorRota(caminhoRota, async (req, res) => {
-            const inicioRequisicao = process.hrtime.bigint();
-            const duracaoMs = () => (Number(process.hrtime.bigint() - inicioRequisicao) / 1e6).toFixed(3);
+            const { method, path } = req;
+            let inicioRequisicao: bigint | undefined;
+
+            const duracaoMs = () => {
+                if (inicioRequisicao === undefined) {
+                    inicioRequisicao = process.hrtime.bigint();
+                }
+
+                return (Number(process.hrtime.bigint() - inicioRequisicao) / 1e6).toFixed(3);
+            }
 
             let corpoEStatus: CorpoResposta = {};
+            let respostaDefinida = false;
 
             // Executa middlewares em sequência
             for (let i = 0; i < middlewares.length; i++) {
@@ -1121,43 +1355,105 @@ export class Liquido implements LiquidoInterface {
 
                 corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, middleware, nomeMiddleware, arquivoFonteRelativo);
 
-                // Se o middleware enviou uma resposta, para a execução
-                if (this.respostaFoiDefinida(corpoEStatus)) {
+                respostaDefinida = this.respostaFoiDefinida(corpoEStatus);
+                if (respostaDefinida) {
                     break;
                 }
             }
 
-            // Se nenhum middleware enviou resposta, executa o handler final
-            if (!this.respostaFoiDefinida(corpoEStatus)) {
-                corpoEStatus = await this.executarFuncaoRota(req, caminhoRota, handler, `handler_${metodoRoteador}`, arquivoFonteRelativo);
+            if (!respostaDefinida) {
+                if (corpoEstatico) {
+                    // Usa resposta pré-computada, sem interpretador
+                    corpoEStatus = corpoEstatico;
+                } else {
+                    // Tenta cache LRU primeiro
+                    const chaveCache = `${method}:${path}:${safeStringify(req.params || {})}`;
+                    const corpoCacheado = this.cacheRespostas.get(chaveCache);
+
+                    if (corpoCacheado) {
+                        corpoEStatus = corpoCacheado;
+                    } else {
+                        // Interpretador normal
+                        corpoEStatus = await this.executarFuncaoRota(
+                            req,
+                            caminhoRota,
+                            handler,
+                            `handler_${metodoRoteador}`,
+                            arquivoFonteRelativo
+                        );
+
+                        // Cacheia apenas respostas de sucesso sem redirecionamento
+                        if (
+                            corpoEStatus.corpoRetorno !== undefined &&
+                            corpoEStatus.statusHttp !== undefined &&
+                            corpoEStatus.statusHttp < 300 &&
+                            !corpoEStatus.redirecionamento &&
+                            !corpoEStatus.tipoConteudo?.includes('HTML')
+                        ) {
+                            this.cacheRespostas.set(chaveCache, corpoEStatus);
+                        }
+                    }
+                }
             }
 
             // Envia a resposta
+            const modoVerboso = this.centroConfiguracoes?.liquido?.verboso;
+
             if (corpoEStatus.redirecionamento) {
                 res.redirect(corpoEStatus.redirecionamento);
-                console.log(`[Liquido] ${req.method} ${req.path} → redirecionado para ${corpoEStatus.redirecionamento} (${duracaoMs()} ms)`);
+
+                if (modoVerboso) {
+                    console.log(
+                        `[Liquido] ${method} ${path} → redirecionado para ${corpoEStatus.redirecionamento} (${duracaoMs()} ms)`
+                    );
+                }
             } else if (corpoEStatus.statusHttp === 204) {
                 res.status(204).end();
-                console.log(`[Liquido] ${req.method} ${req.path} → aceito (204) (${duracaoMs()} ms)`);
+
+                if (modoVerboso) {
+                    console.log(
+                        `[Liquido] ${method} ${path} → aceito (204) (${duracaoMs()} ms)`
+                    );
+                }
             } else {
                 const statusResposta = corpoEStatus.statusHttp ?? 200;
+
                 if (corpoEStatus.tipoConteudo === 'JSON') {
-                    res.status(statusResposta).json(corpoEStatus.corpoRetorno);
+                    res
+                        .status(statusResposta)
+                        .json(corpoEStatus.corpoRetorno);
                 } else if (corpoEStatus.tipoConteudo === 'HTML') {
-                    res.status(statusResposta).type('text/html').send(corpoEStatus.corpoRetorno);
+                    res
+                        .status(statusResposta)
+                        .type('text/html')
+                        .send(corpoEStatus.corpoRetorno);
                 } else {
                     const corpo = corpoEStatus.corpoRetorno;
                     const corpoString = typeof corpo === 'string' ? corpo : String(corpo ?? '');
+
                     if (/^\s*<\?xml/.test(corpoString)) {
-                        res.status(statusResposta).type('application/xml').send(corpoString);
+                        res
+                            .status(statusResposta)
+                            .type('application/xml')
+                            .send(corpoString);
                     } else {
-                        res.status(statusResposta).type('text/plain').send(corpoString);
+                        res
+                            .status(statusResposta)
+                            .type('text/plain')
+                            .send(corpoString);
                     }
                 }
-                if (statusResposta >= 500) {
-                    console.error(`[Liquido] ${req.method} ${req.path} → rejeitado (${statusResposta}) (${duracaoMs()} ms)`);
-                } else {
-                    console.log(`[Liquido] ${req.method} ${req.path} → aceito (${statusResposta}) (${duracaoMs()} ms)`);
+
+                if (modoVerboso || statusResposta >= 500) {
+                    if (statusResposta >= 500) {
+                        console.error(
+                            `[Liquido] ${method} ${path} → rejeitado (${statusResposta}) (${duracaoMs()} ms)`
+                        );
+                    } else {
+                        console.log(
+                            `[Liquido] ${method} ${path} → aceito (${statusResposta}) (${duracaoMs()} ms)`
+                        );
+                    }
                 }
             }
         });

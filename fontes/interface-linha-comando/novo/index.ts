@@ -2,6 +2,7 @@ import { execSync } from 'child_process';
 import { async as glob } from 'fast-glob';
 import sistemaArquivos from 'fs';
 import caminho from 'path';
+import safeStringify from 'safe-stable-stringify';
 
 export function criarDiretorioAplicacao(nomeAplicacao: string): string {
     const caminhoDiretorioProjeto = process.cwd() + caminho.sep + nomeAplicacao;
@@ -125,7 +126,7 @@ export async function detectarGerenciadorDePacotes(
 
                 await sistemaArquivos.promises.writeFile(
                     caminhoPackageJson,
-                    JSON.stringify(conteudoPackageJson, null, 2) + '\n'
+                    safeStringify(conteudoPackageJson, null, 2) + '\n'
                 );
             }
 
@@ -146,7 +147,7 @@ async function adicionarScriptsLiquido(caminhoPackageJson: string) {
 
     await sistemaArquivos.promises.writeFile(
         caminhoPackageJson,
-        JSON.stringify(packageJson, null, 2) + '\n'
+        safeStringify(packageJson, null, 2) + '\n'
     );
 }
 
