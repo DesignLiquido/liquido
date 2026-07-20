@@ -2,6 +2,8 @@ import * as sistemaArquivos from 'fs';
 import caminho from 'path';
 import { yellow } from 'chalk';
 
+import safeStringify from 'safe-stable-stringify';
+
 import { AutoDocumentador } from '../../infraestrutura/auto-documentacao/auto-documentador';
 
 /**
@@ -34,7 +36,10 @@ export async function documentar(caminhoSaida?: string): Promise<void> {
     }
 
     const caminhoArquivoSaida = caminhoSaida || caminho.join(process.cwd(), 'openapi.json');
-    sistemaArquivos.writeFileSync(caminhoArquivoSaida, JSON.stringify(documento, undefined, 4) + '\n');
+    sistemaArquivos.writeFileSync(
+        caminhoArquivoSaida,
+        safeStringify(documento, undefined, 4) + '\n'
+    );
 
     console.log(
         `Documentação OpenAPI gerada com ${rotasDocumentadas.length} rota(s) em: ${caminhoArquivoSaida}`
