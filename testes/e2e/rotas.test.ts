@@ -78,6 +78,54 @@ describe('E2E Integration Tests - Routing & MIME Types', () => {
         });
     });
 
+    describe('405 Method Not Allowed', () => {
+        it('Deve retornar 405 com Allow header para PUT em rota só-GET+POST', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .put('/api/clientes/42')
+                .expect(405);
+
+            expect(response.headers['allow']).toBeDefined();
+            expect(response.headers['allow']).toMatch(/GET/);
+            expect(response.headers['allow']).toMatch(/POST/);
+            expect(response.body).toHaveProperty('erro');
+            expect(response.body).toHaveProperty('metodosAceitos');
+        });
+
+        it('Deve retornar 405 com Allow header para DELETE em rota só-GET+POST', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .delete('/api/clientes/99')
+                .expect(405);
+
+            expect(response.headers['allow']).toBeDefined();
+            expect(response.headers['allow']).toMatch(/GET/);
+            expect(response.headers['allow']).toMatch(/POST/);
+        });
+
+        it('Deve retornar 404 para caminho inexistente (sem Allow header)', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .get('/api/caminho-inexistente')
+                .expect(404);
+
+            expect(response.headers['allow']).toBeUndefined();
+        });
+
+        it('Deve manter GET funcionando em rota com GET registrado', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .get('/api/clientes/42')
+                .expect(200);
+
+            expect(response.text).toContain('Teste com ID');
+        });
+
+        it('Deve manter POST funcionando em rota com POST registrado', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .post('/api/clientes/99')
+                .expect(200);
+
+            expect(response.body).toEqual({ id: '99' });
+        });
+    });
+
     describe('REST API Routes', () => {
         it('should return 204 No Content for empty response with no body content', async () => {
             const response = await request(liquido.roteador.aplicacao)

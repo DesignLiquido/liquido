@@ -161,6 +161,7 @@ export class Liquido implements LiquidoInterface {
         this.roteador.iniciarMiddlewares();
         await this.importarArquivosRotas();
 
+        this.roteador.adicionarTratamentoMetodoNaoPermitido();
         this.roteador.adicionarTratamentoNaoEncontrado();
         this.roteador.iniciar();
 
