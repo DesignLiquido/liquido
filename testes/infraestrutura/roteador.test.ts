@@ -2,6 +2,10 @@ import { AutoDocumentador } from '../../fontes/infraestrutura/auto-documentacao/
 import { Roteador } from '../../fontes/infraestrutura/roteador';
 
 jest.mock('express', () => {
+  const servidorMock = {
+    on: jest.fn(),
+    removeAllListeners: jest.fn()
+  };
   return () => ({
     use: jest.fn(),
     get: jest.fn(),
@@ -16,7 +20,7 @@ jest.mock('express', () => {
     unlock: jest.fn(),
     purge: jest.fn(),
     propfind: jest.fn(),
-    listen: jest.fn(),
+    listen: jest.fn().mockReturnValue(servidorMock),
     static: jest.fn()
   });
 });
@@ -45,6 +49,30 @@ describe('Testes do roteador', () => {
   it('deve chamar o método iniciar', () => {
     roteador.iniciar();
     expect(roteador.aplicacao.listen).toHaveBeenCalled();
+  });
+
+  it('deve logar erro e sair com código 1 quando EADDRINUSE ocorre', () => {
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const servidorMock = roteador.aplicacao.listen as jest.Mock;
+
+    roteador.iniciar();
+
+    const servidor = servidorMock.mock.results[0].value;
+    const manipuladorErro = servidor.on.mock.calls.find((c: [string, Function]) => c[0] === 'error');
+    expect(manipuladorErro).toBeTruthy();
+
+    const erroEADDRINUSE = new Error('listen EADDRINUSE: address already in use :::3000');
+    (erroEADDRINUSE as any).code = 'EADDRINUSE';
+    manipuladorErro[1](erroEADDRINUSE);
+
+    expect(mockConsoleError).toHaveBeenCalled();
+    expect(mockConsoleError.mock.calls[0][0]).toContain('3000');
+    expect(mockConsoleError.mock.calls[0][0]).toContain('já está em uso');
+    expect(mockExit).toHaveBeenCalledWith(1);
+
+    mockExit.mockRestore();
+    mockConsoleError.mockRestore();
   });
 
   it('deve chamar o método post para adicionandoRotaToken', () => {
