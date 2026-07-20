@@ -79,7 +79,7 @@ export async function gerarRepositorioGit(
 ) {
     if (inicializarRepositorioGit) {
         execSync('git init', { cwd: diretorioProjeto });
-        execSync('git config --global --add safe.directory ' + diretorioProjeto);
+        execSync(`git config --global --add safe.directory "${diretorioProjeto}"`);
 
         const conteudoGitIgnore = 'node_modules/\ndist/\nbuild/\n.env\n.env.local\n.env.development\n.env.production\ncoverage/\n*.log\nnpm-debug.log*\nyarn-debug.log*\nyarn-error.log*\n.DS_Store\nThumbs.db';
         await sistemaArquivos.promises.writeFile(
