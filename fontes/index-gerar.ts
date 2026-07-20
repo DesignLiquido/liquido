@@ -35,7 +35,7 @@ const pontoDeEntradaGerar = async (argumentos: string[]) => {
 
     // Aqui apenas aceitamos declarações de classes. Pode ser mais de uma.
     for (const declaracao of declaracoes.filter((d) => d instanceof Classe)) {
-        const declaracaoModelo = <Classe>declaracao;
+        const declaracaoModelo = declaracao as Classe;
         const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
         const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
 

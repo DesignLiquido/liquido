@@ -146,6 +146,7 @@ export class Liquido implements LiquidoInterface {
         await this.importarArquivosRotas();
 
         this.roteador.adicionarTratamentoMetodoNaoPermitido();
+        this.roteador.adicionarTratamentoNaoEncontrado();
         this.roteador.iniciar();
 
         if (this.centroConfiguracoes?.liquido?.arquetipo !== 'rest') {
@@ -289,6 +290,8 @@ export class Liquido implements LiquidoInterface {
         const linguagemNorm = this.normalizarLinguagem(linguagem);
         const listaDeRotas = sistemaDeArquivos.readdirSync(diretorio);
 
+        const nomeLinguagem = linguagemNorm === 'delegua' ? 'Delégua' : 'Pituguês';
+
         const diretorioDescobertos: string[] = [];
 
         for (const diretorioOuArquivo of listaDeRotas) {
@@ -299,12 +302,26 @@ export class Liquido implements LiquidoInterface {
                     this.arquivosDelegua.push(caminhoAbsoluto);
                     continue;
                 }
+                if (caminhoAbsoluto.endsWith('.pitu')) {
+                    console.warn(
+                        `[Liquido] Arquivo de rota '${caminhoAbsoluto}' ignorado: ` +
+                        `projeto configurado para ${nomeLinguagem}. ` +
+                        `Renomeie para extensão .delegua ou altere a linguagem do projeto.`
+                    );
+                }
             }
 
             if (linguagemNorm === 'pitugues') {
                 if (caminhoAbsoluto.endsWith('.pitu')) {
                     this.arquivosPitugues.push(caminhoAbsoluto);
                     continue;
+                }
+                if (caminhoAbsoluto.endsWith('.delegua')) {
+                    console.warn(
+                        `[Liquido] Arquivo de rota '${caminhoAbsoluto}' ignorado: ` +
+                        `projeto configurado para ${nomeLinguagem}. ` +
+                        `Renomeie para extensão .pitu ou altere a linguagem do projeto.`
+                    );
                 }
             }
 
@@ -355,13 +372,23 @@ export class Liquido implements LiquidoInterface {
         }
 
         for (const arquivo of arquivosEstilos) {
-            const teste = this.foles.converterParaCss(arquivo);
+            let cssGerado: string;
+            try {
+                cssGerado = this.foles.converterParaCss(arquivo);
+            } catch (erro: any) {
+                console.error(
+                    `[Liquido] Erro no arquivo de estilo: ${arquivo} — ${erro.message || erro}. ` +
+                    `Pulando este arquivo.`
+                );
+                continue;
+            }
+
             const arquivoDestino = caminho.join(
                 process.cwd(),
                 `./${diretorioBaseEstilos}`,
                 arquivo.replace('estilos', '').replace('.foles', '.css')
             );
-            sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
+            sistemaDeArquivos.writeFile(arquivoDestino, cssGerado, (erro) => {
                 if (erro) {
                     return console.log(erro);
                 }

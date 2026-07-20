@@ -171,4 +171,30 @@ describe('E2E Integration Tests - Routing & MIME Types', () => {
             expect(response.text).toContain('<?xml version="1.0"?>');
         });
     });
+
+    describe('404 em Português', () => {
+        it('Deve retornar 404 com página HTML em português para navegador', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .get('/rota-inexistente')
+                .expect(404);
+
+            expect(response.headers['content-type']).toMatch(/text\/html/);
+            expect(response.text).toContain('Página não encontrada');
+            expect(response.text).toContain('Líquido');
+            expect(response.text).toContain('lang="pt"');
+        });
+
+        it('Deve retornar 404 em JSON quando Accept for application/json', async () => {
+            const response = await request(liquido.roteador.aplicacao)
+                .get('/rota-inexistente')
+                .set('Accept', 'application/json')
+                .expect(404);
+
+            expect(response.body).toHaveProperty('erro');
+            expect(response.body.erro).toBe('Rota não encontrada');
+            expect(response.body).toHaveProperty('caminho');
+            expect(response.body).toHaveProperty('metodo');
+            expect(response.body.metodo).toBe('GET');
+        });
+    });
 });
