@@ -371,13 +371,23 @@ export class Liquido implements LiquidoInterface {
         }
 
         for (const arquivo of arquivosEstilos) {
-            const teste = this.foles.converterParaCss(arquivo);
+            let cssGerado: string;
+            try {
+                cssGerado = this.foles.converterParaCss(arquivo);
+            } catch (erro: any) {
+                console.error(
+                    `[Liquido] Erro no arquivo de estilo: ${arquivo} — ${erro.message || erro}. ` +
+                    `Pulando este arquivo.`
+                );
+                continue;
+            }
+
             const arquivoDestino = caminho.join(
                 process.cwd(),
                 `./${diretorioBaseEstilos}`,
                 arquivo.replace('estilos', '').replace('.foles', '.css')
             );
-            sistemaDeArquivos.writeFile(arquivoDestino, teste, (erro) => {
+            sistemaDeArquivos.writeFile(arquivoDestino, cssGerado, (erro) => {
                 if (erro) {
                     return console.log(erro);
                 }
