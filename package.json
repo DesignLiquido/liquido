@@ -25,6 +25,7 @@
         "lincones"
     ],
     "license": "MIT",
+    "main": "dist/index.js",
     "delegua": {
         "definicoes": "./definicoes"
     },
