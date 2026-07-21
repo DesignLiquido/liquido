@@ -4,11 +4,11 @@ import sistemaArquivos from 'fs';
 import caminho from 'path';
 
 export function criarDiretorioAplicacao(nomeAplicacao: string): string {
-    const caminhoDiretorioProjeto = process.cwd() + caminho.sep + nomeAplicacao;
+    const caminhoDiretorioProjeto = caminho.resolve(process.cwd(), nomeAplicacao);
 
-    const diretorioJaExiste = sistemaArquivos.existsSync(nomeAplicacao)
+    const diretorioJaExiste = sistemaArquivos.existsSync(caminhoDiretorioProjeto);
     if (!diretorioJaExiste) {
-        sistemaArquivos.mkdirSync(nomeAplicacao);
+        sistemaArquivos.mkdirSync(caminhoDiretorioProjeto, { recursive: true });
         console.log(`Diretório criado: ${caminhoDiretorioProjeto}`);
     } else console.log(`Diretório já existe: ${caminhoDiretorioProjeto}`);
 
@@ -21,32 +21,26 @@ export async function copiarArquivosDeExemploParaNovoProjeto(
     linguagemDeBackEnd: string,
     diretorioProjeto: string
 ) {
-    const diretorioExemplos = caminho.join(
-        __dirname, `../exemplos/${linguagemDeBackEnd}/` + tipoDeProjeto
+    const diretorioExemplos = caminho.resolve(
+        caminho.join(__dirname, `../exemplos/${linguagemDeBackEnd}/${tipoDeProjeto}`)
     );
-    const formatoGlob =
-        (diretorioExemplos + '/**/*.{delegua,pitu,delprops,foles,lmht,md}')
-        .replace(/\\/gi, '/');
 
-    const caminhosArquivos = await glob([formatoGlob], {
+    const caminhosArquivos = await glob('**/*.{delegua,pitu,delprops,foles,lmht,md}', {
+        cwd: diretorioExemplos,
         dot: true,
         absolute: false,
         stats: false,
     });
 
     return Promise.all(
-        caminhosArquivos.map(async (caminhoArquivo) => {
-            const caminhoArquivoResolvido = caminho.resolve(caminhoArquivo);
-
-            const novoCaminhoArquivo = caminhoArquivoResolvido.replace(
-                diretorioExemplos,
-                diretorioProjeto
-            );
+        caminhosArquivos.map(async (caminhoRelativo) => {
+            const caminhoArquivoResolvido = caminho.join(diretorioExemplos, caminhoRelativo);
+            const novoCaminhoArquivo = caminho.join(diretorioProjeto, caminhoRelativo);
 
             await sistemaArquivos.promises.mkdir(
                 caminho.dirname(novoCaminhoArquivo),
                 { recursive: true }
-            )
+            );
 
             if (novoCaminhoArquivo.endsWith('configuracao.delprops')) {
                 let codigoConfiguracaoDelegua = await sistemaArquivos.promises.readFile(
@@ -142,7 +136,7 @@ async function adicionarScriptsLiquido(caminhoPackageJson: string) {
     );
 
     packageJson.scripts ??= {};
-    packageJson.scripts.liquido = 'node ./node_modules/liquido/index.js';
+    packageJson.scripts.liquido = 'liquido';
 
     await sistemaArquivos.promises.writeFile(
         caminhoPackageJson,
