@@ -332,7 +332,7 @@ describe('Liquido', () => {
                     )
                 );
                 expect(conteudoPackageJson.scripts).toHaveProperty(
-                    'liquido', 'node ./node_modules/liquido/index.js'
+                    'liquido', 'liquido'
                 );
             });
 
@@ -370,7 +370,7 @@ describe('Liquido', () => {
                     )
                 );
                 expect(conteudoPackageJson.scripts).toHaveProperty(
-                    'liquido', 'node ./node_modules/liquido/index.js'
+                    'liquido', 'liquido'
                 );
             });
 
@@ -422,7 +422,7 @@ describe('Liquido', () => {
                         'peerDependencies.typescript'
                     );
                     expect(conteudoPackageJson.scripts).toHaveProperty(
-                        'liquido', 'node ./node_modules/liquido/index.js'
+                        'liquido', 'liquido'
                     );
                     expect(
                         sistemaArquivos.existsSync(`${caminhoDiretorioBun}/tsconfig.json`)
