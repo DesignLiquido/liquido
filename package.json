@@ -79,7 +79,6 @@
         "lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
         "lint": "yarn eslint . --ext .ts",
         "prettier-format": "yarn prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
-        "testes": "yarn jest --coverage",
         "testes:w": "yarn jest --runInBand --watchAll",
         "testes:e2e": "yarn jest testes/e2e --no-coverage --verbose",
         "testes:e2e:prepublish": "npm pack && mkdir -p test-sandbox && cd test-sandbox && npm init -y && npm install ../*.tgz && jest ../testes/e2e && cd .. && rm -rf test-sandbox *.tgz",
@@ -87,8 +86,8 @@
         "testes-unitarios": "yarn jest --coverage"
     },
     "dependencies": {
-        "@designliquido/delegua-node": "^1.23.0",
-        "@designliquido/delprops": "^0.1.0",
+        "@designliquido/delegua-node": "^1.23.2",
+        "@designliquido/delprops": "^0.3.0",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.16.1",
         "@designliquido/lincones-js": "^0.2.4",
