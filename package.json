@@ -87,7 +87,7 @@
     },
     "dependencies": {
         "@designliquido/delegua-node": "^1.23.2",
-        "@designliquido/delprops": "^0.3.0",
+        "@designliquido/delprops": "^0.4.0",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.16.1",
         "@designliquido/lincones-js": "^0.2.4",
