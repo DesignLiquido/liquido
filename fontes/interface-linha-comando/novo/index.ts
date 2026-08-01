@@ -101,6 +101,7 @@ export async function detectarGerenciadorDePacotes(
     switch (gerenciadorDePacotes) {
         case 'npm': {
             execSync('npm init -y', { cwd: diretorioProjeto });
+            await permitirScriptsInstalacaoNativos(caminhoPackageJson);
             execSync('npm install liquido@latest', { cwd: diretorioProjeto });
             break;
         }
@@ -129,6 +130,24 @@ export async function detectarGerenciadorDePacotes(
         }
     }
     await adicionarScriptsLiquido(caminhoPackageJson);
+}
+
+// Desde a versão 12, o npm bloqueia por padrão scripts de instalação de
+// dependências transitivas não listadas em "allowScripts" (usados para
+// compilar módulos nativos, como o driver SQLite do Liquido), o que
+// impede o binário de ser gerado e quebra a aplicação em tempo de execução.
+async function permitirScriptsInstalacaoNativos(caminhoPackageJson: string) {
+    const packageJson = JSON.parse(
+        await sistemaArquivos.promises.readFile(caminhoPackageJson, 'utf8')
+    );
+
+    packageJson.allowScripts ??= {};
+    packageJson.allowScripts['better-sqlite3'] = true;
+
+    await sistemaArquivos.promises.writeFile(
+        caminhoPackageJson,
+        safeStringify(packageJson, null, 2) + '\n'
+    );
 }
 
 async function adicionarScriptsLiquido(caminhoPackageJson: string) {
