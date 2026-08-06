@@ -44,4 +44,13 @@ describe('Testes do preprocessador FolEs', () => {
     const resultado = await preprocessador.processar(conteudo);
     expect(resultado).toContain('<style>');
   });
+
+  it('Deve preservar outros filhos de <cabeca> ao converter <estilo> (regressão: shift() descartava irmãos)', async () => {
+    const conteudo = '<lmht><cabeca><titulo>Meu Título</titulo><estilo>corpo { tamanho-fonte: 16px; }</estilo></cabeca></lmht>';
+    const resultado = await preprocessador.processar(conteudo);
+    expect(resultado).toContain('<titulo>Meu Título</titulo>');
+    expect(resultado).toContain('<style>');
+    // Deve haver apenas uma tag <cabeca>, com os dois filhos dentro dela.
+    expect(resultado.match(/<cabeca>/g)?.length).toBe(1);
+  });
 });

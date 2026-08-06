@@ -14,6 +14,10 @@ export class FormatadorLmht {
     preprocessadorHandlebars: PreprocessadorHandlebars;
     preprocessadorLmhtParciais: PreprocessadorLmhtParciais;
     private readonly regexParcial = /<parcial nome="([^"]+)".*?(?:\/>|><\/parcial>)/g;
+    private readonly regexCorpo = /<corpo>([\s\S]*?)<\/corpo>/;
+    private readonly regexCabeca = /<cabeca>([\s\S]*?)<\/cabeca>/;
+    private readonly regexConteudoEspecializado = /<conteudo\s*\/>/;
+    private readonly nomeArquivoLayout = 'base.lmht';
 
     constructor(diretorioBase: string) {
         this.conversorLmht = new ConversorLmht();
@@ -46,6 +50,12 @@ export class FormatadorLmht {
         const arquivoBase: Buffer = sistemaDeArquivos.readFileSync(resolucaoVisao.visaoCorrespondente);
         const conteudoDoArquivo: string = arquivoBase.toString();
         let textoBase = conteudoDoArquivo;
+
+        // Preprocessamento: Layout (base.lmht)
+        const caminhoLayout = this.resolverLayoutCorrespondente(resolucaoVisao.visaoCorrespondente);
+        if (caminhoLayout) {
+            textoBase = this.comporComLayout(caminhoLayout, textoBase);
+        }
 
         if (valores) {
             // Preprocessamento: Parciais
@@ -129,6 +139,74 @@ export class FormatadorLmht {
 
         retorno.visaoCorrespondente = visaoCorrespondente;
         return retorno;
+    }
+
+    /**
+     * Procura o `base.lmht` aplicável a uma visão, subindo do diretório da visão
+     * até a raiz de `visoes`. O primeiro `base.lmht` encontrado (mais próximo da
+     * visão) é o vencedor — layouts não se acumulam/aninham, um `base.lmht` mais
+     * específico sobrescreve por completo o de uma pasta ancestral.
+     * @param caminhoVisao Caminho absoluto do arquivo de visão já resolvido.
+     * @returns Caminho absoluto do `base.lmht` aplicável, ou `undefined` se nenhum existir.
+     */
+    private resolverLayoutCorrespondente(caminhoVisao: string): string | undefined {
+        const diretorioVisoes = caminho.join(this.diretorioBase, 'visoes');
+        let diretorioAtual = caminho.dirname(caminhoVisao);
+
+        while (diretorioAtual.startsWith(diretorioVisoes)) {
+            const candidatoLayout = caminho.join(diretorioAtual, this.nomeArquivoLayout);
+            if (candidatoLayout !== caminhoVisao && sistemaDeArquivos.existsSync(candidatoLayout)) {
+                return candidatoLayout;
+            }
+
+            if (diretorioAtual === diretorioVisoes) {
+                break;
+            }
+
+            diretorioAtual = caminho.dirname(diretorioAtual);
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Compõe o texto de uma visão com seu layout (`base.lmht`).
+     * O `<corpo>` da visão é injetado no marcador `<conteudo/>` do layout, e o
+     * `<cabeca>` da visão (se houver) é anexado ao `<cabeca>` do layout — ambos
+     * sobrevivem, ao invés de um sobrescrever o outro.
+     * @param caminhoLayout Caminho absoluto do `base.lmht` a aplicar.
+     * @param textoPagina Texto bruto da visão (antes de parciais/Handlebars/FolEs).
+     * @returns O texto do layout já com o conteúdo da visão embutido.
+     */
+    private comporComLayout(caminhoLayout: string, textoPagina: string): string {
+        const arquivoLayout: Buffer = sistemaDeArquivos.readFileSync(caminhoLayout);
+        let textoLayout = arquivoLayout.toString();
+
+        if (!this.regexConteudoEspecializado.test(textoLayout)) {
+            throw new Error(
+                `O arquivo de layout '${caminhoLayout}' não contém o marcador '<conteudo/>' ` +
+                `onde o conteúdo da visão deveria ser inserido.`
+            );
+        }
+
+        const corpoPagina = textoPagina.match(this.regexCorpo);
+        const corpoPaginaInterno = corpoPagina ? corpoPagina[1] : '';
+        textoLayout = textoLayout.replace(this.regexConteudoEspecializado, corpoPaginaInterno);
+
+        const cabecaPagina = textoPagina.match(this.regexCabeca);
+        if (cabecaPagina && cabecaPagina[1].trim() !== '') {
+            const cabecaPaginaInterna = cabecaPagina[1];
+            if (this.regexCabeca.test(textoLayout)) {
+                textoLayout = textoLayout.replace(
+                    this.regexCabeca,
+                    (_match, cabecaLayoutInterna) => `<cabeca>${cabecaLayoutInterna}${cabecaPaginaInterna}</cabeca>`
+                );
+            } else {
+                textoLayout = textoLayout.replace('<lmht>', `<lmht><cabeca>${cabecaPaginaInterna}</cabeca>`);
+            }
+        }
+
+        return textoLayout;
     }
 
     /**

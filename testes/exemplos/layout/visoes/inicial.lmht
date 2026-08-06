@@ -1,0 +1,12 @@
+<lmht>
+    <cabeca>
+        <estilo>
+            lmht {
+                tamanho-fonte: 12px;
+            }
+        </estilo>
+    </cabeca>
+    <corpo>
+        <titulo1>Pagina Inicial</titulo1>
+    </corpo>
+</lmht>

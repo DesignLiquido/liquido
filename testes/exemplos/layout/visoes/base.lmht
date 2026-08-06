@@ -1,0 +1,9 @@
+<lmht>
+    <cabeca>
+        <titulo>Layout Raiz</titulo>
+    </cabeca>
+    <corpo>
+        <navegacao>Nav Raiz</navegacao>
+        <conteudo/>
+    </corpo>
+</lmht>

@@ -24,20 +24,19 @@ export class PreprocessadorFolEs {
         }
         
         if (cabeca) {
-            // Procurar por estruturas de estilo.
-            const estilos = [];
+            // Procurar por estruturas de estilo e convertê-las para `style`, preservando
+            // demais filhos de `<cabeca>` (ex: `<titulo>`, vindo de um layout `base.lmht` mesclado).
+            // Antes, a troca era feita empurrando um novo elemento `<cabeca>` no array e removendo
+            // o original com `shift()` — o que descartava qualquer outro filho que não fosse `estilo`.
             for (const elemento of cabeca) {
-                if (elemento.hasOwnProperty('estilo') && elemento.estilo.length > 0) {
-                    estilos.push(elemento.estilo[0]);
-                    break;
+                if (!elemento.hasOwnProperty('estilo') || elemento.estilo.length === 0) {
+                    continue;
                 }
-            }
 
-            if (estilos.length > 0) {
-                for (const estilo of estilos) {
+                const estilosConvertidos: string[] = [];
+                for (const estilo of elemento.estilo) {
                     try {
-                        const estiloConvertido = this.foles.converterTextoParaCss(estilo);
-                        cabeca.push({ style: [estiloConvertido] });
+                        estilosConvertidos.push(this.foles.converterTextoParaCss(estilo));
                     } catch (erro: any) {
                         console.error(
                             `[Liquido] Erro ao processar estilo no LMHT: ${erro.message || erro}. ` +
@@ -45,9 +44,11 @@ export class PreprocessadorFolEs {
                         );
                     }
                 }
-                
-                // TODO: Melhorar essa lógica. Isso pode excluir outra coisa que não uma tag de estilo.
-                cabeca.shift();
+
+                delete elemento.estilo;
+                if (estilosConvertidos.length > 0) {
+                    elemento.style = estilosConvertidos;
+                }
             }
         }
 
