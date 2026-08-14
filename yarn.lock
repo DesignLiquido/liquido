@@ -328,10 +328,10 @@
   resolved "https://registry.npmjs.org/@designliquido/flexoes/-/flexoes-0.1.0.tgz"
   integrity sha512-5CpBpoeU4UgfwAV08pxJrJt5qljPqNQQdEU0DXkOsYcmDi0JcIBRjS/308stDuhsxuYH0AyeKn2wge+McynnoA==
 
-"@designliquido/foles@^0.16.1":
-  version "0.16.1"
-  resolved "https://registry.npmjs.org/@designliquido/foles/-/foles-0.16.1.tgz"
-  integrity sha512-W4gfjGeXcbXV2uFv5O7njwuX4TiZPOk8RQUgwase+Gr3XUqk+UoENTfwFh3F/BnUCk03SjyfY+3woN20jEwjhQ==
+"@designliquido/foles@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.npmjs.org/@designliquido/foles/-/foles-0.17.0.tgz#74c8f7ae7ed0679f199ae3ede23a88c2dff9b0c1"
+  integrity sha512-9mR/vS6sF2W3vX9i7pIPedhSgxIp2duvA5XQOAMsN4RF58309WyfRsqKnwvhstT/e9zHcL24fSRJQ/S3Vc/WXw==
   dependencies:
     commander "^15.0.0"
     vlq "^2.0.4"
