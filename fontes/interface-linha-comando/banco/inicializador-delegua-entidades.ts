@@ -1,7 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as sistemaArquivos from 'fs';
+import * as caminho from 'path';
 import { green, red, yellow } from 'chalk';
-import { TecnologiaLinconesInterface } from '@designliquido/lincones-sqlite/fontes/comum/fontes';
+
+import { TecnologiaLinconesInterface } from '@designliquido/lincones-sqlite/comum/fontes';
 
 type ConstrutorTecnologiaLincones = new () => TecnologiaLinconesInterface;
 
@@ -51,14 +52,14 @@ async function executarMigracoes(
     ExecutorMigracoes: any,
     lincones: TecnologiaLinconesInterface
 ): Promise<void> {
-    const diretorioMigracoes = path.resolve(process.cwd(), 'migracoes');
+    const diretorioMigracoes = caminho.resolve(process.cwd(), 'migracoes');
 
-    if (!fs.existsSync(diretorioMigracoes)) {
+    if (!sistemaArquivos.existsSync(diretorioMigracoes)) {
         console.info(yellow('Diretório "migracoes/" não encontrado. Nenhuma migração executada.'));
         return;
     }
 
-    const arquivos = fs.readdirSync(diretorioMigracoes)
+    const arquivos = sistemaArquivos.readdirSync(diretorioMigracoes)
         .filter(f => f.endsWith('.js') || f.endsWith('.ts'))
         .sort();
 
@@ -72,7 +73,7 @@ async function executarMigracoes(
     let falhas = 0;
 
     for (const arquivo of arquivos) {
-        const caminhoArquivo = path.join(diretorioMigracoes, arquivo);
+        const caminhoArquivo = caminho.join(diretorioMigracoes, arquivo);
         try {
             const modulo = await import(caminhoArquivo);
             const migracao = modulo.default ?? modulo;
@@ -92,14 +93,14 @@ async function executarSementes(
     Semeador: any,
     lincones: TecnologiaLinconesInterface
 ): Promise<void> {
-    const diretorioSementes = path.resolve(process.cwd(), 'sementes');
+    const diretorioSementes = caminho.resolve(process.cwd(), 'sementes');
 
-    if (!fs.existsSync(diretorioSementes)) {
+    if (!sistemaArquivos.existsSync(diretorioSementes)) {
         console.info(yellow('Diretório "sementes/" não encontrado. Nenhuma semente executada.'));
         return;
     }
 
-    const arquivos = fs.readdirSync(diretorioSementes)
+    const arquivos = sistemaArquivos.readdirSync(diretorioSementes)
         .filter(f => f.endsWith('.js') || f.endsWith('.ts'))
         .sort();
 
@@ -110,7 +111,7 @@ async function executarSementes(
 
     const classes: any[] = [];
     for (const arquivo of arquivos) {
-        const caminhoArquivo = path.join(diretorioSementes, arquivo);
+        const caminhoArquivo = caminho.join(diretorioSementes, arquivo);
         try {
             const modulo = await import(caminhoArquivo);
             classes.push(modulo.default ?? modulo);

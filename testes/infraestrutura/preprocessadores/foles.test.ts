@@ -17,9 +17,9 @@ describe('Testes do preprocessador FolEs', () => {
     const esperado = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <lmht>
   <cabeca>
-    <style>body {
+    <style>    body {
     font-size: 22px;
-}
+    }
 
 </style>
   </cabeca>

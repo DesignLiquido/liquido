@@ -1,7 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as sistemaArquivos from 'fs';
+import * as caminho from 'path';
+
 import { green, red, yellow } from 'chalk';
-import { TecnologiaLinconesInterface } from '@designliquido/lincones-sqlite/fontes/comum/fontes';
+import { TecnologiaLinconesInterface } from '@designliquido/lincones-sqlite/comum/fontes';
 
 type ConstrutorTecnologiaLincones = new () => TecnologiaLinconesInterface;
 
@@ -23,13 +24,13 @@ export async function inicializarBancoLincones(
     apenasDados: boolean,
     instanciaExistente?: TecnologiaLinconesInterface
 ): Promise<void> {
-    const caminhoScript = path.resolve(process.cwd(), arquivoScript);
+    const caminhoScript = caminho.resolve(process.cwd(), arquivoScript);
 
-    if (!fs.existsSync(caminhoScript)) {
+    if (!sistemaArquivos.existsSync(caminhoScript)) {
         throw new Error(`Arquivo de inicialização não encontrado: ${caminhoScript}`);
     }
 
-    const conteudo = fs.readFileSync(caminhoScript, 'utf-8');
+    const conteudo = sistemaArquivos.readFileSync(caminhoScript, 'utf-8');
     const enunciados = conteudo
         .split(';')
         .map(e => e.trim())
