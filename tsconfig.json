@@ -19,6 +19,9 @@
         "emitDecoratorMetadata": true,
         "resolveJsonModule": true
     },
+    "include": [
+        "fontes/**/*"
+    ],
     "exclude": [
         "babel.config.js",
         "coverage/**/*",

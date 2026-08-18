@@ -1,16 +1,16 @@
-import { DefinicaoPropriedade } from '@designliquido/delprops';
+import { DefinicaoPropriedadeInterface } from '@designliquido/delprops';
 
 /**
  * Propriedades de configuração de autenticação Líquido (`liquido.autenticacao.*`).
  * Derivadas de {@link ConfiguracaoAutenticacao}.
  */
-const autenticacao: DefinicaoPropriedade[] = [
+const autenticacao: DefinicaoPropriedadeInterface[] = [
     {
         nome: 'tecnologia',
         tipo: 'texto',
         detalhe: 'Tecnologia de autenticação.',
-        valoresPermitidos: ['jwt'],
-    },
+        valoresPermitidos: ['jwt']
+    }
 ];
 
 export default autenticacao;

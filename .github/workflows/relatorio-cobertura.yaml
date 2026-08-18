@@ -2,37 +2,45 @@ name: Relatório de Cobertura
 
 on:
   workflow_run:
-    workflows: [Testes - Principal]
+    workflows: ["Integração Contínua - Principal"]
     types: [completed]
 
 jobs:
   relatorio:
     if: github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
+
     permissions:
       checks: write
       pull-requests: write
       actions: read
 
     steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: relatorio-testes
-        run-id: ${{ github.event.workflow_run.id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-    - id: pr
-      run: echo "number=$(cat pr-number.txt)" >> $GITHUB_OUTPUT
-    - uses: ArtiomTr/jest-coverage-report-action@v2
-      id: coverage
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        coverage-file: report.json
-        base-coverage-file: report.json
-        prnumber: ${{ steps.pr.outputs.number }}
-        skip-step: all
-        output: report-markdown
-    - uses: marocchino/sticky-pull-request-comment@v2
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        number: ${{ steps.pr.outputs.number }}
-        message: ${{ steps.coverage.outputs.report }}
+      - name: Baixar artefatos
+        uses: actions/download-artifact@v4
+        with:
+          name: relatorio-testes
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Ler número do PR
+        id: pr
+        run: echo "number=$(cat pr-number.txt)" >> $GITHUB_OUTPUT
+
+      - name: Gerar relatório
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        id: coverage
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-file: report.json
+          base-coverage-file: report.json
+          prnumber: ${{ steps.pr.outputs.number }}
+          skip-step: all
+          output: report-markdown
+
+      - name: Publicar comentário no PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          number: ${{ steps.pr.outputs.number }}
+          message: ${{ steps.coverage.outputs.report }}

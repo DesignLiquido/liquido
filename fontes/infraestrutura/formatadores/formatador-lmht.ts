@@ -218,7 +218,6 @@ export class FormatadorLmht {
     private resolverValores(valores: {[nome: string]: any}) {
         const valoresResolvidos = {} as {[nome: string]: any};
         for (const [nome, valor] of Object.entries(valores)) {
-            // eslint-disable-next-line no-prototype-builtins
             let valorResolvido = valor.hasOwnProperty('valor') ? valor.valor : valor;
             if (valorResolvido && valorResolvido.constructor === ObjetoDeleguaClasse) {
                 valorResolvido = this.obterPropriedadesDeObjetoComoDicionario(valorResolvido);

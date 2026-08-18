@@ -1,4 +1,9 @@
-let capturedVerify: Function;
+type VerifyCallback = (
+    payload: { id: number },
+    done: (erro: Error | null, usuario: unknown | null) => void
+) => void;
+
+let capturedVerify: VerifyCallback;
 
 jest.mock('passport-jwt', () => {
     const { ExtractJwt } = jest.requireActual('passport-jwt');

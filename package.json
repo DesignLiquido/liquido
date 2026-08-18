@@ -77,17 +77,17 @@
         "publicar-npm": "npm publish --access public",
         "iniciar": "ts-node -r ts-node/register/transpile-only ./fontes/index.ts",
         "lint-ts": "npx tslint -c tslint.json 'infraestrutura/*.ts'  '*.ts' 'interfaces/*.ts'",
-        "lint": "yarn eslint . --ext .ts",
+        "lint": "yarn eslint .",
         "prettier-format": "yarn prettier --config .prettierrc infraestrutura/*.ts interfaces/*.ts *.ts --write",
         "testes:w": "yarn jest --runInBand --watchAll",
         "testes:e2e": "yarn jest testes/e2e --no-coverage --verbose",
         "testes:e2e:prepublish": "npm pack && mkdir -p test-sandbox && cd test-sandbox && npm init -y && npm install ../*.tgz && jest ../testes/e2e && cd .. && rm -rf test-sandbox *.tgz",
         "dev": "ts-node -r ts-node/register/transpile-only ./fontes/index.ts",
-        "testes-unitarios": "yarn jest --coverage"
+        "testes-unitarios": "yarn jest --coverage --testPathIgnorePatterns=/testes/e2e/"
     },
     "dependencies": {
         "@designliquido/delegua-node": "^1.23.2",
-        "@designliquido/delprops": "^0.4.0",
+        "@designliquido/delprops": "0.5.1",
         "@designliquido/flexoes": "^0.1.0",
         "@designliquido/foles": "^0.17.0",
         "@designliquido/lincones-js": "^0.2.4",
