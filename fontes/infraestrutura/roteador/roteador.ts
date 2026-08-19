@@ -341,7 +341,7 @@ export class Roteador implements RoteadorInterface {
                 } else {
                     res.sendStatus(401);
                 }
-            } catch (erro: any) {
+            } catch (_erro: any) {
                 res.sendStatus(401);
             }
         } else {

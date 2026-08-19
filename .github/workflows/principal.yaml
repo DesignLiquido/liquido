@@ -1,28 +1,92 @@
-name: Testes - Principal
+name: Integração Contínua - Principal
 
 on:
   pull_request:
     branches: [principal]
+  push:
+    branches: [principal]
+
+
+permissions:
+  contents: read
 
 jobs:
-  testes-unitarios:
+  checks:
+    name: Verificações
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '24'
-    - run: yarn install
-    - name: Executar testes com cobertura
-      run: yarn testes --ci --json --testLocationInResults --outputFile=report.json
-      continue-on-error: true
-    - run: echo "${{ github.event.number }}" > pr-number.txt
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: relatorio-testes
-        path: |
-          report.json
-          pr-number.txt
-        retention-days: 1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: yarn
+
+      - name: Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build / Empacotamento
+        run: yarn empacotar
+
+  testes-unitarios:
+    name: Testes Unitários
+    needs: checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: yarn
+
+      - name: Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: Executar testes com cobertura
+        run: |
+          yarn testes-unitarios \
+            --ci \
+            --coverageReporters=json-summary \
+            --coverageReporters=text \
+            --json \
+            --testLocationInResults \
+            --outputFile=report.json
+
+      - name: Salvar número do PR
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.number }}" > pr-number.txt
+
+      - name: Salvar artefatos dos testes
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-testes
+          path: |
+            report.json
+            pr-number.txt
+          retention-days: 1
+
+  e2e:
+    name: Testes E2E
+    needs: checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: yarn
+
+      - name: Instalar dependências
+        run: yarn install --frozen-lockfile
+
+      - name: Executar testes E2E
+        run: yarn testes:e2e

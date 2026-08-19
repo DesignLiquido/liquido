@@ -64,6 +64,7 @@ export function inferirTipoVariavel(variavel: any): string {
                 case tipoDeDadosDelegua.VAZIO:
                     return TipoNativoSimbolo.VAZIO;
             }
+        // eslint-disable-next-line no-fallthrough
         case 'function':
         case 'FuncaoPadrao':
             return 'função';

@@ -41,7 +41,6 @@ export class AvaliadorSintaticoLiquidoPitugues extends AvaliadorSintaticoPitugue
             this.avancarEDevolverAnterior();
 
             let nomeDecorador = '';
-            let linha: number;
             const atributos: { [key: string]: any } = {};
 
             const primeiraParteNomeDecorador = this.consumir(
@@ -49,7 +48,7 @@ export class AvaliadorSintaticoLiquidoPitugues extends AvaliadorSintaticoPitugue
                 'Esperado nome de decorador após "@".'
             );
 
-            linha = Number(primeiraParteNomeDecorador.linha);
+            const linha = Number(primeiraParteNomeDecorador.linha);
             nomeDecorador += primeiraParteNomeDecorador.lexema;
 
             while (this.verificarSeSimboloAtualEIgualA(tiposDeSimbolos.PONTO)) {

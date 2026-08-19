@@ -1,9 +1,9 @@
-import { DefinicaoPropriedade } from '@designliquido/delprops';
+import { DefinicaoPropriedadeInterface } from '@designliquido/delprops';
 
 /**
  * Propriedades de configuração da aplicação Líquido (`liquido.aplicacao.*`).
  */
-const aplicacao: DefinicaoPropriedade[] = [
+const aplicacao: DefinicaoPropriedadeInterface[] = [
     {
         nome: 'nome',
         tipo: 'texto',

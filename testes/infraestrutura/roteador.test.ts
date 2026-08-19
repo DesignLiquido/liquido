@@ -59,7 +59,7 @@ describe('Testes do roteador', () => {
     roteador.iniciar();
 
     const servidor = servidorMock.mock.results[0].value;
-    const manipuladorErro = servidor.on.mock.calls.find((c: [string, Function]) => c[0] === 'error');
+    const manipuladorErro = servidor.on.mock.calls.find((c: [string, (erro: Error) => void]) => c[0] === 'error');
     expect(manipuladorErro).toBeTruthy();
 
     const erroEADDRINUSE = new Error('listen EADDRINUSE: address already in use :::3000');
