@@ -50,7 +50,7 @@ export class GeradorRotas {
 
     private criarNovasRotasSemId(declaracaoModelo: Classe, diretorioRotas: string): string {
         const caminhoRotas = caminho.join(diretorioRotas, `inicial${this.extensao}`);
-        sistemaArquivos.writeFileSync(caminhoRotas, this.criarConteudoInicialSemId(declaracaoModelo));
+        sistemaArquivos.writeFileSync(caminhoRotas, this.criarConteudoInicialSemId(declaracaoModelo, diretorioRotas));
         return caminhoRotas;
     }
 
@@ -64,13 +64,13 @@ export class GeradorRotas {
         const diretorioRotasComId = criarDiretorioComIdSeNaoExiste(diretorioRotas);
 
         const caminhoRotasId = caminho.join(diretorioRotasComId, `inicial${this.extensao}`);
-        sistemaArquivos.writeFileSync(caminhoRotasId, this.criarConteudoInicialComId(declaracaoModelo));
+        sistemaArquivos.writeFileSync(caminhoRotasId, this.criarConteudoInicialComId(declaracaoModelo, diretorioRotasComId));
 
         const caminhoRotaEditar = caminho.join(diretorioRotasComId, `editar${this.extensao}`);
-        sistemaArquivos.writeFileSync(caminhoRotaEditar, this.criarConteudoEditar(declaracaoModelo));
+        sistemaArquivos.writeFileSync(caminhoRotaEditar, this.criarConteudoEditar(declaracaoModelo, diretorioRotasComId));
 
         const caminhoRotaExcluir = caminho.join(diretorioRotasComId, `excluir${this.extensao}`);
-        sistemaArquivos.writeFileSync(caminhoRotaExcluir, this.criarConteudoExcluir(declaracaoModelo));
+        sistemaArquivos.writeFileSync(caminhoRotaExcluir, this.criarConteudoExcluir(declaracaoModelo, diretorioRotasComId));
 
         return [caminhoRotasId, caminhoRotaEditar, caminhoRotaExcluir];
     }
@@ -100,7 +100,33 @@ export class GeradorRotas {
         return ' '.repeat(this.indentacao * nivel);
     }
 
-    private criarConteudoInicialSemId(declaracaoModelo: Classe): string {
+    /**
+     * Monta a linha `importar { NomeModelo } de "..."` necessária para o motor
+     * `delegua-entidades`, já que as rotas geradas referenciam a classe do
+     * modelo diretamente (ex.: `contexto.colecao(Artigo)`). Sem essa importação
+     * o analisador semântico não reconhece o nome da classe no arquivo de rota.
+     * @param {Classe} declaracaoModelo O descritor do modelo.
+     * @param {string} diretorioDestino O diretório onde o arquivo de rota será escrito.
+     * @returns {string} A linha de importação (com quebras de linha ao final) ou string vazia se o motor não precisar dela.
+     */
+    private criarLinhaImportacaoModelo(declaracaoModelo: Classe, diretorioDestino: string): string {
+        if (this.motor !== 'delegua-entidades') {
+            return '';
+        }
+
+        const nomeModelo = declaracaoModelo.simbolo.lexema;
+        const nomeArquivoModelo = nomeModelo.toLocaleLowerCase('pt');
+        const caminhoArquivoModelo = caminho.join(process.cwd(), 'modelos', `${nomeArquivoModelo}.delegua`);
+
+        let caminhoRelativo = caminho.relative(diretorioDestino, caminhoArquivoModelo).split(caminho.sep).join('/');
+        if (!caminhoRelativo.startsWith('.')) {
+            caminhoRelativo = `./${caminhoRelativo}`;
+        }
+
+        return `importar { ${nomeModelo} } de "${caminhoRelativo}"\n\n`;
+    }
+
+    private criarConteudoInicialSemId(declaracaoModelo: Classe, diretorioDestino: string): string {
         const nomeModelo = declaracaoModelo.simbolo.lexema;
         const nomeModeloPlural = pluralizar(nomeModelo.toLocaleLowerCase('pt'));
 
@@ -118,7 +144,7 @@ export class GeradorRotas {
                 `${this.i()}colecao.salvar(corpo)\n` +
                 `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n` +
                 `})\n\n`;
-            return rotaGet + rotaPost;
+            return this.criarLinhaImportacaoModelo(declaracaoModelo, diretorioDestino) + rotaGet + rotaPost;
         }
 
         // LinConEs
@@ -176,14 +202,15 @@ export class GeradorRotas {
             `liquido.rotaGet(rota_get)\n`;
     }
 
-    private criarConteudoInicialComId(declaracaoModelo: Classe): string {
+    private criarConteudoInicialComId(declaracaoModelo: Classe, diretorioDestino: string): string {
         const nomeModelo = declaracaoModelo.simbolo.lexema;
         const nomeModeloPlural = pluralizar(nomeModelo.toLocaleLowerCase('pt'));
         const nomeSingular = nomeModelo.toLocaleLowerCase('pt');
         const nomeChave = this.obterNomeChave(declaracaoModelo);
 
         if (this.motor === 'delegua-entidades') {
-            return `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
+            return this.criarLinhaImportacaoModelo(declaracaoModelo, diretorioDestino) +
+                `liquido.rotaGet(funcao(requisicao, resposta) {\n` +
                 `${this.i()}var colecao = contexto.colecao(${nomeModelo})\n` +
                 `${this.i()}var registro = colecao.buscarPorId(requisicao.parametros.${nomeChave})\n` +
                 `${this.i()}se (registro == nulo) {\n` +
@@ -215,7 +242,7 @@ export class GeradorRotas {
             `})\n\n`;
     }
 
-    private criarConteudoEditar(declaracaoModelo: Classe): string {
+    private criarConteudoEditar(declaracaoModelo: Classe, diretorioDestino: string): string {
         const nomeModelo = declaracaoModelo.simbolo.lexema;
         const nomeModeloPlural = pluralizar(nomeModelo.toLocaleLowerCase('pt'));
         const nomeSingular = nomeModelo.toLocaleLowerCase('pt');
@@ -239,7 +266,7 @@ export class GeradorRotas {
                 `${this.i()}colecao.modificar(corpo)\n` +
                 `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n` +
                 `})\n\n`;
-            return rotaGet + rotaPost;
+            return this.criarLinhaImportacaoModelo(declaracaoModelo, diretorioDestino) + rotaGet + rotaPost;
         }
 
         // LinConEs
@@ -286,7 +313,7 @@ export class GeradorRotas {
         return rotaGet + rotaPost;
     }
 
-    private criarConteudoExcluir(declaracaoModelo: Classe): string {
+    private criarConteudoExcluir(declaracaoModelo: Classe, diretorioDestino: string): string {
         const nomeModelo = declaracaoModelo.simbolo.lexema;
         const nomeModeloPlural = pluralizar(nomeModelo.toLocaleLowerCase('pt'));
         const nomeSingular = nomeModelo.toLocaleLowerCase('pt');
@@ -309,7 +336,7 @@ export class GeradorRotas {
                 `${this.i()}colecao.remover(requisicao.parametros.${nomeChave})\n` +
                 `${this.i()}resposta.redirecionar("/${nomeModeloPlural}")\n` +
                 `})\n\n`;
-            return rotaGet + rotaPost;
+            return this.criarLinhaImportacaoModelo(declaracaoModelo, diretorioDestino) + rotaGet + rotaPost;
         }
 
         // LinConEs

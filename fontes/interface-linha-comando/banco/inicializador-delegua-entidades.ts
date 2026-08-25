@@ -55,7 +55,8 @@ async function executarMigracoes(
     const diretorioMigracoes = caminho.resolve(process.cwd(), 'migracoes');
 
     if (!sistemaArquivos.existsSync(diretorioMigracoes)) {
-        console.info(yellow('Diretório "migracoes/" não encontrado. Nenhuma migração executada.'));
+        sistemaArquivos.mkdirSync(diretorioMigracoes, { recursive: true });
+        console.info(yellow('Diretório "migracoes/" não encontrado. Criado. Nenhuma migração executada.'));
         return;
     }
 
@@ -96,7 +97,8 @@ async function executarSementes(
     const diretorioSementes = caminho.resolve(process.cwd(), 'sementes');
 
     if (!sistemaArquivos.existsSync(diretorioSementes)) {
-        console.info(yellow('Diretório "sementes/" não encontrado. Nenhuma semente executada.'));
+        sistemaArquivos.mkdirSync(diretorioSementes, { recursive: true });
+        console.info(yellow('Diretório "sementes/" não encontrado. Criado. Nenhuma semente executada.'));
         return;
     }
 
