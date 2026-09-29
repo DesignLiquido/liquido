@@ -4,4 +4,5 @@ export interface ComandoNovoInterface {
     linguagem?: string;
     sim?: boolean;
     gerenciador?: string;
+    repositorio?: string
 }

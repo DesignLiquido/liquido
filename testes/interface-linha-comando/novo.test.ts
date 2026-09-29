@@ -7,6 +7,7 @@ import {
     criarDiretorioAplicacao,
     validarTipoProjeto,
     validarLinguagem,
+    validarRepositorio,
     validarGerenciadorDePacotes
 } from '../../fontes/interface-linha-comando/novo';
 
@@ -150,6 +151,41 @@ describe('Comando novo - validação de flags (modo não-interativo)', () => {
         });
     });
 
+    describe('validarRepositorio', () => {
+        it('deve aceitar "sim"', () => {
+            expect(validarRepositorio('sim')).toBe(true);
+        });
+
+        it('deve aceitar "não"', () => {
+            expect(validarRepositorio('não')).toBe(true);
+        });
+        
+        it('deve aceitar "nao"', () => {
+            expect(validarRepositorio('nao')).toBe(true);
+        });
+
+        it('deve rejeitar string vazia', () => {
+            expect(validarRepositorio('')).toBe(false);
+        });
+
+        it('deve rejeitar valor inválido', () => {
+            expect(validarRepositorio('talvez')).toBe(false);
+        });
+
+        it('deve rejeitar undefined', () => {
+            expect(validarRepositorio(undefined)).toBe(false);
+        });
+
+        it('deve funcionar como type guard', () => {
+            const valor: string | undefined = 'sim';
+
+            if (validarRepositorio(valor)) {
+                const repositorio: 'sim' | 'não' = valor;
+                expect(repositorio).toBe('sim');
+            }
+        });
+    });
+
     describe('validarGerenciadorDePacotes', () => {
         it('deve aceitar "npm"', () => {
             expect(validarGerenciadorDePacotes('npm')).toBe(true);
@@ -184,6 +220,7 @@ describe('Comando novo - validação de flags (modo não-interativo)', () => {
             }
         });
     });
+
 });
 
 describe('Comando novo - criarDiretorioAplicacao', () => {

@@ -29,7 +29,8 @@ import {
     obterTodosModelos,
     validarTipoProjeto,
     validarLinguagem,
-    validarGerenciadorDePacotes
+    validarGerenciadorDePacotes,
+    validarRepositorio
 } from './interface-linha-comando';
 import { ComandoBancoIniciarInterface, ComandoGerarInterface, ComandoNovoInterface } from './interfaces';
 import { GeradorVisoes } from './interface-linha-comando/gerar/gerador-visoes';
@@ -37,35 +38,35 @@ import { GeradorRotas } from './interface-linha-comando/gerar/gerador-rotas';
 import { GeradorInicializacaoLincones } from './interface-linha-comando/gerar/gerador-inicializacao-lincones';
 
 /**
- * Classe que representa o ponto de entrada da aplicação Liquido.
- */
+* Classe que representa o ponto de entrada da aplicação Liquido.
+*/
 class LiquidoPontoEntrada {
     logo: string
-
+    
     constructor() {
         this.logo = textSync('Liquido', { horizontalLayout: 'full' })
     }
-
+    
     mostrarLogo() {
-    if (process.env.LIQUIDO_OBSERVANDO === '1') {
-        return;
-    }
+        if (process.env.LIQUIDO_OBSERVANDO === '1') {
+            return;
+        }
         console.log(blue(this.logo + '\n'))
     }
-
+    
     async comandoDocumentar() {
         // await encontrarControladores();
         await documentar();
     }
-
+    
     async comandoGerar(
         args: yargs.ArgumentsCamelCase<ComandoGerarInterface>
     ) {
         let nomeModelo = args.modelo;
-
+        
         if (nomeModelo === undefined || nomeModelo.length <= 0) {
             const opcoesModelos = obterTodosModelos()
-
+            
             if (opcoesModelos.length === 0) {
                 console.error(red(
                     'Erro: Nenhum modelo encontrado.\n' +
@@ -73,7 +74,7 @@ class LiquidoPontoEntrada {
                 ));
                 process.exit(1);
             }
-
+            
             const respostaNomeModelo = await prompts({
                 type: 'select',
                 name: 'nomeModelo',
@@ -81,10 +82,10 @@ class LiquidoPontoEntrada {
                 choices: opcoesModelos,
                 hint: '- Use as setas. Enter para confirmar.'
             });
-
+            
             nomeModelo = respostaNomeModelo.nomeModelo;
         }
-
+        
         if (!nomeModelo) {
             console.error(red(
                 'Erro: Nome do modelo não informado.\n' +
@@ -92,7 +93,7 @@ class LiquidoPontoEntrada {
             ));
             process.exit(1);
         }
-
+        
         const caminhoModelo = path.join(process.cwd(), 'modelos', `${nomeModelo}.delegua`);
         if (!fs.existsSync(caminhoModelo)) {
             console.error(red(
@@ -100,39 +101,39 @@ class LiquidoPontoEntrada {
             ));
             process.exit(1);
         }
-
+        
         const declaracoes = await importarModelos(nomeModelo);
         criarDiretorioAplicacao('rotas');
-
+        
         const motor = lerMotorConfigurado();
         const geradorVisoes = new GeradorVisoes();
         const geradorRotas = new GeradorRotas(motor);
-
+        
         let geradorInicializacao: GeradorInicializacaoLincones | null = null;
         let caminhoArquivoInicializacao: string | null = null;
-
+        
         if (motor === 'lincones') {
             const liquido = new Liquido(process.cwd());
             await liquido.importarArquivoConfiguracao();
             const arquivoInicializacao =
-                liquido.centroConfiguracoes?.liquido?.dados?.lincones?.arquivoInicializacao
-                ?? 'inicializacao.lincones';
+            liquido.centroConfiguracoes?.liquido?.dados?.lincones?.arquivoInicializacao
+            ?? 'inicializacao.lincones';
             caminhoArquivoInicializacao = path.join(process.cwd(), arquivoInicializacao);
             geradorInicializacao = new GeradorInicializacaoLincones();
         }
-
+        
         for (const declaracao of declaracoes) {
             const declaracaoModelo = declaracao as Classe
             const nomeBaseModelo = declaracaoModelo.simbolo.lexema.toLocaleLowerCase('pt');
             const nomeModeloPlural = pluralizar(nomeBaseModelo).toLocaleLowerCase('pt');
-
+            
             const caminhosRotas: string[] = geradorRotas.criarNovasRotas(declaracaoModelo);
             for (const caminhoRota of caminhosRotas) {
                 console.info(blue(`Rota ${caminhoRota}`));
             }
-
+            
             criarDiretorioSeNaoExiste('visoes', nomeModeloPlural);
-
+            
             const visaoSelecionarTudo = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarTudo');
             console.info(blue(`Visão ${visaoSelecionarTudo}`));
             const visaoSelecionarUm = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'selecionarUm');
@@ -143,21 +144,21 @@ class LiquidoPontoEntrada {
             console.info(blue(`Visão ${visaoEditar}`));
             const visaoExcluir = geradorVisoes.criarNovaVisao(nomeModeloPlural, declaracaoModelo, 'excluir');
             console.info(blue(`Visão ${visaoExcluir}`));
-
+            
             if (geradorInicializacao && caminhoArquivoInicializacao) {
                 geradorInicializacao.acrescentarCriarTabela(declaracaoModelo, caminhoArquivoInicializacao);
                 console.info(blue(`Inicialização ${caminhoArquivoInicializacao}`));
             }
         }
     }
-
+    
     async comandoNovo(
         args: yargs.ArgumentsCamelCase<ComandoNovoInterface>
     ) {
         const modoInterativo = process.stdin.isTTY;
-
+        
         let nomeProjeto = args.nome;
-
+        
         if (nomeProjeto === undefined || nomeProjeto.length <= 0) {
             if (modoInterativo) {
                 const respostaNomeProjeto = await prompts({
@@ -165,35 +166,35 @@ class LiquidoPontoEntrada {
                     name: 'nomeProjeto',
                     message: 'Qual o nome do seu projeto?'
                 });
-
+                
                 nomeProjeto = respostaNomeProjeto.nomeProjeto;
             } else {
                 console.error(red(
                     'Erro: Nome do projeto é obrigatório.\n' +
                     'Uso: liquido novo [nome] --tipo <mvc|api-rest> --linguagem <delegua|pitugues> --gerenciador <npm|yarn|bun> [--sim]'
                 ));
-
+                
                 process.exit(1);
             }
         }
-
+        
         if (nomeProjeto === undefined || nomeProjeto.length <= 0) {
             return;
         }
-
+        
         const diretorioAlvo = nomeProjeto;
-
+        
         if (nomeProjeto === '.' || nomeProjeto === './') {
             nomeProjeto = path.basename(cwd());
         }
-
+        
         console.log(green(
             `Iremos criar um novo projeto em Liquido chamado "${nomeProjeto}"`
         ));
-
+        
         // Confirmação (pulada com --sim)
         let confirmado = args.sim ?? false;
-
+        
         if (!args.sim) {
             if (modoInterativo) {
                 const resposta = await prompts({
@@ -207,24 +208,24 @@ class LiquidoPontoEntrada {
                         this.yesOption = '(S/n)';
                     }
                 });
-
+                
                 confirmado = resposta.confirmado;
             } else {
                 console.error(red(
                     'Erro: Confirmação necessária. Use --sim para ambientes não-interativos.'
                 ));
-
+                
                 process.exit(1);
             }
         }
-
+        
         if (!confirmado) {
             console.info(yellow('Operação cancelada.'));
             return;
         }
-
+        
         let tipoProjeto = args.tipo;
-
+        
         if (!tipoProjeto) {
             if (modoInterativo) {
                 const perguntaTipoProjeto = await prompts({
@@ -238,27 +239,27 @@ class LiquidoPontoEntrada {
                     initial: 0,
                     hint: '- Use as setas. Enter para confirmar.'
                 });
-
+                
                 tipoProjeto = perguntaTipoProjeto.tipoProjeto;
             } else {
                 console.error(red(
                     'Erro: Tipo de projeto é obrigatório. Use --tipo <mvc|api-rest>.'
                 ));
-
+                
                 process.exit(1);
             }
         }
-
+        
         if (!validarTipoProjeto(tipoProjeto)) {
             console.error(red(
                 `Erro: Tipo de projeto inválido: "${tipoProjeto}". Use "mvc" ou "api-rest".`
             ));
-
+            
             process.exit(1);
         }
-
+        
         let linguagemSelecionada = args.linguagem;
-
+        
         if (!linguagemSelecionada) {
             if (modoInterativo) {
                 const perguntaLinguagemDeBackEnd = await prompts({
@@ -272,29 +273,38 @@ class LiquidoPontoEntrada {
                     initial: 0,
                     hint: '- Use as setas. Enter para confirmar.'
                 });
-
+                
                 linguagemSelecionada = perguntaLinguagemDeBackEnd.linguagemBackEnd;
             } else {
                 console.error(red(
                     'Erro: Linguagem de backend é obrigatória. Use --linguagem <delegua|pitugues>.'
                 ));
-
+                
                 process.exit(1);
             }
         }
-
+        
         if (!validarLinguagem(linguagemSelecionada)) {
             console.error(red(
                 `Erro: Linguagem inválida: "${linguagemSelecionada}". Use "delegua" ou "pitugues".`
             ));
-
+            
             process.exit(1);
         }
-
-        let inicializarRepositorioGit = false;
-
-        if (modoInterativo) {
-            const perguntaInicializarRepositorioGit = await prompts({
+        
+        let inicializarRepositorioGit: boolean | undefined;
+        
+        if (typeof args.repo === 'string') {
+            if (!validarRepositorio(args.repo)) {
+                console.error(red(
+                    'Erro: Resposta obrigatória. Use "sim" ou "não".'
+                ));
+                process.exit(1);
+            }
+            
+            inicializarRepositorioGit = args.repo === 'sim';
+        } else if (modoInterativo) {
+            const pergunta = await prompts({
                 type: 'confirm',
                 message: 'Deseja inicializar um repositório Git?',
                 name: 'confirmado',
@@ -305,12 +315,18 @@ class LiquidoPontoEntrada {
                     this.yesOption = '(S/n)';
                 }
             });
-
-            inicializarRepositorioGit = perguntaInicializarRepositorioGit.confirmado;
+            
+            inicializarRepositorioGit = !!pergunta.confirmado;
+        } else {
+            console.error(red(
+                'Erro: Resposta obrigatória. Use "sim" ou "não".'
+            ));
+            process.exit(1);
         }
-
+        
+        
         let gerenciadorDePacotes = args.gerenciador;
-
+        
         if (!gerenciadorDePacotes) {
             if (modoInterativo) {
                 const perguntaQualGerenciadorDePacotesQuerUsar = await prompts({
@@ -325,27 +341,27 @@ class LiquidoPontoEntrada {
                     initial: 0,
                     hint: '- Use as setas. Enter para confirmar.'
                 });
-
+                
                 gerenciadorDePacotes = perguntaQualGerenciadorDePacotesQuerUsar.gerenciadorDePacotes;
             } else {
                 console.error(red(
                     'Erro: Gerenciador de pacotes é obrigatório. Use --gerenciador <npm|yarn|bun>.'
                 ));
-
+                
                 process.exit(1);
             }
         }
-
+        
         if (!validarGerenciadorDePacotes(gerenciadorDePacotes)) {
             console.error(red(
                 `Erro: Gerenciador de pacotes inválido: "${gerenciadorDePacotes}". Use "npm", "yarn" ou "bun".`
             ));
-
+            
             process.exit(1);
         }
-
+        
         const diretorioCompleto = criarDiretorioAplicacao(diretorioAlvo);
-
+        
         try {
             await detectarGerenciadorDePacotes(
                 gerenciadorDePacotes,
@@ -361,7 +377,7 @@ class LiquidoPontoEntrada {
                 inicializarRepositorioGit,
                 diretorioCompleto
             );
-
+            
             // Apaga linha residual, restaura cursor e modo raw
             if (modoInterativo) {
                 try {
@@ -370,9 +386,9 @@ class LiquidoPontoEntrada {
                     // Ignora erros ao restaurar modo raw
                 }
             }
-
+            
             process.stdout.write('\x1B[2K\x1B[0G\x1B[?25h\n');
-
+            
             console.info(yellow(
                 `Seu projeto foi criado com sucesso! ${diretorioCompleto}`
             ));
@@ -383,32 +399,32 @@ class LiquidoPontoEntrada {
             } catch (_) {
                 // Ignora erro ao limpar
             }
-
+            
             console.error(red(
                 `Erro ao criar projeto: ${erro?.message ?? erro}`
             ));
             process.exit(1);
         }
     }
-
+    
     async comandoBancoIniciar(
         args: yargs.ArgumentsCamelCase<ComandoBancoIniciarInterface>
     ) {
         const liquido = new Liquido(process.cwd());
         await liquido.importarArquivoConfiguracao();
-
+        
         const dados = liquido.centroConfiguracoes?.liquido?.dados;
         const motor = dados?.motor ?? 'lincones';
         const tecnologia = dados?.lincones?.tecnologia;
         const caminhoBanco = dados?.lincones?.caminho;
-
+        
         if (!tecnologia || !caminhoBanco) {
             console.error(red('Configuração de banco de dados não encontrada em configuracao.delprops.'));
             console.error(red('Adicione liquido.dados.lincones.tecnologia e liquido.dados.lincones.caminho'));
             process.exit(1);
             return;
         }
-
+        
         try {
             if (motor === 'delegua-entidades') {
                 await inicializarBancoDeleguaEntidades(
@@ -431,41 +447,41 @@ class LiquidoPontoEntrada {
             process.exit(1);
         }
     }
-
+    
     private resolverCaminhosObservados(): string[] {
         const caminhos = ['rotas', 'visoes', 'estilos']
-            .map(diretorio => path.join(process.cwd(), diretorio))
-            .filter(diretorio => fs.existsSync(diretorio));
+        .map(diretorio => path.join(process.cwd(), diretorio))
+        .filter(diretorio => fs.existsSync(diretorio));
         const caminhoConfiguracao = path.join(
             process.cwd(),
             'configuracao.delprops'
         );
-
+        
         if (fs.existsSync(caminhoConfiguracao)) {
             caminhos.push(caminhoConfiguracao);
         }
-
+        
         return caminhos;
     }
-
+    
     private iniciarServidorComObservacao(): void {
         const caminhosObservados = this.resolverCaminhosObservados();
-
+        
         if (caminhosObservados.length === 0) {
             console.warn(yellow('Nenhum diretório de rotas, visões ou estilos encontrado para observar.'));
         }
-
+        
         const argumentos = [
             '--watch',
             ...caminhosObservados.map((diretorio) => `--watch-path=${diretorio}`),
             argv[1],
             ...argv.slice(2)
         ];
-
+        
         console.info(blue(
             'Observando mudanças em rotas, visões, estilos e configuração...'
         ));
-
+        
         const processo = spawn(execPath, argumentos, {
             stdio: 'inherit',
             env: {
@@ -473,22 +489,22 @@ class LiquidoPontoEntrada {
                 LIQUIDO_OBSERVANDO: '1'
             }
         });
-
+        
         processo.on('exit', (codigo) => {
             process.exit(codigo ?? 0);
         });
     }
-
+    
     comandoServidor() {
         if (env.LIQUIDO_OBSERVANDO !== '1') {
             this.iniciarServidorComObservacao();
             return;
         }
-
+        
         const liquido = new Liquido(process.cwd());
         liquido.iniciar();
     }
-
+    
     opcoes() {
         return yargs
         .scriptName('liquido')
@@ -497,8 +513,8 @@ class LiquidoPontoEntrada {
         .middleware((argv: any) => {
             if (argv.versao) {
                 const pkgPath = fs.existsSync(path.join(__dirname, 'package.json'))
-                    ? path.join(__dirname, 'package.json')
-                    : path.join(__dirname, '..', 'package.json');
+                ? path.join(__dirname, 'package.json')
+                : path.join(__dirname, '..', 'package.json');
                 console.log(require(pkgPath).version);
                 process.exit(0);
             }
@@ -528,7 +544,7 @@ class LiquidoPontoEntrada {
         )
         .argv
     }
-
+    
     async iniciar() {
         this.mostrarLogo()
         this.opcoes()
