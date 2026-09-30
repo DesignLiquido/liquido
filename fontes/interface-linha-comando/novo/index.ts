@@ -184,3 +184,8 @@ export function validarGerenciadorDePacotes(
 ): gerenciador is 'npm' | 'yarn' | 'bun' {
     return gerenciador === 'npm' || gerenciador === 'yarn' || gerenciador === 'bun';
 }
+export function validarRepositorio(
+    repositorio: string | undefined
+): repositorio is 'sim' | 'não' {
+    return repositorio === 'sim' || repositorio === 'não' || repositorio === 'nao';
+}
