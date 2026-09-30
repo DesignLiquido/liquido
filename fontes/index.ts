@@ -193,9 +193,10 @@ class LiquidoPontoEntrada {
         ));
         
         // Confirmação (pulada com --sim)
-        let confirmado = args.sim ?? false;
+        const sim = args.sim ?? true;
+        let confirmado = sim;
         
-        if (!args.sim) {
+        if (!sim) {
             if (modoInterativo) {
                 const resposta = await prompts({
                     type: 'confirm',
@@ -528,7 +529,7 @@ class LiquidoPontoEntrada {
             nome: { type: 'string' as const, default: '' },
             tipo: { type: 'string' as const, default: '', describe: 'Tipo de projeto: mvc ou api-rest' },
             linguagem: { type: 'string' as const, default: '', describe: 'Linguagem de backend: delegua ou pitugues' },
-            sim: { type: 'boolean' as const, default: false, describe: 'Pula a confirmação inicial (modo não-interativo)' },
+            sim: { type: 'boolean' as const, default: true, describe: 'Pula a confirmação inicial (modo não-interativo)' },
             gerenciador: { type: 'string' as const, default: '', describe: 'Gerenciador de pacotes: npm, yarn ou bun' },
             repo: { type: 'string' as const, default: '', describe: 'Repositório Git: sim ou não' }
         }, this.comandoNovo)
