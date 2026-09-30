@@ -529,7 +529,8 @@ class LiquidoPontoEntrada {
             tipo: { type: 'string' as const, default: '', describe: 'Tipo de projeto: mvc ou api-rest' },
             linguagem: { type: 'string' as const, default: '', describe: 'Linguagem de backend: delegua ou pitugues' },
             sim: { type: 'boolean' as const, default: false, describe: 'Pula a confirmação inicial (modo não-interativo)' },
-            gerenciador: { type: 'string' as const, default: '', describe: 'Gerenciador de pacotes: npm, yarn ou bun' }
+            gerenciador: { type: 'string' as const, default: '', describe: 'Gerenciador de pacotes: npm, yarn ou bun' },
+            repo: { type: 'string' as const, default: '', describe: 'Repositório Git: sim ou não' }
         }, this.comandoNovo)
         .command('gerar [modelo]', 'Gera controlador e visão correspondentes ao nome do modelo passado por parâmetro. O modelo deve ter um arquivo .delegua correspondente no diretório "modelos".', { modelo: { type: 'string' as const, default: '' } }, this.comandoGerar)
         .command(
